@@ -1,0 +1,207 @@
+<div class="app-container">
+
+  @if (sidebarOpen) {
+    <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+  }
+
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.sidebar-open]="sidebarOpen">
+
+    <div class="brand">
+      <div class="brand-icon">M</div>
+
+      <div class="brand-text">
+        <h2>Medcore</h2>
+        <span>HOSPITAL MANAGEMENT</span>
+      </div>
+
+      <button
+        class="mobile-close"
+        type="button"
+        (click)="closeSidebar()"
+        aria-label="Close sidebar"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="hospital-info">
+      <div class="hospital-icon">✚</div>
+      <div>
+        <strong>Medcore HMS</strong>
+        <small>Hospital workspace</small>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-heading">MAIN MENU</span>
+
+      
+    <nav>
+      @for (item of navigation(); track item.label) {
+
+        @if (item.enabled && item.children?.length) {
+
+          <div class="nav-group">
+
+            <button
+              type="button"
+              class="nav-item nav-parent"
+              (click)="toggleDoctors()"
+              [attr.aria-expanded]="doctorsExpanded">
+
+              <span class="nav-icon">{{ item.icon }}</span>
+              <span>{{ item.label }}</span>
+
+              <span class="submenu-arrow">
+                {{ doctorsExpanded ? '⌄' : '›' }}
+              </span>
+
+            </button>
+
+            @if (doctorsExpanded) {
+              <div class="submenu">
+
+                @for (child of item.children; track child.label) {
+
+                  <a
+                    [routerLink]="child.route"
+                    routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="submenu-item"
+                    (click)="closeSidebar()">
+
+                    <span class="nav-icon">{{ child.icon }}</span>
+                    <span>{{ child.label }}</span>
+
+                  </a>
+
+                }
+
+              </div>
+            }
+
+          </div>
+
+        } @else if (item.enabled) {
+
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-item"
+            (click)="closeSidebar()">
+
+            <span class="nav-icon">{{ item.icon }}</span>
+            <span>{{ item.label }}</span>
+
+          </a>
+
+        } @else {
+
+          <div
+            class="nav-item disabled-nav"
+            [title]="item.label + ' coming soon'">
+
+            <span class="nav-icon">{{ item.icon }}</span>
+            <span>{{ item.label }}</span>
+            <span class="coming-soon">Soon</span>
+
+          </div>
+
+        }
+
+      }
+    </nav>
+
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="admin-profile">
+        <div class="avatar">{{ userInitials() }}</div>
+
+        <div class="admin-details">
+          <strong>{{ displayName() }}</strong>
+          <small>{{ currentRole() }}</small>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-area">
+
+    <header class="topbar">
+
+      <div class="header-left">
+        <button
+          type="button"
+          class="menu-toggle"
+          (click)="toggleSidebar()"
+          aria-label="Toggle navigation"
+        >
+          ☰
+        </button>
+
+        <div class="breadcrumb">
+          <span>Workspace</span>
+          <span class="breadcrumb-separator">/</span>
+          <strong>Dashboard</strong>
+        </div>
+      </div>
+
+      <div class="header-actions">
+
+        <div class="search-box">
+          <span>⌕</span>
+          <input
+            type="search"
+            placeholder="Search patients, doctors..."
+            aria-label="Search"
+          />
+          <span class="shortcut">⌘ K</span>
+        </div>
+
+        <button
+          type="button"
+          class="notification-button"
+          aria-label="Notifications"
+        >
+          ♧
+          <span class="notification-dot"></span>
+        </button>
+
+        <div class="profile">
+          <div class="avatar">{{ userInitials() }}</div>
+
+          <div class="profile-details">
+            <strong>{{ displayName() }}</strong>
+            <small>{{ currentRole() }}</small>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="logout-button"
+          (click)="logout()"
+        >
+          <span>Logout</span>
+        </button>
+
+      </div>
+
+    </header>
+
+    <section class="content-area">
+      <router-outlet />
+    </section>
+
+    <footer class="footer">
+      <span>© 2026 Medcore HMS</span>
+      <span>Healthcare Management Platform</span>
+    </footer>
+
+  </main>
+
+</div>

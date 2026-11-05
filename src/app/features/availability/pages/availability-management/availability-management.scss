@@ -1,0 +1,262 @@
+
+.availability-page {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+
+  .page-header {
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    p {
+      margin: 0;
+      color: #64748b;
+      font-size: 14px;
+    }
+  }
+
+  .selection-card,
+  .schedule-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .selection-card {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #334155;
+      font-size: 14px;
+      outline: none;
+
+      &:focus {
+        border-color: #2563eb;
+      }
+
+      &:disabled {
+        background: #f1f5f9;
+        cursor: not-allowed;
+      }
+    }
+
+    small {
+      color: #64748b;
+    }
+  }
+
+  .schedule-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      color: #1e293b;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    button {
+      padding: 9px 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #334155;
+      cursor: pointer;
+
+      &:hover:not(:disabled) {
+        background: #f1f5f9;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .schedule-row {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 16px;
+    padding: 16px 0;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .day-name {
+    font-weight: 600;
+    color: #334155;
+    padding-top: 4px;
+  }
+
+  .day-intervals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .interval {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px 14px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+
+    span {
+      color: #1d4ed8;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    small {
+      color: #64748b;
+      font-size: 11px;
+    }
+  }
+
+  .unavailable {
+    color: #94a3b8;
+    font-size: 13px;
+    padding-top: 4px;
+  }
+
+  .loading,
+  .empty-state,
+  .select-doctor-message {
+    padding: 24px;
+    text-align: center;
+    color: #64748b;
+    font-size: 14px;
+  }
+
+  .alert {
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .alert-error {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+  }
+
+  .alert-success {
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+}
+
+.interval-form-card {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+
+  h3 {
+    margin: 0 0 20px;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  label {
+    font-weight: 600;
+  }
+
+  input,
+  select {
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background: #b91c1c;
+  }
+}
+
+.interval {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .availability-page {
+    padding: 16px;
+
+    .selection-card {
+      grid-template-columns: 1fr;
+    }
+
+    .schedule-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .schedule-header {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+}

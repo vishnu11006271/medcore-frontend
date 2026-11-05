@@ -1,0 +1,781 @@
+
+<div class="doctors-page">
+
+  <!-- ================= PAGE HEADER ================= -->
+  <div class="page-header">
+    <div>
+      <h1>Doctor Management</h1>
+      <p>Manage doctors and their professional information.</p>
+    </div>
+
+    @if (selectedHospitalId()) {
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="openCreateForm()">
+        + Add Doctor
+      </button>
+    }
+  </div>
+
+  <!-- ================= HOSPITAL SELECTION ================= -->
+  @if (isSuperAdmin()) {
+    <div class="filter-card hospital-filter">
+
+      <label for="hospital">Select Hospital</label>
+
+      <select
+        id="hospital"
+        [ngModel]="selectedHospitalId()"
+        (ngModelChange)="onHospitalChange($event)"
+        [disabled]="isLoadingHospitals()">
+
+        <option value="">Select a hospital</option>
+
+        @for (hospital of hospitals(); track hospital.id) {
+          <option [value]="hospital.id">
+            {{ hospital.name }}
+          </option>
+        }
+      </select>
+
+      @if (isLoadingHospitals()) {
+        <small>Loading hospitals...</small>
+      }
+
+    </div>
+  }
+
+  <!-- ================= ERROR MESSAGE ================= -->
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- ================= CREATE DOCTOR FORM ================= -->
+  @if (showCreateForm()) {
+
+    <div class="form-card">
+
+      <div class="form-header">
+        <div>
+          <h2>Add New Doctor</h2>
+          <p>Enter the doctor's personal and professional details.</p>
+        </div>
+
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeCreateForm()"
+          [disabled]="isSavingDoctor()">
+          ✕
+        </button>
+      </div>
+
+      <form
+        [formGroup]="doctorForm"
+        (ngSubmit)="createDoctor()">
+
+        <!-- PERSONAL INFORMATION -->
+        <div class="form-section">
+
+          <h3>Personal Information</h3>
+
+          <div class="form-grid">
+
+            <div class="form-group">
+              <label for="firstName">First Name *</label>
+
+              <input
+                id="firstName"
+                type="text"
+                formControlName="firstName"
+                placeholder="Enter first name">
+
+              @if (
+                doctorForm.controls.firstName.touched &&
+                doctorForm.controls.firstName.invalid
+              ) {
+                <small class="field-error">
+                  First name is required and must contain at least 2 characters.
+                </small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name *</label>
+
+              <input
+                id="lastName"
+                type="text"
+                formControlName="lastName"
+                placeholder="Enter last name">
+
+              @if (
+                doctorForm.controls.lastName.touched &&
+                doctorForm.controls.lastName.invalid
+              ) {
+                <small class="field-error">
+                  Last name is required and must contain at least 2 characters.
+                </small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address *</label>
+
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                placeholder="doctor@example.com">
+
+              @if (
+                doctorForm.controls.email.touched &&
+                doctorForm.controls.email.invalid
+              ) {
+                <small class="field-error">
+                  Please enter a valid email address.
+                </small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+
+              <input
+                id="phone"
+                type="tel"
+                formControlName="phone"
+                placeholder="Enter phone number">
+                @if (
+                doctorForm.controls.phone.touched &&
+                doctorForm.controls.phone.invalid
+                ) {
+                <small class="field-error">
+                    Please enter a valid phone number (10–15 digits).
+                </small>
+                }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- LOGIN CREDENTIALS -->
+        <div class="form-section">
+
+          <h3>Login Credentials</h3>
+
+          <div class="form-grid">
+
+            <div class="form-group">
+              <label for="temporaryPassword">
+                Temporary Password *
+              </label>
+
+              <input
+                id="temporaryPassword"
+                type="password"
+                formControlName="temporaryPassword"
+                placeholder="Minimum 8 characters">
+
+              @if (
+                doctorForm.controls.temporaryPassword.touched &&
+                doctorForm.controls.temporaryPassword.invalid
+              ) {
+                <small class="field-error">
+                  Password must contain at least 8 characters.
+                </small>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- PROFESSIONAL INFORMATION -->
+        <div class="form-section">
+
+          <h3>Professional Information</h3>
+
+          <div class="form-grid">
+
+            <div class="form-group">
+              <label for="departmentId">Department</label>
+
+              <select
+                id="departmentId"
+                formControlName="departmentId">
+
+                <option value="">Select department</option>
+
+                @for (department of departments(); track department.id) {
+                  <option [value]="department.id">
+                    {{ department.name }}
+                  </option>
+                }
+
+              </select>
+
+              @if (isLoadingDepartments()) {
+                <small>Loading departments...</small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="licenseNumber">License Number *</label>
+
+              <input
+                id="licenseNumber"
+                type="text"
+                formControlName="licenseNumber"
+                placeholder="Enter license number">
+
+              @if (
+                doctorForm.controls.licenseNumber.touched &&
+                doctorForm.controls.licenseNumber.invalid
+              ) {
+                <small class="field-error">
+                  License number is required.
+                </small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="specialization">Specialization *</label>
+
+              <input
+                id="specialization"
+                type="text"
+                formControlName="specialization"
+                placeholder="e.g. Cardiologist">
+
+              @if (
+                doctorForm.controls.specialization.touched &&
+                doctorForm.controls.specialization.invalid
+              ) {
+                <small class="field-error">
+                  Specialization is required.
+                </small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="qualification">Qualification</label>
+
+              <input
+                id="qualification"
+                type="text"
+                formControlName="qualification"
+                placeholder="e.g. MBBS, MD">
+            </div>
+
+            <div class="form-group">
+              <label for="experienceYears">Experience (Years) *</label>
+
+              <input
+                id="experienceYears"
+                type="number"
+                min="0"
+                formControlName="experienceYears">
+
+              @if (
+                doctorForm.controls.experienceYears.touched &&
+                doctorForm.controls.experienceYears.invalid
+              ) {
+                <small class="field-error">
+                  Not a valid experience (0 >=experience <=60).
+                </small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="consultationFee">
+                Consultation Fee (₹) *
+              </label>
+
+              <input
+                id="consultationFee"
+                type="number"
+                min="0"
+                formControlName="consultationFee">
+
+              @if (
+                doctorForm.controls.consultationFee.touched &&
+                doctorForm.controls.consultationFee.invalid
+              ) {
+                <small class="field-error">
+                  Consultation fee must be zero or greater.
+                </small>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ADDITIONAL INFORMATION -->
+        <div class="form-section">
+
+          <h3>Additional Information</h3>
+
+          <div class="form-group">
+            <label for="bio">Professional Bio</label>
+
+            <textarea
+              id="bio"
+              rows="4"
+              formControlName="bio"
+              placeholder="Enter doctor's professional biography">
+            </textarea>
+          </div>
+
+        </div>
+
+        <!-- FORM ACTIONS -->
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="closeCreateForm()"
+            [disabled]="isSavingDoctor()">
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="isSavingDoctor()">
+
+            @if (isSavingDoctor()) {
+              Creating...
+            } @else {
+              Create Doctor
+            }
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+  }
+
+  @if (showEditForm()) {
+    <section class="form-card">
+        <div class="form-header">
+        <h2>Edit Doctor</h2>
+
+        <button
+            type="button"
+            class="btn-close"
+            (click)="closeEditForm()"
+            [disabled]="isUpdatingDoctor()">
+            &times;
+        </button>
+        </div>
+
+        <form [formGroup]="editDoctorForm" (ngSubmit)="updateDoctor()">
+
+        <div class="form-section">
+            <h3>Personal Information</h3>
+
+            <div class="form-grid">
+            <div class="form-group">
+                <label>First Name *</label>
+                <input type="text" formControlName="firstName">
+
+                @if (editDoctorForm.get('firstName')?.touched &&
+                    editDoctorForm.get('firstName')?.invalid) {
+                <small class="field-error">First name is required (minimum 2 characters).</small>
+                }
+            </div>
+
+            <div class="form-group">
+                <label>Last Name *</label>
+                <input type="text" formControlName="lastName">
+
+                @if (editDoctorForm.get('lastName')?.touched &&
+                    editDoctorForm.get('lastName')?.invalid) {
+                <small class="field-error">Last name is required (minimum 2 characters).</small>
+                }
+            </div>
+
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="text" formControlName="phone">
+                @if (
+                editDoctorForm.controls.phone?.touched &&
+                editDoctorForm.controls.phone?.invalid
+                ) {
+                <small class="field-error">
+                    Please enter a valid phone number (10–15 digits).
+                </small>
+                }
+            </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Professional Information</h3>
+
+            <div class="form-grid">
+            <div class="form-group">
+                <label>Department</label>
+                <select formControlName="departmentId">
+                <option value="">No Department</option>
+
+                @for (department of departments(); track department.id) {
+                    <option [value]="department.id">
+                    {{ department.name }}
+                    </option>
+                }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Specialization *</label>
+                <input type="text" formControlName="specialization">
+
+                @if (editDoctorForm.get('specialization')?.touched &&
+                    editDoctorForm.get('specialization')?.invalid) {
+                <small class="field-error">Specialization is required.</small>
+                }
+            </div>
+
+            <div class="form-group">
+                <label>Qualification</label>
+                <input type="text" formControlName="qualification">
+            </div>
+
+            <div class="form-group">
+                <label>Experience (Years)</label>
+                <input type="number" formControlName="experienceYears" min="0" max="60">
+            </div>
+
+            <div class="form-group">
+                <label>Consultation Fee</label>
+                <input type="number" formControlName="consultationFee" min="0" step="0.01">
+            </div>
+            </div>
+
+            <div class="form-group">
+            <label>Bio</label>
+            <textarea formControlName="bio" rows="3"></textarea>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button
+            type="button"
+            class="btn-secondary"
+            (click)="closeEditForm()"
+            [disabled]="isUpdatingDoctor()">
+            Cancel
+            </button>
+
+            <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="isUpdatingDoctor()">
+            {{ isUpdatingDoctor() ? 'Updating...' : 'Update Doctor' }}
+            </button>
+        </div>
+
+        </form>
+    </section>
+    }
+
+    @if (showDetails()) {
+    <section class="form-card doctor-details-card">
+        <div class="form-header">
+        <div>
+            <h2>Doctor Details</h2>
+            <p>Personal and professional information</p>
+        </div>
+
+        <button
+            type="button"
+            class="btn-close"
+            (click)="closeDoctorDetails()">
+            &times;
+        </button>
+        </div>
+
+        @if (isLoadingDetails()) {
+        <p>Loading doctor details...</p>
+        } @else if (selectedDoctor(); as doctor) {
+
+        <div class="details-grid">
+            <div>
+            <strong>Doctor Name</strong>
+            <p>Dr. {{ doctor.user.firstName }} {{ doctor.user.lastName }}</p>
+            </div>
+
+            <div>
+            <strong>Email</strong>
+            <p>{{ doctor.user.email }}</p>
+            </div>
+
+            <div>
+            <strong>Phone</strong>
+            <p>{{ doctor.user.phone || 'Not provided' }}</p>
+            </div>
+
+            <div>
+            <strong>Specialization</strong>
+            <p>{{ doctor.specialization }}</p>
+            </div>
+
+            <div>
+            <strong>License Number</strong>
+            <p>{{ doctor.licenseNumber }}</p>
+            </div>
+
+            <div>
+            <strong>Qualification</strong>
+            <p>{{ doctor.qualification || 'Not provided' }}</p>
+            </div>
+
+            <div>
+            <strong>Department</strong>
+            <p>{{ doctor.department?.name || 'Not assigned' }}</p>
+            </div>
+
+            <div>
+            <strong>Experience</strong>
+            <p>{{ doctor.experienceYears }} years</p>
+            </div>
+
+            <div>
+            <strong>Consultation Fee</strong>
+            <p>{{ doctor.consultationFee | currency:'INR':'symbol':'1.0-2' }}</p>
+            </div>
+
+            <div>
+            <strong>Account Status</strong>
+            <p>{{ doctor.user.isActive ? 'Active' : 'Inactive' }}</p>
+            </div>
+
+            <div>
+            <strong>Email Verification</strong>
+            <p>{{ doctor.user.emailVerifiedAt ? 'Verified' : 'Not verified' }}</p>
+            </div>
+
+            <div class="details-full">
+            <strong>Professional Bio</strong>
+            <p>{{ doctor.bio || 'No biography available.' }}</p>
+            </div>
+        </div>
+        }
+    </section>
+    }
+
+  <!-- ================= DOCTOR LIST ================= -->
+  @if (selectedHospitalId()) {
+
+    <!-- SEARCH AND FILTERS -->
+    <div class="filters-card">
+
+      <div class="search-box">
+        <label for="doctorSearch">Search Doctors</label>
+
+        <input
+          id="doctorSearch"
+          type="text"
+          placeholder="Search by name, email, specialization or license..."
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)">
+      </div>
+
+      <div class="status-filter">
+        <label for="statusFilter">Status</label>
+
+        <select
+          id="statusFilter"
+          [ngModel]="statusFilter()"
+          (ngModelChange)="onStatusChange($event)">
+
+          <option value="ALL">All Doctors</option>
+          <option value="ACTIVE">Active</option>
+          <option value="INACTIVE">Inactive</option>
+
+        </select>
+      </div>
+
+    </div>
+
+    <!-- DOCTOR LOADING -->
+    @if (isLoadingDoctors()) {
+
+      <div class="state-container">
+        <p>Loading doctors...</p>
+      </div>
+
+    } @else {
+
+      <!-- DOCTOR TABLE -->
+      @if (paginatedDoctors().length > 0) {
+
+        <div class="table-card">
+
+          <div class="table-header">
+            <h2>Doctors</h2>
+            <span>{{ filteredDoctors().length }} doctors found</span>
+          </div>
+
+          <div class="table-responsive">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Doctor</th>
+                  <th>Specialization</th>
+                  <th>Department</th>
+                  <th>License Number</th>
+                  <th>Experience</th>
+                  <th>Consultation Fee</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                @for (doctor of paginatedDoctors(); track doctor.id) {
+
+                  <tr>
+
+                    <td>
+                      <div class="doctor-info">
+
+                        <strong>
+                          Dr. {{ doctor.user.firstName }}
+                          {{ doctor.user.lastName }}
+                        </strong>
+
+                        <small>{{ doctor.user.email }}</small>
+
+                      </div>
+                    </td>
+
+                    <td>{{ doctor.specialization }}</td>
+
+                    <td>
+                      {{ doctor.department?.name || 'Not assigned' }}
+                    </td>
+
+                    <td>{{ doctor.licenseNumber }}</td>
+
+                    <td>{{ doctor.experienceYears }} years</td>
+
+                    <td>
+                      {{ doctor.consultationFee | currency:'INR':'symbol':'1.0-2' }}
+                    </td>
+
+                    <td>
+
+                      <span
+                        class="status-badge"
+                        [class.active]="doctor.user.isActive"
+                        [class.inactive]="!doctor.user.isActive">
+
+                        {{ doctor.user.isActive ? 'Active' : 'Inactive' }}
+
+                      </span>
+
+                    </td>
+
+                    <td>
+                    <div class="action-buttons">
+                        <button
+                        type="button"
+                        class="btn-action btn-view"
+                        (click)="viewDoctorDetails(doctor)">
+                        View
+                        </button>
+
+                        <button
+                        type="button"
+                        class="btn-action btn-edit"
+                        (click)="openEditForm(doctor)">
+                        Edit
+                        </button>
+
+                        <button
+                        type="button"
+                        class="btn-action"
+                        [class.btn-danger]="doctor.user.isActive"
+                        [class.btn-success]="!doctor.user.isActive"
+                        (click)="toggleDoctorStatus(doctor)">
+                        {{ doctor.user.isActive ? 'Deactivate' : 'Activate' }}
+                        </button>
+                    </div>
+                    </td>
+
+                  </tr>
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+          <!-- PAGINATION -->
+          <div class="pagination">
+
+            <span>
+              Page {{ currentPage() }} of {{ totalPages() }}
+            </span>
+
+            <div class="pagination-actions">
+
+              <button
+                type="button"
+                (click)="previousPage()"
+                [disabled]="currentPage() === 1">
+                Previous
+              </button>
+
+              <button
+                type="button"
+                (click)="nextPage()"
+                [disabled]="currentPage() === totalPages()">
+                Next
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      } @else {
+
+        <!-- EMPTY STATE -->
+        <div class="state-container empty-state">
+          <h3>No doctors found</h3>
+          <p>
+            There are no doctors matching your search or selected filters.
+          </p>
+        </div>
+
+      }
+
+    }
+
+  } @else if (isSuperAdmin() && !isLoadingHospitals()) {
+
+    <!-- HOSPITAL EMPTY STATE -->
+    <div class="state-container empty-state">
+      <h3>Select a hospital</h3>
+      <p>Select a hospital to view and manage its doctors.</p>
+    </div>
+
+  }
+
+</div>

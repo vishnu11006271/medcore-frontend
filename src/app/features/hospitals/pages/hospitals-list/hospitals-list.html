@@ -1,0 +1,317 @@
+
+<section class="hospitals-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Hospital Management</h1>
+      <p>Register, manage and verify hospitals on the platform.</p>
+    </div>
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="openCreateForm()">
+      + Add Hospital
+    </button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="success-message" role="status">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-message" role="alert">
+      {{ errorMessage() }}
+
+      <button type="button" (click)="loadHospitals()">
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- Hospital creation form -->
+  @if (showForm()) {
+    <div class="panel form-panel">
+
+      <div class="panel-heading">
+        <div>
+          <h2>Register Hospital</h2>
+          <p>Enter the hospital's registration details.</p>
+        </div>
+      </div>
+
+      <form
+        [formGroup]="hospitalForm"
+        (ngSubmit)="createHospital()">
+
+        <div class="form-grid">
+
+          <div class="form-field">
+            <label for="name">Hospital Name *</label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              placeholder="e.g. Medcore City Hospital"
+              (input)="onHospitalNameChange()">
+
+            @if (
+              hospitalForm.controls.name.touched &&
+              hospitalForm.controls.name.hasError('required')
+            ) {
+              <small class="field-error">
+                Hospital name is required.
+              </small>
+            }
+
+            @if (hospitalForm.controls.name.hasError('maxlength')) {
+              <small class="field-error">
+                Maximum 150 characters allowed.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="slug">Hospital Slug *</label>
+            <input
+              id="slug"
+              type="text"
+              formControlName="slug"
+              placeholder="medcore-city-hospital">
+
+            @if (
+              hospitalForm.controls.slug.touched &&
+              hospitalForm.controls.slug.invalid
+            ) {
+              <small class="field-error">
+                Use lowercase letters, numbers and hyphens only.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="email">Email Address *</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="hospital@example.com">
+
+            @if (
+              hospitalForm.controls.email.touched &&
+              hospitalForm.controls.email.invalid
+            ) {
+              <small class="field-error">
+                Enter a valid email address.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="registrationNumber">
+              Registration Number
+            </label>
+            <input
+              id="registrationNumber"
+              type="text"
+              formControlName="registrationNumber"
+              placeholder="Enter registration number">
+          </div>
+
+          <div class="form-field">
+            <label for="phone">Phone Number</label>
+            <input
+              id="phone"
+              type="tel"
+              formControlName="phone"
+              placeholder="Enter phone number">
+          </div>
+
+          <div class="form-field full-width">
+            <label for="address">Address</label>
+            <textarea
+              id="address"
+              rows="3"
+              formControlName="address"
+              placeholder="Enter hospital address">
+            </textarea>
+          </div>
+
+        </div>
+
+        @if (formError()) {
+          <div class="error-message" role="alert">
+            {{ formError() }}
+          </div>
+        }
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            [disabled]="submitting()"
+            (click)="closeCreateForm()">
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="primary-button"
+            [disabled]="submitting()">
+
+            {{ submitting() ? 'Creating...' : 'Create Hospital' }}
+
+          </button>
+        </div>
+
+      </form>
+    </div>
+  }
+
+  <!-- Hospital list -->
+  <div class="panel hospital-panel">
+
+    <div class="panel-heading">
+      <div>
+        <h2>Registered Hospitals</h2>
+        <p>{{ hospitals().length }} hospitals registered</p>
+      </div>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="loadHospitals()"
+        [disabled]="loading()">
+        Refresh
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="table-message">
+        Loading hospitals...
+      </div>
+    }
+
+    @else if (hospitals().length === 0 && !errorMessage()) {
+      <div class="table-message">
+        No hospitals registered yet. Click Add Hospital to get started.
+      </div>
+    }
+
+    @else if (hospitals().length > 0) {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Hospital</th>
+              <th>Email</th>
+              <th>Registration No.</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (hospital of hospitals(); track hospital.id) {
+              <tr>
+                <td>
+                  <strong>{{ hospital.name }}</strong>
+                  <small class="hospital-slug">
+                    {{ hospital.slug }}
+                  </small>
+                </td>
+
+                <td>{{ hospital.email }}</td>
+
+                <td>{{ hospital.registrationNumber || '—' }}</td>
+
+                <td>{{ hospital.phone || '—' }}</td>
+
+                <td>
+                  <span
+                    class="status"
+                    [class.pending]="hospital.status === 'PENDING'"
+                    [class.verified]="hospital.status === 'VERIFIED'">
+                    {{ hospital.status }}
+                  </span>
+                </td>
+
+                <td>{{ hospital.createdAt | date:'mediumDate' }}</td>
+
+                <td>
+                  @if (hospital.status === 'PENDING') {
+                    <button
+                      type="button"
+                      class="verify-button"
+                      (click)="requestVerification(hospital)">
+                      Verify
+                    </button>
+                  } @else {
+                    <span class="verified-label">
+                      Verified
+                    </span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  </div>
+
+  <!-- Verification confirmation -->
+  @if (pendingVerification(); as hospital) {
+    <div class="confirmation-backdrop">
+
+      <div
+        class="confirmation-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="verify-title">
+
+        <h2 id="verify-title">Verify Hospital</h2>
+
+        <p>
+          Are you sure you want to verify
+          <strong>{{ hospital.name }}</strong>?
+        </p>
+
+        <p class="warning-text">
+          Once verified, its status will change from PENDING to VERIFIED.
+        </p>
+
+        @if (verificationError()) {
+          <div class="error-message" role="alert">
+            {{ verificationError() }}
+          </div>
+        }
+
+        <div class="dialog-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            [disabled]="verifying()"
+            (click)="cancelVerification()">
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="primary-button"
+            [disabled]="verifying()"
+            (click)="confirmVerification()">
+            {{ verifying() ? 'Verifying...' : 'Confirm Verification' }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</section>

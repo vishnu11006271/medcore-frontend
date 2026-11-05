@@ -1,0 +1,246 @@
+
+<div class="availability-page">
+
+  <div class="page-header">
+    <div>
+      <h2>Doctor Availability</h2>
+      <p>Manage doctors' weekly working hours and appointment slots.</p>
+    </div>
+  </div>
+
+  <!-- Error and success messages -->
+  @if (errorMessage) {
+    <div class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success">
+      {{ successMessage }}
+    </div>
+  }
+
+  <!-- Hospital and doctor selection -->
+  <div class="selection-card">
+
+    <div class="form-group">
+      <label for="hospital">Select Hospital</label>
+
+      <select
+        id="hospital"
+        [(ngModel)]="selectedHospitalId"
+        (ngModelChange)="onHospitalChange()"
+        [disabled]="loadingHospitals()">
+
+        <option value="">Select hospital</option>
+
+        @for (hospital of hospitals; track hospital.id) {
+          <option [value]="hospital.id">
+            {{ hospital.name }}
+          </option>
+        }
+      </select>
+
+      @if (loadingHospitals()) {
+        <small>Loading hospitals...</small>
+      }
+    </div>
+
+    <!-- Doctor selection -->
+    <div class="form-group">
+      <label for="doctor">Select Doctor</label>
+
+      <select
+        id="doctor"
+        [(ngModel)]="selectedDoctorId"
+        (ngModelChange)="onDoctorChange()"
+        [disabled]="!selectedHospitalId || loadingDoctors()">
+
+        <option value="">Select doctor</option>
+
+        @for (doctor of doctors; track doctor.id) {
+          <option [value]="doctor.id">
+            Dr. {{ doctor.user.firstName }}
+            {{ doctor.user.lastName }}
+            - {{ doctor.specialization }}
+          </option>
+        }
+      </select>
+
+      @if (loadingDoctors()) {
+        <small>Loading doctors...</small>
+      }
+    </div>
+
+  </div>
+
+  <!-- Weekly schedule -->
+  @if (selectedDoctorId) {
+    <div class="schedule-card">
+
+      <div class="schedule-header">
+        <div>
+          <h3>Weekly Working Hours</h3>
+          <p>Current availability schedule for the selected doctor.</p>
+        </div>
+
+        <button
+          type="button"
+          (click)="loadWeeklySchedule()"
+          [disabled]="loadingSchedule()">
+          Refresh
+        </button>
+        <button
+        type="button"
+        class="btn btn-primary"
+        (click)="saveWeeklySchedule()"
+        [disabled]="saving || loadingSchedule()">
+
+        {{ saving ? 'Saving...' : 'Save Schedule' }}
+        </button>
+      </div>
+
+      @if (loadingSchedule()) {
+        <div class="loading">
+          Loading weekly availability...
+        </div>
+      } @else {
+
+        @for (day of days; track day.value) {
+          <div class="schedule-row">
+
+            <div class="day-name">
+              {{ day.label }}
+            </div>
+
+            <div class="day-intervals">
+
+              @for (interval of getIntervalsForDay(day.value); track $index) {
+                <div class="interval">
+
+                  <div>
+                    <span>
+                      {{ formatTime(interval.startMinute) }}
+                      -
+                      {{ formatTime(interval.endMinute) }}
+                    </span>
+
+                    <small>
+                      {{ interval.slotDurationMinutes }} min slots
+                    </small>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="openEditForm(interval, getIntervalIndex(interval))">
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    (click)="removeInterval(getIntervalIndex(interval))">
+                    Remove
+                    </button>
+
+                </div>
+              }
+
+              @if (getIntervalsForDay(day.value).length === 0) {
+                <span class="unavailable">Not available</span>
+              }
+
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="openAddForm(day.value)">
+                + Add hours
+              </button>
+
+            </div>
+
+          </div>
+        }
+
+        @if (schedule.length === 0) {
+          <div class="empty-state">
+            No availability schedule has been configured for this doctor.
+          </div>
+        }
+      }
+
+    </div>
+  } @else {
+    <div class="select-doctor-message">
+      Please select a hospital and doctor to view availability.
+    </div>
+  }
+
+  <!-- Add/Edit working hours form -->
+  @if (showIntervalForm) {
+    <div class="interval-form-card">
+
+      <h3>
+        {{ isEditMode ? 'Edit Working Hours' : 'Add Working Hours' }}
+      </h3>
+
+      <div class="form-group">
+        <label for="day">Day</label>
+
+        <select id="day" [(ngModel)]="selectedDay">
+          @for (day of days; track day.value) {
+            <option [ngValue]="day.value">
+              {{ day.label }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="startTime">Start Time</label>
+        <input
+          id="startTime"
+          type="time"
+          [(ngModel)]="startTime">
+      </div>
+
+      <div class="form-group">
+        <label for="endTime">End Time</label>
+        <input
+          id="endTime"
+          type="time"
+          [(ngModel)]="endTime">
+      </div>
+
+      <div class="form-group">
+        <label for="slotDuration">Slot Duration (minutes)</label>
+        <input
+          id="slotDuration"
+          type="number"
+          min="5"
+          max="240"
+          step="5"
+          [(ngModel)]="slotDurationMinutes">
+      </div>
+
+      <div class="form-actions">
+        <button
+        type="button"
+        class="btn btn-primary"
+        (click)="saveInterval()">
+
+        {{ isEditMode ? 'Update Interval' : 'Add Interval' }}
+        </button>
+
+        <button
+        type="button"
+        (click)="closeIntervalForm()">
+        Cancel
+        </button>
+      </div>
+
+    </div>
+  }
+
+</div>

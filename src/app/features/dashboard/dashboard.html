@@ -1,0 +1,175 @@
+<section class="dashboard-page">
+
+  <div class="page-heading">
+    <div>
+      <h1>{{ dashboardConfig().title }}</h1>
+      <p>{{ dashboardConfig().description }}</p>
+    </div>
+
+    <span class="demo-label">DEMO DATA</span>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="stats-grid">
+    @for (stat of stats; track stat.title) {
+      <app-stat-card
+        [title]="stat.title"
+        [value]="stat.value"
+        [change]="stat.change"
+        [icon]="stat.icon"
+        [trend]="stat.trend"
+      />
+    }
+  </div>
+
+  <!-- Charts -->
+  <div class="main-grid">
+
+    <div class="panel appointment-chart">
+      <div class="panel-heading">
+        <div>
+          <h3>Appointment Overview</h3>
+          <p>Appointment volume over the last 7 days</p>
+        </div>
+        <span class="panel-tag">Last 7 days</span>
+      </div>
+
+      <div class="chart">
+        @for (item of weeklyAppointments; track item.day) {
+          <div class="chart-column">
+            <span class="chart-value">{{ item.count }}</span>
+
+            <div class="bar-container">
+              <div
+                class="bar"
+                [style.height.%]="item.height"
+              ></div>
+            </div>
+
+            <span class="chart-day">{{ item.day }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="panel occupancy-panel">
+      <div class="panel-heading">
+        <div>
+          <h3>Department Occupancy</h3>
+          <p>Bed occupancy by department</p>
+        </div>
+      </div>
+
+      @for (department of departments; track department.name) {
+        <div class="occupancy-item">
+          <div class="occupancy-label">
+            <span>{{ department.name }}</span>
+            <strong>{{ department.occupied }}%</strong>
+          </div>
+
+          <div class="progress-track">
+            <div
+              class="progress-fill"
+              [style.width.%]="department.occupied"
+            ></div>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+
+  <!-- Tables and Alerts -->
+  <div class="bottom-grid">
+
+    <div class="panel">
+      <div class="panel-heading">
+        <div>
+          <h3>Recent Appointments</h3>
+          <p>Today's appointment schedule</p>
+        </div>
+        <span class="view-label">View all →</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Doctor</th>
+              <th>Time</th>
+              <th>Department</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (appointment of appointments; track appointment.patient) {
+              <tr>
+                <td>{{ appointment.patient }}</td>
+                <td>{{ appointment.doctor }}</td>
+                <td>{{ appointment.time }}</td>
+                <td>{{ appointment.department }}</td>
+                <td>
+                  <span
+                    class="status"
+                    [class.completed]="appointment.status === 'Completed'"
+                    [class.confirmed]="appointment.status === 'Confirmed'"
+                    [class.waiting]="appointment.status === 'Waiting'"
+                  >
+                    {{ appointment.status }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="right-panels">
+
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <h3>Low Stock Alerts</h3>
+            <p>Medicines requiring attention</p>
+          </div>
+          <span class="alert-count">{{ lowStockMedicines.length }}</span>
+        </div>
+
+        @for (medicine of lowStockMedicines; track medicine.name) {
+          <div class="medicine-item">
+            <div>
+              <strong>{{ medicine.name }}</strong>
+              <small>Remaining stock</small>
+            </div>
+
+            <span class="stock-count">{{ medicine.stock }} units</span>
+          </div>
+        }
+      </div>
+
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <h3>Recent Activity</h3>
+            <p>Latest hospital activities</p>
+          </div>
+        </div>
+
+        @for (activity of recentActivities; track activity; let i = $index) {
+          <div class="activity-item">
+            <span class="activity-dot"></span>
+            <div>
+              <p>{{ activity }}</p>
+              <small>{{ i + 1 }} recent event</small>
+            </div>
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+
+</section>
