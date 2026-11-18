@@ -19,7 +19,7 @@ import { CreateInvoiceRequest, Invoice } from '../../models/billing.model';
 @Component({
   selector: 'app-create-invoice',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CurrencyPipe, DatePipe],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './create-invoice.html',
   styleUrl: './create-invoice.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
