@@ -160,17 +160,24 @@ export class AuthService {
   //   );
   // }
   restoreSession(): Observable<boolean> {
-  if (this.isAuthenticated() && this.user()) {
-    return of(true);
+    if (this.isAuthenticated() && this.user()) {
+      return of(true);
+    }
+
+    return this.refreshSession().pipe(
+      switchMap(() => this.getProfile()),
+      map(() => true),
+      catchError(() => {
+        this.clearSession();
+        return of(false);
+      })
+    );
   }
 
-  return this.refreshSession().pipe(
-    switchMap(() => this.getProfile()),
-    map(() => true),
-    catchError(() => {
-      this.clearSession();
-      return of(false);
-    })
-  );
-}
+  resendVerificationOtp(payload: { email: string }) {
+    return this.http.post<any>(
+      `${this.apiUrl}/auth/resend-verification-otp`,
+      payload
+    );
+  }
 }

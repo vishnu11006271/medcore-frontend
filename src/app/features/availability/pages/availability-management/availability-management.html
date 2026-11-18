@@ -24,28 +24,30 @@
   <!-- Hospital and doctor selection -->
   <div class="selection-card">
 
-    <div class="form-group">
-      <label for="hospital">Select Hospital</label>
+    @if (isSuperAdmin()) {
+      <div class="form-group">
+        <label for="hospital">Select Hospital</label>
 
-      <select
-        id="hospital"
-        [(ngModel)]="selectedHospitalId"
-        (ngModelChange)="onHospitalChange()"
-        [disabled]="loadingHospitals()">
+        <select
+          id="hospital"
+          [(ngModel)]="selectedHospitalId"
+          (ngModelChange)="onHospitalChange()"
+          [disabled]="loadingHospitals()">
 
-        <option value="">Select hospital</option>
+          <option value="">Select hospital</option>
 
-        @for (hospital of hospitals; track hospital.id) {
-          <option [value]="hospital.id">
-            {{ hospital.name }}
-          </option>
+          @for (hospital of hospitals; track hospital.id) {
+            <option [value]="hospital.id">
+              {{ hospital.name }}
+            </option>
+          }
+        </select>
+
+        @if (loadingHospitals()) {
+          <small>Loading hospitals...</small>
         }
-      </select>
-
-      @if (loadingHospitals()) {
-        <small>Loading hospitals...</small>
-      }
-    </div>
+      </div>
+    }
 
     <!-- Doctor selection -->
     <div class="form-group">
@@ -175,6 +177,74 @@
     <div class="select-doctor-message">
       Please select a hospital and doctor to view availability.
     </div>
+  }
+
+  @if (selectedDoctorId) {
+    <section class="slots-card">
+      <div class="slots-header">
+        <div>
+          <h3>Available Appointment Slots</h3>
+          <p>Check appointment availability for the selected doctor.</p>
+        </div>
+      </div>
+
+      <div class="slot-search">
+        <div class="form-group">
+          <label for="slotDate">Select Date</label>
+          <input
+            id="slotDate"
+            type="date"
+            [(ngModel)]="selectedDate"
+          />
+        </div>
+
+        <div class="form-group">
+          <button
+          type="button"
+          (click)="loadAvailableSlots()"
+          [disabled]="loadingSlots() || !selectedDate"
+        >
+          {{ loadingSlots() ? 'Checking...' : 'Check Slots' }}
+        </button>
+        </div>
+        
+      </div>
+
+      @if (loadingSlots()) {
+        <p class="slot-message">Checking available slots...</p>
+      } @else if (slotsChecked() && availableSlots.length > 0) {
+        <div class="slots-summary">
+          <span>
+            Total slots: {{ availableSlots.length }}
+          </span>
+          <span>
+            Available:
+            {{ availableSlots.filter(slot => slot.available).length }}
+          </span>
+        </div>
+
+        <div class="slots-list">
+          @for (slot of availableSlots; track $index) {
+            <div
+              class="slot-item"
+              [class.slot-unavailable]="!slot.available"
+            >
+              <span class="slot-time">
+                {{ slot.startTime }} - {{ slot.endTime }}
+              </span>
+
+              <span class="slot-status">
+                {{ slot.available ? 'Available' : 'Booked' }}
+              </span>
+            </div>
+          }
+        </div>
+      } @else if (slotsChecked() && availableSlots.length === 0) {
+        <p class="slot-message">
+          No appointment slots found for this date.
+        </p>
+      }
+    </section>
   }
 
   <!-- Add/Edit working hours form -->

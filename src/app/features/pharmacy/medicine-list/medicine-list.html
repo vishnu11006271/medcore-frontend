@@ -1,0 +1,243 @@
+<div class="pharmacy-page">
+
+  <!-- Page Header -->
+  <div class="page-header">
+
+    <div>
+      <h1>Medicine Catalogue</h1>
+      <p>Manage medicines and monitor available stock.</p>
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="loadMedicines()"
+        [disabled]="isLoading()">
+        Refresh
+      </button>
+
+      @if (canManageMedicines()) {
+        <a
+          routerLink="/dashboard/pharmacy/medicines/new"
+          class="btn btn-primary">
+          + Add Medicine
+        </a>
+      }
+
+    </div>
+
+  </div>
+
+  <!-- Error Message -->
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- Success Message -->
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      {{ successMessage() }}
+    </div>
+  }
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+
+    <div class="summary-card">
+      <span class="summary-label">Total Medicines</span>
+      <strong>{{ totalMedicines() }}</strong>
+    </div>
+
+    <div class="summary-card">
+      <span class="summary-label">Active Medicines</span>
+      <strong>{{ activeMedicines() }}</strong>
+    </div>
+
+    <div class="summary-card">
+      <span class="summary-label">Inactive Medicines</span>
+      <strong>{{ inactiveMedicines() }}</strong>
+    </div>
+
+    <div class="summary-card warning-card">
+      <span class="summary-label">Low Stock</span>
+      <strong>{{ lowStockMedicines() }}</strong>
+    </div>
+
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="filter-section">
+
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Search medicine, generic name, strength..."
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+      />
+    </div>
+
+    <select
+      [value]="statusFilter()"
+      (change)="onStatusFilterChange($any($event.target).value)">
+
+      <option value="ALL">All Medicines</option>
+      <option value="ACTIVE">Active</option>
+      <option value="INACTIVE">Inactive</option>
+
+    </select>
+
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+
+    <div class="loading-state">
+      Loading medicines...
+    </div>
+
+  } @else {
+
+    <!-- Medicine Table -->
+    <div class="table-container">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Medicine</th>
+            <th>Generic Name</th>
+            <th>Strength</th>
+            <th>Manufacturer</th>
+            <th>Stock</th>
+            <th>Unit Price</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          @for (medicine of paginatedMedicines(); track medicine.id) {
+
+            <tr>
+
+              <td>
+                <strong>{{ medicine.name }}</strong>
+              </td>
+
+              <td>
+                {{ medicine.genericName || '—' }}
+              </td>
+
+              <td>
+                {{ medicine.strength || '—' }}
+              </td>
+
+              <td>
+                {{ medicine.manufacturer || '—' }}
+              </td>
+
+              <td>
+                <span
+                  class="stock-value"
+                  [class.low-stock]="isLowStock(medicine)">
+                  {{ medicine.stockQuantity }}
+                </span>
+              </td>
+
+              <td>
+                {{ formatPrice(medicine.unitPrice) | currency:'INR':'symbol':'1.2-2' }}
+              </td>
+
+              <td>
+                <span
+                  class="status-badge"
+                  [class.active]="medicine.isActive"
+                  [class.inactive]="!medicine.isActive">
+                  {{ medicine.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+
+              <td>
+                <div class="action-buttons">
+
+                  @if (canManageMedicines()) {
+                    <a
+                      class="action-link"
+                      [routerLink]="[
+                        '/dashboard/pharmacy/medicines',
+                        medicine.id,
+                        'edit'
+                      ]">
+                      Edit
+                    </a>
+                  }
+
+                  @if (canViewBatches()) {
+                    <a
+                      class="action-link"
+                      [routerLink]="[
+                        '/dashboard/pharmacy/medicines',
+                        medicine.id,
+                        'batches'
+                      ]">
+                      Batches
+                    </a>
+                  }
+
+                </div>
+              </td>
+
+            </tr>
+
+          } @empty {
+
+            <tr>
+              <td colspan="8" class="empty-state">
+                No medicines found.
+              </td>
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <!-- Pagination -->
+    @if (filteredMedicines().length > pageSize) {
+
+      <div class="pagination">
+
+        <button
+          type="button"
+          (click)="goToPage(currentPage() - 1)"
+          [disabled]="currentPage() === 1">
+          Previous
+        </button>
+
+        <span>
+          Page {{ currentPage() }} of {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          (click)="goToPage(currentPage() + 1)"
+          [disabled]="currentPage() === totalPages()">
+          Next
+        </button>
+
+      </div>
+
+    }
+
+  }
+
+</div>

@@ -1,0 +1,127 @@
+<div class="appointments-container">
+  <div class="page-header">
+    <div>
+      <h2>My Appointments</h2>
+      <p>View and manage your patient appointments.</p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-btn"
+      (click)="loadAppointments()"
+      [disabled]="loading()">
+      Refresh
+    </button>
+  </div>
+
+  @if (actionMessage()) {
+    <div class="success-message">
+      {{ actionMessage() }}
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading">
+      Loading appointments...
+    </div>
+  } @else if (appointments().length === 0) {
+    <div class="empty-state">
+      <h3>No appointments found</h3>
+      <p>You currently have no appointments scheduled.</p>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Department</th>
+            <th>Duration</th>
+            <th>Status</th>
+            <th>Reason</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (appointment of appointments(); track appointment.id) {
+            <tr>
+              <td>{{ getPatientName(appointment) }}</td>
+
+              <td>
+                {{ appointment.scheduledAt | date: 'dd MMM yyyy' }}
+              </td>
+
+              <td>
+                {{ appointment.scheduledAt | date: 'shortTime' }}
+              </td>
+
+              <td>{{ appointment.department.name }}</td>
+
+              <td>{{ appointment.durationMinutes }} min</td>
+
+              <td>
+                <span
+                  class="status"
+                  [class.pending]="appointment.status === 'PENDING'"
+                  [class.confirmed]="appointment.status === 'CONFIRMED'"
+                  [class.in-progress]="appointment.status === 'IN_PROGRESS'"
+                  [class.completed]="appointment.status === 'COMPLETED'"
+                  [class.cancelled]="appointment.status === 'CANCELLED'">
+                  {{ appointment.status }}
+                </span>
+              </td>
+
+              <td>{{ appointment.reason || 'N/A' }}</td>
+
+              <td>
+                @if (
+                  appointment.status === 'CONFIRMED' ||
+                  appointment.status === 'CHECKED_IN'
+                ) {
+                  <button
+                    type="button"
+                    class="start-btn"
+                    [disabled]="processingId() === appointment.id"
+                    (click)="startAppointment(appointment.id)">
+                    {{ processingId() === appointment.id ? 'Processing...' : 'Start Appointment' }}
+                  </button>
+                }
+
+                @else if (appointment.status === 'IN_PROGRESS') {
+                  <button
+                    type="button"
+                    class="complete-btn"
+                    [disabled]="processingId() === appointment.id"
+                    (click)="completeAppointment(appointment.id)">
+                    {{ processingId() === appointment.id ? 'Processing...' : 'Complete Appointment' }}
+                  </button>
+                }
+
+                @else if (appointment.status === 'PENDING') {
+                  <span class="no-action">Awaiting confirmation</span>
+                }
+
+                @else if (
+                  appointment.status === 'COMPLETED' ||
+                  appointment.status === 'CANCELLED' ||
+                  appointment.status === 'NO_SHOW'
+                ) {
+                  <span class="no-action">No actions</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

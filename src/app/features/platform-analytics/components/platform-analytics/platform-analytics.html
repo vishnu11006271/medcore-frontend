@@ -1,0 +1,463 @@
+
+<section class="analytics-page">
+  <header class="page-header">
+    <div>
+      <h1>Platform Overview</h1>
+      <p>Monitor hospitals, users and appointments across Medcore HMS.</p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-button"
+      (click)="loadAnalytics()"
+      [disabled]="loading()"
+    >
+      <span>{{ loading() ? 'Refreshing...' : 'Refresh data' }}</span>
+    </button>
+  </header>
+  <!-- Analytics date filters -->
+    <section class="date-filter-panel">
+    <div class="date-filter-header">
+        <div>
+        <h2>Analytics Period</h2>
+        <p>Choose a period to view platform activity.</p>
+        </div>
+
+        <div class="range-buttons">
+        <button
+            type="button"
+            [class.active]="selectedRange() === '7'"
+            (click)="selectDateRange('7')"
+        >
+            7 Days
+        </button>
+
+        <button
+            type="button"
+            [class.active]="selectedRange() === '30'"
+            (click)="selectDateRange('30')"
+        >
+            30 Days
+        </button>
+
+        <button
+            type="button"
+            [class.active]="selectedRange() === '90'"
+            (click)="selectDateRange('90')"
+        >
+            90 Days
+        </button>
+
+        <button
+            type="button"
+            [class.active]="selectedRange() === 'custom'"
+            (click)="selectDateRange('custom')"
+        >
+            Custom
+        </button>
+        </div>
+    </div>
+
+    @if (selectedRange() === 'custom') {
+        <div class="custom-date-filter">
+        <div class="date-field">
+            <label for="startDate">Start date</label>
+            <input
+            id="startDate"
+            type="date"
+            [value]="startDate()"
+            [max]="endDate()"
+            (change)="onStartDateChange($any($event.target).value)"
+            />
+        </div>
+
+        <div class="date-field">
+            <label for="endDate">End date</label>
+            <input
+            id="endDate"
+            type="date"
+            [value]="endDate()"
+            [min]="startDate()"
+            [max]="maxDate"
+            (change)="onEndDateChange($any($event.target).value)"
+            />
+        </div>
+
+        <button
+            type="button"
+            class="apply-filter-button"
+            (click)="applyCustomDateRange()"
+            [disabled]="loading()"
+        >
+            Apply Filter
+        </button>
+        </div>
+    }
+    </section>
+
+  @if (loading() && !analytics()) {
+    <div class="state-card">
+      <div class="loader"></div>
+      <p>Loading platform analytics...</p>
+    </div>
+  } @else if (error() && !analytics()) {
+    <div class="state-card error-state">
+      <h3>Unable to load dashboard</h3>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="loadAnalytics()">Try again</button>
+    </div>
+  } @else if (analytics(); as data) {
+    @if (error()) {
+      <div class="inline-error">{{ error() }}</div>
+    }
+
+    <!-- Main KPI cards -->
+    <div class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-icon hospitals-icon">H</div>
+        <div>
+          <p>Total Hospitals</p>
+          <h2>{{ data.hospitals.total }}</h2>
+          <small>{{ data.hospitals.byStatus.VERIFIED }} verified</small>
+        </div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon users-icon">U</div>
+        <div>
+          <p>Total Users</p>
+          <h2>{{ data.users.total }}</h2>
+          <small>{{ data.users.patients }} hospital patient records</small>
+        </div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon appointments-icon">A</div>
+        <div>
+          <p>Total Appointments</p>
+          <h2>{{ data.appointments.total }}</h2>
+          <small>{{ data.appointments.byStatus.COMPLETED }} completed</small>
+        </div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon departments-icon">D</div>
+        <div>
+          <p>Total Departments</p>
+          <h2>{{ data.departments.total }}</h2>
+          <small>{{ data.departments.active }} active</small>
+        </div>
+      </article>
+    </div>
+
+    <!-- Platform activity charts -->
+    <section class="charts-section">
+    <div class="charts-heading">
+        <div>
+        <h2>Platform Activity Trends</h2>
+        <p>Daily registrations and appointment activity</p>
+        </div>
+
+        @if (data.trends) {
+        <span class="date-range-label">
+            {{ data.trends.startDate }} – {{ data.trends.endDate }}
+        </span>
+        }
+    </div>
+
+    <div class="charts-grid">
+
+        <!-- Hospital registrations -->
+        <article class="panel chart-panel">
+        <div class="chart-header">
+            <div>
+            <h3>Hospital Registrations</h3>
+            <p>New hospitals registered per day</p>
+            </div>
+            <strong>
+            {{ hospitalChart().reduce((sum, item) => sum + item.count, 0) }}
+            </strong>
+        </div>
+
+        @if (hospitalChart().length) {
+            <div class="bar-chart">
+            @for (point of hospitalChart(); track point.date) {
+                <div class="bar-column">
+                <span class="bar-value">{{ point.count }}</span>
+
+                <div class="bar-area">
+                    <div
+                    class="chart-bar hospital-bar"
+                    [style.height.%]="point.height"
+                    [class.zero-bar]="point.count === 0"
+                    [title]="point.date + ': ' + point.count + ' hospitals'"
+                    ></div>
+                </div>
+
+                <span class="bar-label">{{ point.label }}</span>
+                </div>
+            }
+            </div>
+        } @else {
+            <div class="chart-empty">No hospital registration data.</div>
+        }
+        </article>
+
+        <!-- User registrations -->
+        <article class="panel chart-panel">
+        <div class="chart-header">
+            <div>
+            <h3>User Registrations</h3>
+            <p>New user accounts created per day</p>
+            </div>
+            <strong>
+            {{ userChart().reduce((sum, item) => sum + item.count, 0) }}
+            </strong>
+        </div>
+
+        @if (userChart().length) {
+            <div class="bar-chart">
+            @for (point of userChart(); track point.date) {
+                <div class="bar-column">
+                <span class="bar-value">{{ point.count }}</span>
+
+                <div class="bar-area">
+                    <div
+                    class="chart-bar user-bar"
+                    [style.height.%]="point.height"
+                    [class.zero-bar]="point.count === 0"
+                    [title]="point.date + ': ' + point.count + ' users'"
+                    ></div>
+                </div>
+
+                <span class="bar-label">{{ point.label }}</span>
+                </div>
+            }
+            </div>
+        } @else {
+            <div class="chart-empty">No user registration data.</div>
+        }
+        </article>
+
+        <!-- Appointment bookings -->
+        <article class="panel chart-panel">
+        <div class="chart-header">
+            <div>
+            <h3>Appointment Bookings</h3>
+            <p>New appointments created per day</p>
+            </div>
+            <strong>
+            {{ appointmentChart().reduce((sum, item) => sum + item.count, 0) }}
+            </strong>
+        </div>
+
+        @if (appointmentChart().length) {
+            <div class="bar-chart">
+            @for (point of appointmentChart(); track point.date) {
+                <div class="bar-column">
+                <span class="bar-value">{{ point.count }}</span>
+
+                <div class="bar-area">
+                    <div
+                    class="chart-bar appointment-bar"
+                    [style.height.%]="point.height"
+                    [class.zero-bar]="point.count === 0"
+                    [title]="point.date + ': ' + point.count + ' appointments'"
+                    ></div>
+                </div>
+
+                <span class="bar-label">{{ point.label }}</span>
+                </div>
+            }
+            </div>
+        } @else {
+            <div class="chart-empty">No appointment booking data.</div>
+        }
+        </article>
+
+    </div>
+    </section>
+
+    <!-- Hospital and user summary -->
+    <div class="content-grid">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Hospital Status</h2>
+            <p>Distribution of registered hospitals</p>
+          </div>
+          <span class="total-label">{{ data.hospitals.total }} total</span>
+        </div>
+
+        <div class="status-list">
+          @for (item of hospitalStatusItems(); track item.status) {
+            <div class="status-item">
+              <div class="status-heading">
+                <span class="status-label">
+                  <span class="status-dot" [ngClass]="item.status.toLowerCase()"></span>
+                  {{ item.label }}
+                </span>
+                <strong>{{ item.count }}</strong>
+              </div>
+
+              <div class="progress-track">
+                <div
+                  class="progress-fill"
+                  [ngClass]="item.status.toLowerCase()"
+                  [style.width.%]="hospitalPercentage(item.count)"
+                ></div>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>User Distribution</h2>
+            <p>Registered users by role</p>
+          </div>
+          <span class="total-label">{{ data.users.total }} total</span>
+        </div>
+
+        <div class="user-summary">
+          <div class="user-summary-item">
+            <span>Patients (role)</span>
+            <strong>{{ data.users.byRole.PATIENT }}</strong>
+          </div>
+          <div class="user-summary-item">
+            <span>Doctors</span>
+            <strong>{{ data.users.byRole.DOCTOR }}</strong>
+          </div>
+          <div class="user-summary-item">
+            <span>Hospital Admins</span>
+            <strong>{{ data.users.hospitalAdmins }}</strong>
+          </div>
+          <div class="user-summary-item">
+            <span>Other Staff</span>
+            <strong>{{ staffCount() }}</strong>
+          </div>
+          <div class="user-summary-item">
+            <span>Super Admins</span>
+            <strong>{{ data.users.byRole.SUPER_ADMIN }}</strong>
+          </div>
+        </div>
+
+        <p class="helper-text">
+          Patient role count is based on user accounts.
+          Hospital patient records: {{ data.users.patients }}.
+        </p>
+      </section>
+    </div>
+
+    <!-- Appointment status -->
+    <section class="panel appointment-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Appointment Overview</h2>
+          <p>Appointments grouped by current status</p>
+        </div>
+        <span class="total-label">{{ data.appointments.total }} total</span>
+      </div>
+
+      <div class="appointment-grid">
+        @for (item of appointmentStatusItems(); track item.status) {
+          <div class="appointment-status-card">
+            <span>{{ item.label }}</span>
+            <strong>{{ item.count }}</strong>
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                [ngClass]="item.status.toLowerCase()"
+                [style.width.%]="appointmentPercentage(item.count)"
+              ></div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Department summary -->
+    <section class="panel department-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Department Overview</h2>
+          <p>Active and inactive departments across hospitals</p>
+        </div>
+      </div>
+
+      <div class="department-summary">
+        <div>
+          <span class="department-number">{{ data.departments.active }}</span>
+          <span>Active</span>
+        </div>
+        <div>
+          <span class="department-number">{{ data.departments.inactive }}</span>
+          <span>Inactive</span>
+        </div>
+        <div>
+          <span class="department-number">{{ data.departments.total }}</span>
+          <span>Total</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top hospitals table -->
+    <section class="panel hospitals-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Top Hospitals</h2>
+          <p>Ranked by total appointment volume</p>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Hospital</th>
+              <th>Status</th>
+              <th>Appointments</th>
+              <th>Patients</th>
+              <th>Users</th>
+              <th>Departments</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (
+              hospital of data.topHospitals;
+              track trackHospital($index, hospital)
+            ) {
+              <tr>
+                <td>
+                  <div class="hospital-name">{{ hospital.name }}</div>
+                  <small>{{ hospital.slug }}</small>
+                </td>
+                <td>
+                  <span
+                    class="status-badge"
+                    [ngClass]="hospital.status.toLowerCase()"
+                  >
+                    {{ hospital.status }}
+                  </span>
+                </td>
+                <td>{{ hospital.totalAppointments }}</td>
+                <td>{{ hospital.totalPatients }}</td>
+                <td>{{ hospital.totalUsers }}</td>
+                <td>{{ hospital.totalDepartments }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="empty-state">
+                  No hospitals found.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</section>

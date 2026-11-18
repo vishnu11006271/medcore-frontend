@@ -1,0 +1,96 @@
+<section class="invoice-page">
+  <div class="page-header">
+    <div>
+      <h1>Invoices</h1>
+      <p>Manage hospital invoices and patient payments.</p>
+    </div>
+
+    <a
+      routerLink="/dashboard/billing/invoices/new"
+      class="btn-primary">
+      + Create Invoice
+    </a>
+  </div>
+
+  <div class="filter-card">
+    <input
+      #searchInput
+      type="text"
+      placeholder="Search invoice number or patient..."
+      [value]="searchTerm()"
+      (input)="onSearchChange(searchInput.value)"
+    />
+
+    <select
+      [value]="selectedStatus()"
+      (change)="onStatusChange($any($event.target).value)">
+      <option value="">All statuses</option>
+      <option value="DRAFT">Draft</option>
+      <option value="ISSUED">Issued</option>
+      <option value="PARTIALLY_PAID">Partially paid</option>
+      <option value="PAID">Paid</option>
+      <option value="VOID">Void</option>
+    </select>
+
+    <button type="button" class="btn-secondary" (click)="loadInvoices()">
+      Refresh
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="state-message">Loading invoices...</div>
+  } @else if (errorMessage()) {
+    <div class="error-message">{{ errorMessage() }}</div>
+  } @else if (filteredInvoices().length === 0) {
+    <div class="empty-state">
+      <h3>No invoices found</h3>
+      <p>Try changing your search or status filter, or create a new invoice.</p>
+    </div>
+  } @else {
+    <div class="table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Invoice number</th>
+              <th>Patient</th>
+              <th>Invoice date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (invoice of filteredInvoices(); track invoice.id) {
+              <tr>
+                <td class="invoice-number">{{ invoice.invoiceNumber }}</td>
+                <td>{{ getPatientName(invoice) }}</td>
+                <td>{{ invoice.createdAt | date:'dd MMM yyyy' }}</td>
+                <td>{{ invoice.total | currency:'INR':'symbol':'1.2-2' }}</td>
+                <td>
+                  <span
+                    class="status-badge"
+                    [class.status-draft]="invoice.status === 'DRAFT'"
+                    [class.status-issued]="invoice.status === 'ISSUED'"
+                    [class.status-partial]="invoice.status === 'PARTIALLY_PAID'"
+                    [class.status-paid]="invoice.status === 'PAID'"
+                    [class.status-void]="invoice.status === 'VOID'">
+                    {{ invoice.status.replace('_', ' ') }}
+                  </span>
+                </td>
+                <td>
+                  <a
+                    class="btn-link"
+                    [routerLink]="['/dashboard/billing/invoices', invoice.id]">
+                    View
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</section>

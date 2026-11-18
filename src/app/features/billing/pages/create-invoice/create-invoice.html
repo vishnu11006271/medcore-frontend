@@ -1,0 +1,78 @@
+<section class="create-invoice-page">
+  <div class="page-header">
+    <div>
+      <h1>Create Invoice</h1>
+      <p>Select a completed appointment to generate its invoice.</p>
+    </div>
+
+    <a routerLink="/dashboard/billing/invoices" class="btn-secondary">
+      Back to invoices
+    </a>
+  </div>
+
+  @if (loadingAppointments()) {
+    <div class="state-message">Loading completed appointments...</div>
+  } @else {
+    <form #invoiceForm="ngForm" (ngSubmit)="createInvoice()">
+      <div class="form-card">
+        <div class="form-group">
+          <label for="appointment">Completed appointment *</label>
+
+          <select
+            id="appointment"
+            name="appointmentId"
+            [(ngModel)]="appointmentId"
+            required>
+            <option value="">Select an appointment</option>
+
+            @for (appointment of availableAppointments(); track appointment.id) {
+              <option [value]="appointment.id">
+                {{ getAppointmentLabel(appointment) }}
+              </option>
+            }
+          </select>
+
+          @if (availableAppointments().length === 0) {
+            <small>
+              No eligible completed appointments found. An invoice may
+              already exist for each completed appointment.
+            </small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="tax">Tax amount (₹)</label>
+          <input
+            id="tax"
+            name="tax"
+            type="number"
+            min="0"
+            step="0.01"
+            [(ngModel)]="tax">
+        </div>
+
+        <div class="form-group">
+          <label for="discount">Discount amount (₹)</label>
+          <input
+            id="discount"
+            name="discount"
+            type="number"
+            min="0"
+            step="0.01"
+            [(ngModel)]="discount">
+        </div>
+
+        @if (errorMessage()) {
+          <div class="error-message">{{ errorMessage() }}</div>
+        }
+
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="invoiceForm.invalid || submitting() || !availableAppointments().length">
+          {{ submitting() ? 'Creating...' : 'Create Invoice' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

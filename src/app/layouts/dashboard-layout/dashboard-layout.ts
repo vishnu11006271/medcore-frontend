@@ -65,8 +65,7 @@ export class DashboardLayoutComponent {
       { label: 'Dashboard', icon: '▦', route: '/dashboard', enabled: true },
       { label: 'Hospitals', icon: '✚', route: '/dashboard/hospitals', enabled: true },
       { label: 'Departments', icon: '▤', route: '/dashboard/departments', enabled: true },
-      { label: 'Hospital Verification', icon: '✓', route: null, enabled: false },
-      { label: 'Platform Users', icon: '♙', route: null, enabled: false },
+      { label: 'Platform Users', icon: '♙', route: '/dashboard/users', enabled: true },
       {
         label: 'Doctors',
         icon: '⚕',
@@ -86,14 +85,23 @@ export class DashboardLayoutComponent {
             enabled: true
           }
         ]
-      },
-      { label: 'Analytics', icon: '▥', route: null, enabled: false }
+      }
     ],
 
     HOSPITAL_ADMIN: [
       { label: 'Dashboard', icon: '▦', route: '/dashboard', enabled: true },
-      { label: 'Appointments', icon: '▣', route: null, enabled: false },
-      { label: 'Patients', icon: '♙', route: null, enabled: false },
+      {
+        label: 'Appointments',
+        icon: '▣',
+        route: '/dashboard/hospital-appointments',
+        enabled: true
+      },
+      {
+        label: 'Patients',
+        icon: '♙',
+        route: '/dashboard/patients',
+        enabled: true
+      },
       {
         label: 'Doctors',
         icon: '⚕',
@@ -115,19 +123,90 @@ export class DashboardLayoutComponent {
         ]
       },
       { label: 'Departments', icon: '▤', route: '/dashboard/departments', enabled: true },
-      { label: 'Laboratory', icon: '⚗', route: null, enabled: false },
-      { label: 'Pharmacy', icon: '✚', route: null, enabled: false },
-      { label: 'Billing', icon: '₹', route: null, enabled: false },
+      {
+        label: 'Laboratory',
+        icon: '⚗',
+        route: '/dashboard/laboratory',
+        enabled: true
+      },
+      {
+        label: 'Laboratory Tests',
+        icon: '🧪',
+        route: '/dashboard/laboratory-tests',
+        enabled: true
+      },
+      {
+        label: 'Pharmacy',
+        icon: '✚',
+        route: '/dashboard/pharmacy/medicines',
+        enabled: true
+      },
+      {
+        label: 'Prescription Queue',
+        icon: '▣',
+        route: '/dashboard/pharmacy/prescriptions/active',
+        enabled: true
+      },
+      {
+        label: 'Billing',
+        icon: '₹',
+        route: '/dashboard/billing',
+        enabled: true,
+        children: [
+          {
+            label: 'Billing Dashboard',
+            icon: '▦',
+            route: '/dashboard/billing',
+            enabled: true
+          },
+          {
+            label: 'Invoices',
+            icon: '▤',
+            route: '/dashboard/billing/invoices',
+            enabled: true
+          }
+        ]
+      },
       { label: 'Reports', icon: '▥', route: null, enabled: false }
     ],
 
     DOCTOR: [
-      { label: 'Dashboard', icon: '▦', route: '/dashboard', enabled: true },
-      { label: 'Appointments', icon: '▣', route: null, enabled: false },
-      { label: 'My Patients', icon: '♙', route: null, enabled: false },
-      { label: 'Medical Records', icon: '▤', route: null, enabled: false },
-      { label: 'Prescriptions', icon: '✚', route: null, enabled: false },
-      { label: 'Lab Results', icon: '⚗', route: null, enabled: false }
+      {
+        label: 'Dashboard',
+        icon: '▦',
+        route: '/dashboard',
+        enabled: true
+      },
+      {
+        label: 'Appointments',
+        icon: '▣',
+        route: '/dashboard/doctor-appointments',
+        enabled: true
+      },
+      {
+        label: 'My Patients',
+        icon: '♙',
+        route: '/dashboard/doctor-patients',
+        enabled: true
+      },
+      {
+        label: 'Medical Records',
+        icon: '▤',
+        route: '/dashboard/doctor-medical-records',
+        enabled: true
+      },
+      {
+        label: 'Prescriptions',
+        icon: '✚',
+        route: null,
+        enabled: false
+      },
+      {
+        label: 'Lab Results',
+        icon: '⚗',
+        route: '/dashboard/doctor-lab-results',
+        enabled: true
+      }
     ],
 
     NURSE: [
@@ -148,33 +227,102 @@ export class DashboardLayoutComponent {
 
     LAB_TECHNICIAN: [
       { label: 'Dashboard', icon: '▦', route: '/dashboard', enabled: true },
-      { label: 'Lab Orders', icon: '⚗', route: null, enabled: false },
+      {
+        label: 'Laboratory Orders',
+        icon: '🧪',
+        route: '/dashboard/laboratory-orders',
+        enabled: true
+      },
       { label: 'Sample Collection', icon: '▤', route: null, enabled: false },
       { label: 'Test Processing', icon: '⌕', route: null, enabled: false },
       { label: 'Results', icon: '▥', route: null, enabled: false }
     ],
 
     PHARMACIST: [
-      { label: 'Dashboard', icon: '▦', route: '/dashboard', enabled: true },
-      { label: 'Medicines', icon: '✚', route: null, enabled: false },
-      { label: 'Inventory', icon: '▤', route: null, enabled: false },
-      { label: 'Dispensing', icon: '▣', route: null, enabled: false },
-      { label: 'Stock Alerts', icon: '⚠', route: null, enabled: false }
+      {
+        label: 'Dashboard',
+        icon: '▦',
+        route: '/dashboard',
+        enabled: true
+      },
+      {
+        label: 'Medicines',
+        icon: '✚',
+        route: '/dashboard/pharmacy/medicines',
+        enabled: true
+      },
+      {
+        label: 'Inventory',
+        icon: '▤',
+        route: null,
+        enabled: false
+      },
+      {
+        label: 'Prescription Queue',
+        icon: '▣',
+        route: '/dashboard/pharmacy/prescriptions/active',
+        enabled: true
+      },
+      {
+        label: 'Stock Alerts',
+        icon: '⚠',
+        route: null,
+        enabled: false
+      }
     ],
 
+    // ACCOUNTANT: [
+    //   { label: 'Dashboard', icon: '▦', route: '/dashboard', enabled: true },
+    //   { label: 'Invoices', icon: '▤', route: null, enabled: false },
+    //   { label: 'Payments', icon: '₹', route: null, enabled: false },
+    //   { label: 'Outstanding Balances', icon: '▣', route: null, enabled: false },
+    //   { label: 'Financial Reports', icon: '▥', route: null, enabled: false }
+    // ],
     ACCOUNTANT: [
-      { label: 'Dashboard', icon: '▦', route: '/dashboard', enabled: true },
-      { label: 'Invoices', icon: '▤', route: null, enabled: false },
-      { label: 'Payments', icon: '₹', route: null, enabled: false },
-      { label: 'Outstanding Balances', icon: '▣', route: null, enabled: false },
-      { label: 'Financial Reports', icon: '▥', route: null, enabled: false }
+      {
+        label: 'Dashboard',
+        icon: '▦',
+        route: '/dashboard',
+        enabled: true
+      },
+      {
+        label: 'Billing',
+        icon: '₹',
+        route: '/dashboard/billing',
+        enabled: true,
+        children: [
+          {
+            label: 'Billing Dashboard',
+            icon: '▦',
+            route: '/dashboard/billing',
+            enabled: true
+          },
+          {
+            label: 'Invoices',
+            icon: '▤',
+            route: '/dashboard/billing/invoices',
+            enabled: true
+          }
+        ]
+      }
     ],
 
     PATIENT: [
       { label: 'Dashboard', icon: '▦', route: '/dashboard', enabled: true },
-      { label: 'My Appointments', icon: '▣', route: null, enabled: false },
+      {
+        label: 'Book Appointment',
+        icon: '▣',
+        route: '/dashboard/appointments/book',
+        enabled: true
+      },
+      {
+        label: 'My Appointment',
+        icon: '▣',
+        route: '/dashboard/my-appointments',
+        enabled: true
+      },
       { label: 'Prescriptions', icon: '✚', route: null, enabled: false },
-      { label: 'Lab Reports', icon: '⚗', route: null, enabled: false },
+      { label: 'Lab Reports', icon: '⚗', route: '/dashboard/my-lab-results', enabled: true },
       { label: 'Medical History', icon: '▤', route: null, enabled: false },
       { label: 'My Invoices', icon: '₹', route: null, enabled: false }
     ]

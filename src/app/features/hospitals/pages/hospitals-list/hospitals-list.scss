@@ -1,7 +1,9 @@
-
 .hospitals-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   padding: 24px;
-  color: #1e293b;
+  color: #1f2937;
 }
 
 .page-header {
@@ -9,66 +11,71 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
 
   h1 {
-    margin: 0 0 6px;
-    font-size: 24px;
+    margin: 0;
+    font-size: 26px;
     font-weight: 700;
   }
 
   p {
-    margin: 0;
-    color: #64748b;
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 14px;
   }
 }
 
 .panel {
   padding: 22px;
-  margin-bottom: 24px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
 }
 
 .panel-heading {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 
   h2 {
-    margin: 0 0 6px;
+    margin: 0;
     font-size: 18px;
     font-weight: 650;
   }
 
   p {
-    margin: 0;
-    color: #64748b;
-    font-size: 14px;
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 13px;
   }
 }
 
 .primary-button,
 .secondary-button,
-.verify-button {
-  padding: 10px 16px;
+.verify-button,
+.reject-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 9px 15px;
   border: 0;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
+  border-radius: 7px;
+  font-size: 13px;
   font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
 
   &:disabled {
+    opacity: 0.55;
     cursor: not-allowed;
-    opacity: 0.6;
   }
 }
 
 .primary-button {
-  color: #fff;
+  color: #ffffff;
   background: #2563eb;
 
   &:hover:not(:disabled) {
@@ -77,18 +84,109 @@
 }
 
 .secondary-button {
-  color: #334155;
-  background: #e2e8f0;
+  color: #374151;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
 
   &:hover:not(:disabled) {
-    background: #cbd5e1;
+    background: #e5e7eb;
   }
 }
 
 .verify-button {
-  padding: 7px 12px;
-  color: #fff;
-  background: #2563eb;
+  color: #ffffff;
+  background: #15803d;
+
+  &:hover:not(:disabled) {
+    background: #166534;
+  }
+}
+
+.reject-button {
+  color: #ffffff;
+  background: #dc2626;
+
+  &:hover:not(:disabled) {
+    background: #b91c1c;
+  }
+}
+
+.success-message,
+.error-message {
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.success-message {
+  color: #166534;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.error-message {
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+
+  button {
+    margin-left: 10px;
+    padding: 4px 9px;
+    border: 1px solid #fca5a5;
+    border-radius: 5px;
+    background: #ffffff;
+    color: #b91c1c;
+    cursor: pointer;
+  }
+}
+
+// Summary cards
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  strong {
+    font-size: 28px;
+    line-height: 1;
+  }
+}
+
+.summary-label {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.pending-card strong {
+  color: #d97706;
+}
+
+.verified-card strong {
+  color: #15803d;
+}
+
+.rejected-card strong {
+  color: #dc2626;
+}
+
+// Form
+
+.form-panel {
+  .panel-heading {
+    margin-bottom: 22px;
+  }
 }
 
 .form-grid {
@@ -103,25 +201,27 @@
   gap: 7px;
 
   label {
-    color: #334155;
-    font-size: 14px;
+    color: #374151;
+    font-size: 13px;
     font-weight: 600;
   }
 
   input,
   textarea {
     width: 100%;
-    box-sizing: border-box;
-    padding: 11px 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
     outline: none;
+    color: #111827;
+    background: #ffffff;
     font: inherit;
-    font-size: 14px;
+    font-size: 13px;
+    box-sizing: border-box;
 
     &:focus {
       border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      box-shadow: 0 0 0 3px rgb(37 99 235 / 10%);
     }
   }
 
@@ -139,13 +239,44 @@
   font-size: 12px;
 }
 
-.form-actions,
-.dialog-actions {
+.form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 22px;
 }
+
+// Filters
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+
+  button {
+    padding: 8px 13px;
+    color: #4b5563;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      background: #f9fafb;
+    }
+
+    &.active {
+      color: #ffffff;
+      background: #1f2937;
+      border-color: #1f2937;
+    }
+  }
+}
+
+// Table
 
 .table-wrapper {
   width: 100%;
@@ -155,109 +286,104 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
+  white-space: nowrap;
+
+  th,
+  td {
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 13px;
+  }
 
   th {
-    padding: 13px 12px;
-    color: #64748b;
-    background: #f8fafc;
+    color: #6b7280;
+    background: #f9fafb;
     font-size: 12px;
     font-weight: 600;
-    white-space: nowrap;
   }
 
   td {
-    padding: 15px 12px;
-    border-bottom: 1px solid #e2e8f0;
-    font-size: 13px;
-    vertical-align: middle;
+    color: #374151;
   }
 
-  tbody tr:last-child td {
-    border-bottom: 0;
+  tbody tr:hover {
+    background: #fafafa;
   }
 }
 
 .hospital-slug {
   display: block;
   margin-top: 5px;
-  color: #94a3b8;
-  font-size: 12px;
+  color: #9ca3af;
+  font-size: 11px;
 }
 
 .status {
   display: inline-block;
-  padding: 5px 10px;
+  padding: 5px 9px;
   border-radius: 20px;
   font-size: 11px;
   font-weight: 700;
+
+  &.pending {
+    color: #92400e;
+    background: #fef3c7;
+  }
+
+  &.verified {
+    color: #166534;
+    background: #dcfce7;
+  }
+
+  &.rejected {
+    color: #991b1b;
+    background: #fee2e2;
+  }
+
+  &.suspended {
+    color: #374151;
+    background: #e5e7eb;
+  }
 }
 
-.pending {
-  color: #92400e;
-  background: #fef3c7;
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
-.verified {
-  color: #166534;
-  background: #dcfce7;
-}
-
-.verified-label {
-  color: #15803d;
-  font-size: 12px;
-  font-weight: 600;
+.action-placeholder {
+  color: #9ca3af;
 }
 
 .table-message {
   padding: 35px 15px;
-  color: #64748b;
+  color: #6b7280;
   text-align: center;
-  background: #f8fafc;
-  border-radius: 8px;
-}
-
-.success-message,
-.error-message {
-  padding: 12px 15px;
-  margin-bottom: 18px;
-  border-radius: 6px;
   font-size: 14px;
 }
 
-.success-message {
-  color: #166534;
-  background: #dcfce7;
-}
-
-.error-message {
-  color: #b91c1c;
-  background: #fee2e2;
-}
-
-.warning-text {
-  color: #b45309;
-  font-size: 13px;
-}
+// Confirmation dialog
 
 .confirmation-backdrop {
   position: fixed;
   inset: 0;
   z-index: 1000;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 20px;
-  background: rgba(15, 23, 42, 0.55);
+  background: rgb(15 23 42 / 55%);
 }
 
 .confirmation-dialog {
   width: 100%;
   max-width: 440px;
-  padding: 24px;
-  background: #fff;
+  padding: 25px;
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 20%);
 
   h2 {
     margin: 0 0 15px;
@@ -265,19 +391,47 @@ table {
   }
 
   p {
-    color: #475569;
+    color: #4b5563;
+    font-size: 14px;
     line-height: 1.6;
   }
 }
 
-@media (max-width: 700px) {
+.warning-text {
+  padding: 10px;
+  background: #fffbeb;
+  border-radius: 6px;
+  color: #92400e !important;
+  font-size: 12px !important;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+// Responsive
+
+@media (max-width: 900px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
   .hospitals-page {
-    padding: 16px;
+    padding: 15px;
   }
 
   .page-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr 1fr;
   }
 
   .form-grid {
@@ -289,6 +443,18 @@ table {
   }
 
   .panel {
-    padding: 16px;
+    padding: 15px;
+  }
+
+  .panel-heading {
+    align-items: flex-start;
+  }
+
+  .dialog-actions {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
   }
 }

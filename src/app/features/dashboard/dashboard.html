@@ -1,4 +1,242 @@
-<section class="dashboard-page">
+@if (currentUser()?.role === 'SUPER_ADMIN') {
+  <app-platform-analytics />
+} @else if (currentUser()?.role === 'DOCTOR') {
+
+  <section class="dashboard-page">
+
+    <!-- Header -->
+    <div class="page-heading">
+      <div>
+        <h1>Doctor Dashboard</h1>
+        <p>
+          Welcome back, Dr. {{ currentUser()?.firstName }}.
+          Here's your daily overview.
+        </p>
+      </div>
+
+      <div class="dashboard-actions">
+        <!-- <button
+          type="button"
+          class="refresh-btn"
+          (click)="loadDoctorAppointments()"
+          [disabled]="doctorLoading()"
+        >
+          {{ doctorLoading() ? 'Refreshing...' : '↻ Refresh' }}
+        </button> -->
+
+        <a
+          routerLink="/dashboard/doctor-appointments"
+          class="view-all-btn"
+        >
+          View All Appointments →
+        </a>
+      </div>
+    </div>
+
+    <!-- Error -->
+    @if (doctorError()) {
+      <div class="error-message">
+        {{ doctorError() }}
+
+        <button type="button" (click)="loadDoctorAppointments()">
+          Retry
+        </button>
+      </div>
+    }
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+
+      @for (stat of doctorStats(); track stat.key) {
+
+        <button
+          type="button"
+          class="doctor-stat-card"
+          [class.active]="selectedFilter() === stat.key"
+          (click)="setAppointmentFilter(stat.key)"
+        >
+          <div class="stat-icon">
+            {{ stat.icon }}
+          </div>
+
+          <div>
+            <h3>{{ stat.value }}</h3>
+            <p>{{ stat.title }}</p>
+          </div>
+        </button>
+
+      }
+
+    </div>
+
+    <!-- Appointment List -->
+    <div class="panel doctor-schedule">
+
+      <div class="panel-heading">
+
+        <div>
+          <h3>My Appointments</h3>
+          <p>View appointments by status and schedule.</p>
+        </div>
+
+        <span class="panel-tag">
+          {{ filteredDoctorAppointments().length }} Appointments
+        </span>
+
+      </div>
+
+      <!-- Filter Buttons -->
+      <!-- <div class="appointment-filters">
+
+        <button
+          type="button"
+          [class.active]="selectedFilter() === 'TODAY'"
+          (click)="setAppointmentFilter('TODAY')"
+        >
+          Today
+        </button>
+
+        <button
+          type="button"
+          [class.active]="selectedFilter() === 'UPCOMING'"
+          (click)="setAppointmentFilter('UPCOMING')"
+        >
+          Upcoming
+        </button>
+
+        <button
+          type="button"
+          [class.active]="selectedFilter() === 'COMPLETED'"
+          (click)="setAppointmentFilter('COMPLETED')"
+        >
+          Completed
+        </button>
+
+        <button
+          type="button"
+          [class.active]="selectedFilter() === 'CANCELLED'"
+          (click)="setAppointmentFilter('CANCELLED')"
+        >
+          Cancelled
+        </button>
+
+      </div> -->
+
+      <!-- Loading -->
+      @if (doctorLoading()) {
+
+        <div class="loading-state">
+          Loading appointments...
+        </div>
+
+      } @else if (!doctorError() && filteredDoctorAppointments().length === 0) {
+
+        <div class="empty-state">
+          <h3>No appointments found</h3>
+          <p>
+            There are no
+            {{ selectedFilter().toLowerCase() }}
+            appointments to display.
+          </p>
+        </div>
+
+      } @else if (!doctorError()) {
+
+        <div class="table-wrapper">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Department</th>
+                <th>Duration</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              @for (
+                appointment of filteredDoctorAppointments();
+                track appointment.id
+              ) {
+
+                <tr>
+
+                  <td>
+                    {{ getDoctorPatientName(appointment) }}
+                  </td>
+
+                  <td>
+                    {{ appointment.scheduledAt | date:'mediumDate' }}
+                  </td>
+
+                  <td>
+                    {{ appointment.scheduledAt | date:'shortTime' }}
+                  </td>
+
+                  <td>
+                    {{ appointment.department.name }}
+                  </td>
+
+                  <td>
+                    {{ appointment.durationMinutes }} min
+                  </td>
+
+                  <td>
+                    <span
+                      class="status"
+                      [class.confirmed]="appointment.status === 'CONFIRMED'"
+                      [class.waiting]="appointment.status === 'PENDING'"
+                      [class.completed]="appointment.status === 'COMPLETED'"
+                      [class.in-progress]="appointment.status === 'IN_PROGRESS'"
+                      [class.cancelled]="appointment.status === 'CANCELLED'"
+                    >
+                      {{ appointment.status.replace('_', ' ') }}
+                    </span>
+                  </td>
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      }
+
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="doctor-quick-actions">
+
+      <h3>Quick Actions</h3>
+
+      <div class="quick-action-grid">
+
+        <a
+          routerLink="/dashboard/doctor-appointments"
+          class="quick-action-card"
+        >
+          <span>▣</span>
+          <strong>Manage Appointments</strong>
+          <small>View and update your appointments</small>
+        </a>
+
+      </div>
+
+    </div>
+
+  </section>
+
+} @else {
+  <section class="dashboard-page">
 
   <div class="page-heading">
     <div>
@@ -173,3 +411,4 @@
   </div>
 
 </section>
+}

@@ -1,0 +1,165 @@
+<div class="details-page">
+
+  <div class="page-header">
+    <div>
+      <h2>Appointment Details</h2>
+      <p>View complete appointment information.</p>
+    </div>
+
+    <a routerLink="/dashboard/hospital-appointments" class="back-btn">
+      ← Back to Appointments
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="state-message">
+      Loading appointment details...
+    </div>
+  }
+
+  @else if (error()) {
+    <div class="state-message error">
+      {{ error() }}
+
+      <button
+        *ngIf="appointment()"
+        (click)="loadAppointment(appointment()!.id)"
+      >
+        Retry
+      </button>
+    </div>
+  }
+
+  @else if (appointment(); as item) {
+
+    <!-- Appointment summary -->
+    <div class="summary-card">
+      <div>
+        <span class="label">Appointment ID</span>
+        <h3>{{ item.id }}</h3>
+      </div>
+
+      <span
+        class="status"
+        [ngClass]="getStatusClass(item.status)"
+      >
+        {{ item.status.replace('_', ' ') }}
+      </span>
+    </div>
+
+    <div class="details-grid">
+
+      <!-- Patient information -->
+      <section class="details-card">
+        <h3>Patient Information</h3>
+
+        <div class="detail-row">
+          <span>Patient Name</span>
+          <strong>{{ getPatientName() }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Patient Number</span>
+          <strong>{{ item.patient.patientNumber }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Email</span>
+          <strong>{{ item.patient.user.email }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Phone</span>
+          <strong>{{ item.patient.user.phone || '—' }}</strong>
+        </div>
+      </section>
+
+      <!-- Doctor information -->
+      <section class="details-card">
+        <h3>Doctor Information</h3>
+
+        <div class="detail-row">
+          <span>Doctor Name</span>
+          <strong>{{ getDoctorName() }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Specialization</span>
+          <strong>{{ item.doctor.specialization }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Email</span>
+          <strong>{{ item.doctor.user.email || '—' }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Phone</span>
+          <strong>{{ item.doctor.user.phone || '—' }}</strong>
+        </div>
+      </section>
+
+      <!-- Department -->
+      <section class="details-card">
+        <h3>Department</h3>
+
+        <div class="detail-row">
+          <span>Department Name</span>
+          <strong>{{ item.department.name }}</strong>
+        </div>
+      </section>
+
+      <!-- Schedule -->
+      <section class="details-card">
+        <h3>Appointment Schedule</h3>
+
+        <div class="detail-row">
+          <span>Date</span>
+          <strong>{{ item.scheduledAt | date:'dd MMM yyyy' }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Time</span>
+          <strong>{{ item.scheduledAt | date:'hh:mm a' }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Duration</span>
+          <strong>{{ item.durationMinutes }} minutes</strong>
+        </div>
+      </section>
+
+      <!-- Appointment reason and notes -->
+      <section class="details-card full-width">
+        <h3>Appointment Information</h3>
+
+        <div class="detail-row">
+          <span>Reason</span>
+          <strong>{{ item.reason || 'Not provided' }}</strong>
+        </div>
+
+        <div class="notes-section">
+          <span>Notes</span>
+          <p>{{ item.notes || 'No additional notes available.' }}</p>
+        </div>
+      </section>
+
+      <!-- Metadata -->
+      <section class="details-card full-width">
+        <h3>Record Information</h3>
+
+        <div class="detail-row">
+          <span>Created At</span>
+          <strong>{{ item.createdAt | date:'dd MMM yyyy, hh:mm a' }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Last Updated</span>
+          <strong>{{ item.updatedAt | date:'dd MMM yyyy, hh:mm a' }}</strong>
+        </div>
+      </section>
+
+    </div>
+  }
+
+</div>

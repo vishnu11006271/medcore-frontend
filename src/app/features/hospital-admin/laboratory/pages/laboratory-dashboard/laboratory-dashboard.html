@@ -1,0 +1,113 @@
+
+<div class="laboratory-dashboard">
+
+  <div class="page-header">
+    <div>
+      <h2>Laboratory Dashboard</h2>
+      <p>Monitor laboratory tests and patient test orders.</p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-btn"
+      (click)="loadDashboard()"
+      [disabled]="loading()">
+      {{ loading() ? 'Refreshing...' : 'Refresh' }}
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      {{ errorMessage() }}
+
+      <button type="button" (click)="loadDashboard()">
+        Retry
+      </button>
+    </div>
+  }
+
+  @if (loading() && !dashboard()) {
+    <div class="loading-state">
+      Loading laboratory dashboard...
+    </div>
+  }
+
+  @if (dashboard(); as data) {
+
+    <section class="section">
+      <h3>Test Catalogue</h3>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Total Tests</span>
+          <h2>{{ data.tests.total }}</h2>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Active Tests</span>
+          <h2>{{ data.tests.active }}</h2>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Inactive Tests</span>
+          <h2>{{ data.tests.inactive }}</h2>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h3>Laboratory Orders</h3>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Total Orders</span>
+          <h2>{{ data.orders.total }}</h2>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Pending Orders</span>
+          <h2>{{ data.orders.ordered }}</h2>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Samples Collected</span>
+          <h2>{{ data.orders.sampleCollected }}</h2>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Processing</span>
+          <h2>{{ data.orders.processing }}</h2>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Results Uploaded</span>
+          <h2>{{ data.orders.resultUploaded }}</h2>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Approved</span>
+          <h2>{{ data.orders.approved }}</h2>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h3>Order Status Breakdown</h3>
+
+      <div class="status-grid">
+        @for (item of getStatusItems(); track item.label) {
+          <div class="status-card">
+            <div class="status-indicator" [ngClass]="item.className"></div>
+
+            <div>
+              <span>{{ item.label }}</span>
+              <h3>{{ item.value }}</h3>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+  }
+
+</div>

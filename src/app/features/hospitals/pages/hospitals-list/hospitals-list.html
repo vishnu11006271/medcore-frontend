@@ -1,6 +1,6 @@
-
 <section class="hospitals-page">
 
+  <!-- Page header -->
   <div class="page-header">
     <div>
       <h1>Hospital Management</h1>
@@ -15,21 +15,50 @@
     </button>
   </div>
 
+  <!-- Success message -->
   @if (successMessage()) {
     <div class="success-message" role="status">
       {{ successMessage() }}
     </div>
   }
 
+  <!-- Error message -->
   @if (errorMessage()) {
     <div class="error-message" role="alert">
       {{ errorMessage() }}
 
-      <button type="button" (click)="loadHospitals()">
+      <button
+        type="button"
+        (click)="loadHospitals()">
         Retry
       </button>
     </div>
   }
+
+  <!-- Summary cards -->
+  <div class="summary-grid">
+
+    <div class="summary-card">
+      <span class="summary-label">Total Hospitals</span>
+      <strong>{{ hospitals().length }}</strong>
+    </div>
+
+    <div class="summary-card pending-card">
+      <span class="summary-label">Pending</span>
+      <strong>{{ pendingCount() }}</strong>
+    </div>
+
+    <div class="summary-card verified-card">
+      <span class="summary-label">Verified</span>
+      <strong>{{ verifiedCount() }}</strong>
+    </div>
+
+    <div class="summary-card rejected-card">
+      <span class="summary-label">Rejected</span>
+      <strong>{{ rejectedCount() }}</strong>
+    </div>
+
+  </div>
 
   <!-- Hospital creation form -->
   @if (showForm()) {
@@ -50,6 +79,7 @@
 
           <div class="form-field">
             <label for="name">Hospital Name *</label>
+
             <input
               id="name"
               type="text"
@@ -75,6 +105,7 @@
 
           <div class="form-field">
             <label for="slug">Hospital Slug *</label>
+
             <input
               id="slug"
               type="text"
@@ -93,6 +124,7 @@
 
           <div class="form-field">
             <label for="email">Email Address *</label>
+
             <input
               id="email"
               type="email"
@@ -113,6 +145,7 @@
             <label for="registrationNumber">
               Registration Number
             </label>
+
             <input
               id="registrationNumber"
               type="text"
@@ -122,6 +155,7 @@
 
           <div class="form-field">
             <label for="phone">Phone Number</label>
+
             <input
               id="phone"
               type="tel"
@@ -131,6 +165,7 @@
 
           <div class="form-field full-width">
             <label for="address">Address</label>
+
             <textarea
               id="address"
               rows="3"
@@ -148,6 +183,7 @@
         }
 
         <div class="form-actions">
+
           <button
             type="button"
             class="secondary-button"
@@ -164,6 +200,7 @@
             {{ submitting() ? 'Creating...' : 'Create Hospital' }}
 
           </button>
+
         </div>
 
       </form>
@@ -176,7 +213,7 @@
     <div class="panel-heading">
       <div>
         <h2>Registered Hospitals</h2>
-        <p>{{ hospitals().length }} hospitals registered</p>
+        <p>{{ filteredHospitals().length }} hospitals displayed</p>
       </div>
 
       <button
@@ -188,20 +225,55 @@
       </button>
     </div>
 
+    <!-- Status filters -->
+    <div class="filter-bar">
+
+      <button
+        type="button"
+        [class.active]="statusFilter() === 'ALL'"
+        (click)="setStatusFilter('ALL')">
+        All ({{ hospitals().length }})
+      </button>
+
+      <button
+        type="button"
+        [class.active]="statusFilter() === 'PENDING'"
+        (click)="setStatusFilter('PENDING')">
+        Pending ({{ pendingCount() }})
+      </button>
+
+      <button
+        type="button"
+        [class.active]="statusFilter() === 'VERIFIED'"
+        (click)="setStatusFilter('VERIFIED')">
+        Verified ({{ verifiedCount() }})
+      </button>
+
+      <button
+        type="button"
+        [class.active]="statusFilter() === 'REJECTED'"
+        (click)="setStatusFilter('REJECTED')">
+        Rejected ({{ rejectedCount() }})
+      </button>
+
+    </div>
+
     @if (loading()) {
       <div class="table-message">
         Loading hospitals...
       </div>
     }
 
-    @else if (hospitals().length === 0 && !errorMessage()) {
+    @else if (filteredHospitals().length === 0 && !errorMessage()) {
       <div class="table-message">
-        No hospitals registered yet. Click Add Hospital to get started.
+        No hospitals found for this status.
       </div>
     }
 
-    @else if (hospitals().length > 0) {
+    @else if (filteredHospitals().length > 0) {
+
       <div class="table-wrapper">
+
         <table>
           <thead>
             <tr>
@@ -216,10 +288,15 @@
           </thead>
 
           <tbody>
-            @for (hospital of hospitals(); track hospital.id) {
+            @for (
+              hospital of filteredHospitals();
+              track hospital.id
+            ) {
               <tr>
+
                 <td>
                   <strong>{{ hospital.name }}</strong>
+
                   <small class="hospital-slug">
                     {{ hospital.slug }}
                   </small>
@@ -227,87 +304,137 @@
 
                 <td>{{ hospital.email }}</td>
 
-                <td>{{ hospital.registrationNumber || '—' }}</td>
+                <td>
+                  {{ hospital.registrationNumber || '—' }}
+                </td>
 
-                <td>{{ hospital.phone || '—' }}</td>
+                <td>
+                  {{ hospital.phone || '—' }}
+                </td>
 
                 <td>
                   <span
                     class="status"
                     [class.pending]="hospital.status === 'PENDING'"
-                    [class.verified]="hospital.status === 'VERIFIED'">
+                    [class.verified]="hospital.status === 'VERIFIED'"
+                    [class.rejected]="hospital.status === 'REJECTED'"
+                    [class.suspended]="hospital.status === 'SUSPENDED'">
                     {{ hospital.status }}
                   </span>
                 </td>
 
-                <td>{{ hospital.createdAt | date:'mediumDate' }}</td>
+                <td>
+                  {{ hospital.createdAt | date:'mediumDate' }}
+                </td>
 
                 <td>
                   @if (hospital.status === 'PENDING') {
-                    <button
-                      type="button"
-                      class="verify-button"
-                      (click)="requestVerification(hospital)">
-                      Verify
-                    </button>
+
+                    <div class="table-actions">
+
+                      <button
+                        type="button"
+                        class="verify-button"
+                        (click)="requestHospitalAction(hospital, 'VERIFY')">
+                        Approve
+                      </button>
+
+                      <button
+                        type="button"
+                        class="reject-button"
+                        (click)="requestHospitalAction(hospital, 'REJECT')">
+                        Reject
+                      </button>
+
+                    </div>
+
                   } @else {
-                    <span class="verified-label">
-                      Verified
-                    </span>
+                    <span class="action-placeholder">—</span>
                   }
                 </td>
+
               </tr>
             }
           </tbody>
         </table>
+
       </div>
     }
 
   </div>
 
-  <!-- Verification confirmation -->
-  @if (pendingVerification(); as hospital) {
+  <!-- Approve / Reject confirmation dialog -->
+  @if (pendingAction(); as pending) {
+
     <div class="confirmation-backdrop">
 
       <div
         class="confirmation-dialog"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="verify-title">
+        aria-labelledby="action-title">
 
-        <h2 id="verify-title">Verify Hospital</h2>
+        @if (pending.action === 'VERIFY') {
 
-        <p>
-          Are you sure you want to verify
-          <strong>{{ hospital.name }}</strong>?
-        </p>
+          <h2 id="action-title">Approve Hospital</h2>
 
-        <p class="warning-text">
-          Once verified, its status will change from PENDING to VERIFIED.
-        </p>
+          <p>
+            Are you sure you want to approve
+            <strong>{{ pending.hospital.name }}</strong>?
+          </p>
 
-        @if (verificationError()) {
+          <p class="warning-text">
+            Its status will change from PENDING to VERIFIED.
+          </p>
+
+        } @else {
+
+          <h2 id="action-title">Reject Hospital</h2>
+
+          <p>
+            Are you sure you want to reject
+            <strong>{{ pending.hospital.name }}</strong>?
+          </p>
+
+          <p class="warning-text">
+            The hospital will no longer be in the pending approval list.
+          </p>
+
+        }
+
+        @if (actionError()) {
           <div class="error-message" role="alert">
-            {{ verificationError() }}
+            {{ actionError() }}
           </div>
         }
 
         <div class="dialog-actions">
+
           <button
             type="button"
             class="secondary-button"
-            [disabled]="verifying()"
-            (click)="cancelVerification()">
+            [disabled]="processingAction()"
+            (click)="cancelHospitalAction()">
             Cancel
           </button>
 
           <button
             type="button"
-            class="primary-button"
-            [disabled]="verifying()"
-            (click)="confirmVerification()">
-            {{ verifying() ? 'Verifying...' : 'Confirm Verification' }}
+            [class.primary-button]="pending.action === 'VERIFY'"
+            [class.reject-button]="pending.action === 'REJECT'"
+            [disabled]="processingAction()"
+            (click)="confirmHospitalAction()">
+
+            @if (processingAction()) {
+              Processing...
+            } @else if (pending.action === 'VERIFY') {
+              Confirm Approval
+            } @else {
+              Confirm Rejection
+            }
+
           </button>
+
         </div>
 
       </div>

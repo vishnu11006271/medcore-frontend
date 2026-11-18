@@ -1,0 +1,417 @@
+<div class="patient-details-page">
+
+  <!-- Back navigation -->
+  <div class="back-navigation">
+    <a routerLink="/dashboard/patients">
+      ← Back to Patients
+    </a>
+  </div>
+
+  @if (loadingProfile()) {
+    <div class="state-message">
+      Loading patient details...
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      {{ errorMessage() }}
+
+      <button type="button" (click)="loadPatient()">
+        Retry
+      </button>
+    </div>
+  }
+
+  @if (!loadingProfile() && patient(); as patientData) {
+
+    <!-- Patient header -->
+    <div class="patient-header">
+      <div class="patient-heading">
+        <div class="patient-avatar">
+          {{ getPatientInitials() }}
+        </div>
+
+        <div>
+          <h1>{{ getPatientName() }}</h1>
+          <p>
+            Patient ID:
+            <strong>{{ patientData.patientNumber }}</strong>
+          </p>
+        </div>
+      </div>
+
+      <div class="patient-status">
+        <span
+          [class.active]="patientData.user.isActive"
+          [class.inactive]="!patientData.user.isActive"
+        >
+          {{ patientData.user.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        type="button"
+        [class.active]="activeTab() === 'profile'"
+        (click)="selectTab('profile')"
+      >
+        Patient Profile
+      </button>
+
+      <button
+        type="button"
+        [class.active]="activeTab() === 'appointments'"
+        (click)="selectTab('appointments')"
+      >
+        Appointments
+        <span class="tab-count">{{ appointmentTotal() }}</span>
+      </button>
+
+      <button
+        type="button"
+        [class.active]="activeTab() === 'records'"
+        (click)="selectTab('records')"
+      >
+        Medical Records
+        <span class="tab-count">{{ recordTotal() }}</span>
+      </button>
+    </div>
+
+    <!-- PROFILE TAB -->
+    @if (activeTab() === 'profile') {
+
+      <div class="content-card">
+        <div class="section-heading">
+          <h2>Personal Information</h2>
+        </div>
+
+        <div class="details-grid">
+
+          <div class="detail-item">
+            <label>First Name</label>
+            <p>{{ patientData.user.firstName }}</p>
+          </div>
+
+          <div class="detail-item">
+            <label>Last Name</label>
+            <p>{{ patientData.user.lastName }}</p>
+          </div>
+
+          <div class="detail-item">
+            <label>Email Address</label>
+            <p>{{ patientData.user.email }}</p>
+          </div>
+
+          <div class="detail-item">
+            <label>Phone Number</label>
+            <p>{{ patientData.user.phone || 'N/A' }}</p>
+          </div>
+
+          <div class="detail-item">
+            <label>Date of Birth</label>
+            <p>
+              {{ patientData.dateOfBirth
+                ? (patientData.dateOfBirth | date:'dd MMM yyyy')
+                : 'N/A' }}
+            </p>
+          </div>
+
+          <div class="detail-item">
+            <label>Gender</label>
+            <p>{{ patientData.gender || 'N/A' }}</p>
+          </div>
+
+          <div class="detail-item">
+            <label>Blood Group</label>
+            <p>{{ patientData.bloodGroup || 'N/A' }}</p>
+          </div>
+
+          <div class="detail-item">
+            <label>Emergency Contact</label>
+            <p>{{ patientData.emergencyContact || 'N/A' }}</p>
+          </div>
+
+          <div class="detail-item full-width">
+            <label>Address</label>
+            <p>{{ patientData.address || 'N/A' }}</p>
+          </div>
+
+          <div class="detail-item">
+            <label>Registration Date</label>
+            <p>{{ patientData.createdAt | date:'dd MMM yyyy, hh:mm a' }}</p>
+          </div>
+
+          <div class="detail-item">
+            <label>Account Created</label>
+            <p>
+              {{ patientData.user.createdAt
+                ? (patientData.user.createdAt | date:'dd MMM yyyy')
+                : 'N/A' }}
+            </p>
+          </div>
+
+        </div>
+      </div>
+    }
+
+    <!-- APPOINTMENTS TAB -->
+    @if (activeTab() === 'appointments') {
+
+      <div class="content-card">
+
+        <div class="section-heading">
+          <div>
+            <h2>Appointment History</h2>
+            <p>All appointments associated with this patient.</p>
+          </div>
+
+          <span class="total-count">
+            {{ appointmentTotal() }} Appointments
+          </span>
+        </div>
+
+        @if (loadingAppointments()) {
+          <div class="state-message">
+            Loading appointments...
+          </div>
+        }
+
+        @if (appointmentError()) {
+          <div class="error-message">
+            {{ appointmentError() }}
+
+            <button type="button" (click)="loadAppointments()">
+              Retry
+            </button>
+          </div>
+        }
+
+        @if (!loadingAppointments() && !appointmentError()) {
+
+          @if (appointments().length > 0) {
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Appointment Date</th>
+                    <th>Doctor</th>
+                    <th>Department</th>
+                    <th>Duration</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @for (appointment of appointments(); track appointment.id) {
+                    <tr>
+                      <td>
+                        {{ appointment.scheduledAt | date:'dd MMM yyyy, hh:mm a' }}
+                      </td>
+
+                      <td>
+                        <div class="doctor-name">
+                          {{ getDoctorName(appointment) }}
+                        </div>
+                        <small>{{ appointment.doctor.specialization }}</small>
+                      </td>
+
+                      <td>{{ appointment.department.name }}</td>
+
+                      <td>{{ appointment.durationMinutes }} min</td>
+
+                      <td>{{ appointment.reason || 'N/A' }}</td>
+
+                      <td>
+                        <span
+                          class="status-badge"
+                          [ngClass]="appointment.status.toLowerCase()"
+                        >
+                          {{ appointment.status }}
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination">
+              <span>
+                Page {{ appointmentPage() }} of {{ appointmentTotalPages() }}
+              </span>
+
+              <div class="pagination-actions">
+                <button
+                  type="button"
+                  (click)="previousAppointmentPage()"
+                  [disabled]="appointmentPage() <= 1"
+                >
+                  Previous
+                </button>
+
+                <button
+                  type="button"
+                  (click)="nextAppointmentPage()"
+                  [disabled]="appointmentPage() >= appointmentTotalPages()"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+
+          } @else {
+            <div class="empty-state">
+              <h3>No appointments found</h3>
+              <p>This patient doesn't have any appointments.</p>
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <!-- MEDICAL RECORDS TAB -->
+    @if (activeTab() === 'records') {
+
+      <div class="content-card">
+
+        <div class="section-heading">
+          <div>
+            <h2>Medical Records</h2>
+            <p>Diagnosis, clinical notes and treatment history.</p>
+          </div>
+
+          <span class="total-count">
+            {{ recordTotal() }} Records
+          </span>
+        </div>
+
+        @if (loadingRecords()) {
+          <div class="state-message">
+            Loading medical records...
+          </div>
+        }
+
+        @if (recordError()) {
+          <div class="error-message">
+            {{ recordError() }}
+
+            <button type="button" (click)="loadMedicalRecords()">
+              Retry
+            </button>
+          </div>
+        }
+
+        @if (!loadingRecords() && !recordError()) {
+
+          @if (medicalRecords().length > 0) {
+
+            <div class="records-list">
+
+              @for (record of medicalRecords(); track record.id) {
+
+                <div class="record-card">
+
+                  <div class="record-header">
+                    <div>
+                      <h3>{{ record.diagnosis || 'No diagnosis recorded' }}</h3>
+
+                      <p>
+                        Recorded on
+                        {{ record.recordedAt | date:'dd MMM yyyy, hh:mm a' }}
+                      </p>
+                    </div>
+
+                    <span
+                      class="status-badge"
+                      [ngClass]="record.status.toLowerCase()"
+                    >
+                      {{ record.status }}
+                    </span>
+                  </div>
+
+                  <div class="record-meta">
+                    <div>
+                      <label>Doctor</label>
+                      <p>{{ getRecordDoctorName(record) }}</p>
+                      <small>{{ record.doctor.specialization }}</small>
+                    </div>
+
+                    <div>
+                      <label>Appointment Date</label>
+                      <p>
+                        {{ record.appointment.scheduledAt | date:'dd MMM yyyy' }}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label>Appointment Status</label>
+                      <p>{{ record.appointment.status }}</p>
+                    </div>
+                  </div>
+
+                  <div class="record-section">
+                    <label>Symptoms</label>
+                    <p>{{ record.symptoms || 'No symptoms recorded.' }}</p>
+                  </div>
+
+                  <div class="record-section">
+                    <label>Clinical Notes</label>
+                    <p>{{ record.clinicalNotes || 'No clinical notes recorded.' }}</p>
+                  </div>
+
+                  <div class="record-section">
+                    <label>Treatment Plan</label>
+                    <p>{{ record.treatmentPlan || 'No treatment plan recorded.' }}</p>
+                  </div>
+
+                  <div class="record-footer">
+                    Record ID: {{ record.id }}
+                  </div>
+
+                </div>
+              }
+
+            </div>
+
+            <div class="pagination">
+              <span>
+                Page {{ recordPage() }} of {{ recordTotalPages() }}
+              </span>
+
+              <div class="pagination-actions">
+                <button
+                  type="button"
+                  (click)="previousRecordPage()"
+                  [disabled]="recordPage() <= 1"
+                >
+                  Previous
+                </button>
+
+                <button
+                  type="button"
+                  (click)="nextRecordPage()"
+                  [disabled]="recordPage() >= recordTotalPages()"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+
+          } @else {
+            <div class="empty-state">
+              <h3>No medical records found</h3>
+              <p>No medical records are available for this patient.</p>
+            </div>
+          }
+        }
+      </div>
+    }
+
+  }
+
+</div>

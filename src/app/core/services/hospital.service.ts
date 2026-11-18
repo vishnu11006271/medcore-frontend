@@ -45,4 +45,11 @@ export class HospitalService {
       {}
     );
   }
+
+  rejectHospital(id: string): Observable<ApiResponse<Hospital>> {
+    return this.http.patch<ApiResponse<Hospital>>(
+      `${this.apiUrl}/hospitals/${id}/reject`,
+      {}
+    );
+  }
 }

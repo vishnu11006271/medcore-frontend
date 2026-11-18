@@ -1,0 +1,213 @@
+<div class="billing-dashboard">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Billing Dashboard</h1>
+      <p>Manage invoices and monitor hospital billing.</p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="loadInvoices()"
+        [disabled]="loading()">
+        Refresh
+      </button>
+
+      <a
+        routerLink="/dashboard/billing/invoices/new"
+        class="btn btn-primary">
+        + Create Invoice
+      </a>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="state-message">
+      Loading billing information...
+    </div>
+  }
+
+  <!-- Error -->
+  @if (errorMessage()) {
+    <div class="error-message">
+      {{ errorMessage() }}
+
+      <button type="button" (click)="loadInvoices()">
+        Try again
+      </button>
+    </div>
+  }
+
+  @if (!loading() && !errorMessage()) {
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+
+      <div class="summary-card">
+        <div class="card-label">Total Invoices</div>
+        <div class="card-value">{{ totalInvoices() }}</div>
+        <div class="card-description">All created invoices</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-label">Total Billed</div>
+        <div class="card-value">
+          {{ totalBilled() | currency:'INR':'symbol':'1.2-2' }}
+        </div>
+        <div class="card-description">Total invoice value</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-label">Paid Invoices</div>
+        <div class="card-value">{{ statusCounts().paid }}</div>
+        <div class="card-description">Invoices marked as paid</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-label">Pending Invoices</div>
+        <div class="card-value">
+          {{ statusCounts().issued + statusCounts().partiallyPaid }}
+        </div>
+        <div class="card-description">Issued or partially paid</div>
+      </div>
+
+    </div>
+
+    <!-- Invoice Status Summary -->
+    <section class="content-card">
+      <div class="section-header">
+        <div>
+          <h2>Invoice Overview</h2>
+          <p>Current invoice status distribution</p>
+        </div>
+
+        <a routerLink="/dashboard/billing/invoices">
+          View all invoices
+        </a>
+      </div>
+
+      <div class="status-grid">
+
+        <div class="status-item">
+          <span class="status-dot draft-dot"></span>
+          <span>Draft</span>
+          <strong>{{ statusCounts().draft }}</strong>
+        </div>
+
+        <div class="status-item">
+          <span class="status-dot issued-dot"></span>
+          <span>Issued</span>
+          <strong>{{ statusCounts().issued }}</strong>
+        </div>
+
+        <div class="status-item">
+          <span class="status-dot partial-dot"></span>
+          <span>Partially Paid</span>
+          <strong>{{ statusCounts().partiallyPaid }}</strong>
+        </div>
+
+        <div class="status-item">
+          <span class="status-dot paid-dot"></span>
+          <span>Paid</span>
+          <strong>{{ statusCounts().paid }}</strong>
+        </div>
+
+        <div class="status-item">
+          <span class="status-dot void-dot"></span>
+          <span>Void</span>
+          <strong>{{ statusCounts().void }}</strong>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Recent Invoices -->
+    <section class="content-card">
+      <div class="section-header">
+        <div>
+          <h2>Recent Invoices</h2>
+          <p>Latest five invoices</p>
+        </div>
+
+        <a routerLink="/dashboard/billing/invoices">
+          View all
+        </a>
+      </div>
+
+      @if (recentInvoices().length > 0) {
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Invoice Number</th>
+                <th>Patient</th>
+                <th>Invoice Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (invoice of recentInvoices(); track invoice.id) {
+                <tr>
+                  <td class="invoice-number">
+                    {{ invoice.invoiceNumber }}
+                  </td>
+
+                  <td>
+                    {{ getPatientName(invoice) }}
+                  </td>
+
+                  <td>
+                    {{ invoice.createdAt | date:'mediumDate' }}
+                  </td>
+
+                  <td class="amount">
+                    {{ invoice.total | currency:'INR':'symbol':'1.2-2' }}
+                  </td>
+
+                  <td>
+                    <span
+                      class="status-badge"
+                      [class]="getStatusClass(invoice.status)">
+                      {{ invoice.status.replace('_', ' ') }}
+                    </span>
+                  </td>
+
+                  <td>
+                    <a
+                      class="view-link"
+                      [routerLink]="['/dashboard/billing/invoices', invoice.id]">
+                      View
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+      } @else {
+        <div class="empty-state">
+          <h3>No invoices found</h3>
+          <p>Invoices will appear here once they are created.</p>
+
+          <a
+            routerLink="/dashboard/billing/invoices/new"
+            class="btn btn-primary">
+            Create your first invoice
+          </a>
+        </div>
+      }
+
+    </section>
+
+  }
+
+</div>

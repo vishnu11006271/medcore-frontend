@@ -1,0 +1,362 @@
+<div class="catalogue-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Laboratory Test Catalogue</h1>
+      <p>Manage laboratory tests, pricing and availability.</p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="loadTests()"
+        [disabled]="loading()">
+        ↻ Refresh
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="openCreateForm()">
+        + Add New Test
+      </button>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      {{ successMessage() }}
+      <button type="button" (click)="clearMessages()">×</button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      {{ errorMessage() }}
+      <button type="button" (click)="clearMessages()">×</button>
+    </div>
+  }
+
+  <!-- Statistics -->
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <span class="stat-label">Total Tests</span>
+      <strong>{{ totalTests() }}</strong>
+    </div>
+
+    <div class="stat-card active-card">
+      <span class="stat-label">Active Tests</span>
+      <strong>{{ activeTests() }}</strong>
+    </div>
+
+    <div class="stat-card inactive-card">
+      <span class="stat-label">Inactive Tests</span>
+      <strong>{{ inactiveTests() }}</strong>
+    </div>
+
+  </div>
+
+  <!-- Catalogue -->
+  <section class="catalogue-card">
+
+    <div class="catalogue-heading">
+      <div>
+        <h2>All Laboratory Tests</h2>
+        <p>View and manage your hospital's test catalogue.</p>
+      </div>
+
+      <span class="result-count">
+        {{ filteredTests().length }} results
+      </span>
+    </div>
+
+    <!-- Search and filters -->
+    <div class="toolbar">
+
+      <div class="search-box">
+        <span>⌕</span>
+
+        <input
+          type="text"
+          placeholder="Search by test name or code..."
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)" />
+      </div>
+
+      <select
+        class="status-filter"
+        [ngModel]="selectedFilter()"
+        (ngModelChange)="onFilterChange($event)">
+
+        <option value="ALL">All Status</option>
+        <option value="ACTIVE">Active</option>
+        <option value="INACTIVE">Inactive</option>
+
+      </select>
+
+    </div>
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading laboratory tests...</p>
+      </div>
+    }
+
+    <!-- Table -->
+    @else if (filteredTests().length > 0) {
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Test Name</th>
+              <th>Test Code</th>
+              <th>Description</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (
+              test of filteredTests();
+              track trackByTestId($index, test)
+            ) {
+
+              <tr>
+
+                <td class="test-name">
+                  {{ test.name }}
+                </td>
+
+                <td>
+                  <span class="test-code">
+                    {{ test.code }}
+                  </span>
+                </td>
+
+                <td class="description">
+                  {{ test.description || '—' }}
+                </td>
+
+                <td class="price">
+                  {{ test.price | currency:'INR':'symbol':'1.2-2' }}
+                </td>
+
+                <td>
+                  <span
+                    class="status-badge"
+                    [class.active]="test.isActive"
+                    [class.inactive]="!test.isActive">
+
+                    {{ test.isActive ? 'Active' : 'Inactive' }}
+
+                  </span>
+                </td>
+
+                <td>
+                  <div class="action-buttons">
+
+                    <button
+                      type="button"
+                      class="action-btn edit-btn"
+                      title="Edit test"
+                      (click)="openEditForm(test)">
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      class="action-btn"
+                      [class.deactivate-btn]="test.isActive"
+                      [class.activate-btn]="!test.isActive"
+                      (click)="toggleTestStatus(test)">
+
+                      {{ test.isActive ? 'Deactivate' : 'Activate' }}
+
+                    </button>
+
+                  </div>
+                </td>
+
+              </tr>
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+    }
+
+    <!-- Empty state -->
+    @else {
+
+      <div class="empty-state">
+        <div class="empty-icon">⚗</div>
+
+        <h3>No laboratory tests found</h3>
+
+        <p>
+          @if (searchTerm() || selectedFilter() !== 'ALL') {
+            Try changing your search or status filter.
+          } @else {
+            Add your first laboratory test to get started.
+          }
+        </p>
+
+        @if (!searchTerm() && selectedFilter() === 'ALL') {
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="openCreateForm()">
+            Add New Test
+          </button>
+        }
+      </div>
+
+    }
+
+  </section>
+
+</div>
+
+<!-- Create / Edit Modal -->
+@if (showForm()) {
+
+  <div class="modal-backdrop" (click)="closeForm()">
+
+    <div
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="test-form-title"
+      (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+
+        <div>
+          <h2 id="test-form-title">
+            {{ editingTest() ? 'Edit Laboratory Test' : 'Add Laboratory Test' }}
+          </h2>
+
+          <p>
+            Enter the laboratory test information below.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="close-btn"
+          (click)="closeForm()"
+          [disabled]="saving()">
+          ×
+        </button>
+
+      </div>
+
+      <form (ngSubmit)="submitForm()">
+
+        <div class="form-group">
+          <label for="testName">Test Name *</label>
+
+          <input
+            id="testName"
+            type="text"
+            placeholder="e.g. Complete Blood Count"
+            [ngModel]="name()"
+            (ngModelChange)="name.set($event)"
+            name="name"
+            required
+            maxlength="150" />
+        </div>
+
+        <div class="form-group">
+          <label for="testCode">Test Code *</label>
+
+          <input
+            id="testCode"
+            type="text"
+            [ngModel]="code()"
+            (ngModelChange)="code.set($event)"
+            name="code"
+            required
+            [readonly]="!!editingTest()" />
+        </div>
+
+        <div class="form-group">
+          <label for="testDescription">Description</label>
+
+          <textarea
+            id="testDescription"
+            rows="3"
+            placeholder="Enter test description"
+            [ngModel]="description()"
+            (ngModelChange)="description.set($event)"
+            name="description"
+            maxlength="1000">
+          </textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="testPrice">Price (₹) *</label>
+
+          <input
+            id="testPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Enter test price"
+            [ngModel]="price()"
+            (ngModelChange)="onPriceChange($event)"
+            name="price"
+            required />
+        </div>
+
+        @if (formError()) {
+          <div class="alert alert-error">
+            {{ formError() }}
+          </div>
+        }
+
+        <div class="modal-actions">
+
+          <button
+            type="button"
+            class="btn btn-outline"
+            (click)="closeForm()"
+            [disabled]="saving()">
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="saving()">
+
+            {{ saving()
+              ? 'Saving...'
+              : editingTest() ? 'Update Test' : 'Create Test'
+            }}
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+}

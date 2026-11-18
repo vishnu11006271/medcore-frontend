@@ -1,0 +1,127 @@
+<div class="lab-results-page">
+
+  <div class="page-header">
+    <div>
+      <h2>My Laboratory Results</h2>
+      <p>View your approved laboratory test reports.</p>
+    </div>
+
+    <button class="refresh-btn" (click)="loadResults()" [disabled]="loading()">
+      Refresh
+    </button>
+  </div>
+
+  <div class="summary-card">
+    <div>
+      <span class="summary-label">Approved Reports</span>
+      <h2>{{ results().length }}</h2>
+    </div>
+    <div class="summary-icon">🧪</div>
+  </div>
+
+  <div class="search-container">
+    <input
+      type="text"
+      placeholder="Search by test name, code or diagnosis..."
+      (input)="onSearch($event)"
+    />
+  </div>
+
+  @if (loading()) {
+    <div class="state-message">Loading laboratory results...</div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      {{ errorMessage() }}
+      <button (click)="loadResults()">Retry</button>
+    </div>
+  }
+
+  @if (!loading() && !errorMessage() && filteredResults().length === 0) {
+    <div class="empty-state">
+      <h3>No laboratory results found</h3>
+      <p>Your approved laboratory reports will appear here.</p>
+    </div>
+  }
+
+  @if (!loading() && filteredResults().length > 0) {
+    <div class="results-list">
+
+      @for (order of filteredResults(); track order.id) {
+        <div class="result-card">
+
+          <div class="result-header">
+            <div>
+              <h3>{{ order.labTest.name }}</h3>
+              <span class="test-code">{{ order.labTest.code }}</span>
+            </div>
+
+            <span class="status-badge">Approved</span>
+          </div>
+
+          <div class="result-meta">
+            <div>
+              <span>Test Ordered</span>
+              <strong>{{ order.orderedAt | date:'dd MMM yyyy, h:mm a' }}</strong>
+            </div>
+
+            <div>
+              <span>Approved On</span>
+              <strong>
+                {{ order.approvedAt ? (order.approvedAt | date:'dd MMM yyyy, h:mm a') : 'N/A' }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Diagnosis</span>
+              <strong>{{ order.medicalRecord.diagnosis || 'N/A' }}</strong>
+            </div>
+          </div>
+
+          <div class="result-content">
+            <h4>Test Result</h4>
+
+            @if (order.resultText) {
+              <pre>{{ order.resultText }}</pre>
+            } @else {
+              <p class="muted">No result text available.</p>
+            }
+          </div>
+
+          @if (order.approvalNotes) {
+            <div class="approval-notes">
+              <h4>Doctor's Approval Notes</h4>
+              <p>{{ order.approvalNotes }}</p>
+            </div>
+          }
+
+          @if (order.notes) {
+            <div class="order-notes">
+              <strong>Order Notes:</strong>
+              <p>{{ order.notes }}</p>
+            </div>
+          }
+
+          @if (order.labTest.description) {
+            <div class="test-description">
+              <strong>Test Description:</strong>
+              <p>{{ order.labTest.description }}</p>
+            </div>
+          }
+
+          @if (order.resultFileUrl) {
+            <button
+              class="report-btn"
+              (click)="openReport(order.resultFileUrl)">
+              View / Download Report
+            </button>
+          }
+
+        </div>
+      }
+
+    </div>
+  }
+
+</div>

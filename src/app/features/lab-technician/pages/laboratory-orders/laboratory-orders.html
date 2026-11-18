@@ -1,0 +1,432 @@
+<div class="orders-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Laboratory Orders</h1>
+      <p>Manage sample collection, processing and test results.</p>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-outline"
+      (click)="loadOrders()"
+      [disabled]="loading()">
+      ↻ Refresh
+    </button>
+  </div>
+
+  <!-- Notifications -->
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      {{ successMessage() }}
+      <button type="button" (click)="successMessage.set('')">×</button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      {{ errorMessage() }}
+      <button type="button" (click)="errorMessage.set('')">×</button>
+    </div>
+  }
+
+  <!-- Summary -->
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <span>Total Orders</span>
+      <strong>{{ totalOrders() }}</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Ordered</span>
+      <strong>{{ orderedCount() }}</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Samples Collected</span>
+      <strong>{{ collectedCount() }}</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Processing</span>
+      <strong>{{ processingCount() }}</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Results Uploaded</span>
+      <strong>{{ uploadedCount() }}</strong>
+    </div>
+
+  </div>
+
+  <section class="orders-card">
+
+    <div class="section-heading">
+      <div>
+        <h2>All Orders</h2>
+        <p>Laboratory orders for your hospital.</p>
+      </div>
+
+      <span>{{ filteredOrders().length }} orders</span>
+    </div>
+
+    <!-- Search and filter -->
+    <div class="toolbar">
+
+      <input
+        type="text"
+        placeholder="Search patient, test name or code..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="onSearchChange($event)" />
+
+      <select
+        [ngModel]="selectedFilter()"
+        (ngModelChange)="onFilterChange($event)">
+
+        <option value="ALL">All Status</option>
+        <option value="ORDERED">Ordered</option>
+        <option value="SAMPLE_COLLECTED">Sample Collected</option>
+        <option value="PROCESSING">Processing</option>
+        <option value="RESULT_UPLOADED">Result Uploaded</option>
+        <option value="APPROVED">Approved</option>
+        <option value="REJECTED">Rejected</option>
+        <option value="COMPLETED">Completed</option>
+        <option value="CANCELLED">Cancelled</option>
+
+      </select>
+
+    </div>
+
+    @if (loading()) {
+
+      <div class="loading-state">
+        Loading laboratory orders...
+      </div>
+
+    } @else if (filteredOrders().length > 0) {
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Test</th>
+              <th>Code</th>
+              <th>Ordered Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (
+              order of filteredOrders();
+              track trackByOrderId($index, order)
+            ) {
+
+              <tr>
+
+                <td class="patient-name">
+                  {{ order.medicalRecord.patient.user.firstName }}
+                  {{ order.medicalRecord.patient.user.lastName }}
+                </td>
+
+                <td>{{ order.labTest.name }}</td>
+
+                <td>
+                  <span class="test-code">{{ order.labTest.code }}</span>
+                </td>
+
+                <td>
+                  {{ order.orderedAt | date:'dd MMM yyyy, hh:mm a' }}
+                </td>
+
+                <td>
+                  <span
+                    class="status-badge"
+                    [ngClass]="order.status.toLowerCase()">
+
+                    {{ getStatusLabel(order.status) }}
+
+                  </span>
+                </td>
+
+                <td>
+                  <button
+                    type="button"
+                    class="action-btn"
+                    (click)="selectOrder(order)">
+                    View Details
+                  </button>
+                </td>
+
+              </tr>
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    } @else {
+
+      <div class="empty-state">
+        <h3>No laboratory orders found</h3>
+        <p>Try changing the search term or status filter.</p>
+      </div>
+
+    }
+
+  </section>
+
+</div>
+
+<!-- Order details -->
+@if (selectedOrder(); as order) {
+
+  <div class="modal-backdrop" (click)="closeDetails()">
+
+    <section
+      class="details-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="order-details-title"
+      (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+
+        <div>
+          <h2 id="order-details-title">Laboratory Order Details</h2>
+          <p>Order ID: {{ order.id }}</p>
+        </div>
+
+        <button
+          type="button"
+          class="close-btn"
+          (click)="closeDetails()">
+          ×
+        </button>
+
+      </div>
+
+      <div class="details-content">
+
+        <div class="detail-section">
+          <h3>Test Information</h3>
+
+          <div class="detail-row">
+            <span>Test Name</span>
+            <strong>{{ order.labTest.name }}</strong>
+          </div>
+
+          <div class="detail-row">
+            <span>Test Code</span>
+            <strong>{{ order.labTest.code }}</strong>
+          </div>
+
+          <div class="detail-row">
+            <span>Price</span>
+            <strong>{{ order.labTest.price | currency:'INR':'symbol':'1.2-2' }}</strong>
+          </div>
+
+          <div class="detail-row">
+            <span>Status</span>
+            <strong>{{ getStatusLabel(order.status) }}</strong>
+          </div>
+
+          <div class="detail-row">
+            <span>Ordered At</span>
+            <strong>{{ order.orderedAt | date:'dd MMM yyyy, hh:mm a' }}</strong>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Patient Information</h3>
+
+          <div class="detail-row">
+            <span>Patient Name</span>
+            <strong>
+              {{ order.medicalRecord.patient.user.firstName }}
+              {{ order.medicalRecord.patient.user.lastName }}
+            </strong>
+          </div>
+
+          <div class="detail-row">
+            <span>Email</span>
+            <strong>
+              {{ order.medicalRecord.patient.user.email || '—' }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Doctor Information</h3>
+
+          <div class="detail-row">
+            <span>Doctor</span>
+            <strong>
+              @if (order.medicalRecord.doctor) {
+                {{ order.medicalRecord.doctor.user.firstName }}
+                {{ order.medicalRecord.doctor.user.lastName }}
+              } @else {
+                Not available
+              }
+            </strong>
+          </div>
+        </div>
+
+        @if (order.notes) {
+          <div class="detail-section">
+            <h3>Order Notes</h3>
+            <p>{{ order.notes }}</p>
+          </div>
+        }
+
+        @if (order.status === 'RESULT_UPLOADED' ||
+             order.status === 'APPROVED' ||
+             order.status === 'COMPLETED') {
+
+          <div class="detail-section">
+            <h3>Uploaded Result</h3>
+
+            <p class="result-text">{{ order.resultText || 'No result text available.' }}</p>
+
+            @if (order.resultFileUrl) {
+              <a
+                [href]="order.resultFileUrl"
+                target="_blank"
+                rel="noopener noreferrer">
+                View Result File
+              </a>
+            }
+          </div>
+        }
+
+      </div>
+
+      <!-- Workflow actions -->
+      @if (order.status === 'ORDERED' ||
+           order.status === 'SAMPLE_COLLECTED' ||
+           order.status === 'PROCESSING') {
+
+        <div class="workflow-actions">
+
+          @if (order.status === 'ORDERED') {
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="collectSample(order)"
+              [disabled]="actionLoading()">
+
+              {{ actionLoading() ? 'Please wait...' : 'Collect Sample' }}
+
+            </button>
+
+          }
+
+          @if (order.status === 'SAMPLE_COLLECTED') {
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="startProcessing(order)"
+              [disabled]="actionLoading()">
+
+              {{ actionLoading() ? 'Please wait...' : 'Start Processing' }}
+
+            </button>
+
+          }
+
+          @if (order.status === 'PROCESSING') {
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="openResultForm()"
+              [disabled]="actionLoading()">
+
+              Upload Result
+
+            </button>
+
+          }
+
+        </div>
+      }
+
+      @if (showResultForm()) {
+
+        <div class="result-form">
+
+          <h3>Upload Laboratory Result</h3>
+
+          <div class="form-group">
+            <label for="resultText">Result Details *</label>
+
+            <textarea
+              id="resultText"
+              rows="5"
+              placeholder="Enter the laboratory test result..."
+              [ngModel]="resultText()"
+              (ngModelChange)="resultText.set($event)"
+              name="resultText">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="resultFileUrl">Result File URL (Optional)</label>
+
+            <input
+              id="resultFileUrl"
+              type="url"
+              placeholder="https://example.com/result.pdf"
+              [ngModel]="resultFileUrl()"
+              (ngModelChange)="resultFileUrl.set($event)"
+              name="resultFileUrl" />
+          </div>
+
+          @if (formError()) {
+            <div class="alert alert-error">
+              {{ formError() }}
+            </div>
+          }
+
+          <div class="form-actions">
+
+            <button
+              type="button"
+              class="btn btn-outline"
+              (click)="closeResultForm()"
+              [disabled]="actionLoading()">
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="uploadResult()"
+              [disabled]="actionLoading()">
+
+              {{ actionLoading() ? 'Uploading...' : 'Submit Result' }}
+
+            </button>
+
+          </div>
+
+        </div>
+
+      }
+
+    </section>
+
+  </div>
+
+}

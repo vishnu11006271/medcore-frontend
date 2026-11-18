@@ -1,0 +1,579 @@
+
+<div class="medical-records-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Medical Records</h1>
+      <p>Manage patient medical records and clinical information.</p>
+    </div>
+
+    <button class="btn btn-secondary" (click)="loadPageData()" [disabled]="loading()">
+      {{ loading() ? 'Refreshing...' : '↻ Refresh' }}
+    </button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert success">{{ successMessage() }}</div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert error">{{ errorMessage() }}</div>
+  }
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <span>Total Appointments</span>
+      <strong>{{ appointments().length }}</strong>
+    </div>
+
+    <div class="summary-card">
+      <span>Total Medical Records</span>
+      <strong>{{ records().length }}</strong>
+    </div>
+
+    <div class="summary-card">
+      <span>Draft Records</span>
+      <strong>{{ records().filter(r => r.status === 'DRAFT').length }}</strong>
+    </div>
+
+    <div class="summary-card">
+      <span>Finalized Records</span>
+      <strong>{{ records().filter(r => r.status === 'FINALIZED').length }}</strong>
+    </div>
+  </div>
+
+  <section class="content-card">
+    <div class="section-header">
+      <div>
+        <h2>Patient Appointments</h2>
+        <p>Create or open medical records from your appointments.</p>
+      </div>
+    </div>
+
+    <div class="filters">
+      <input
+        type="text"
+        placeholder="Search patient or appointment reason..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+
+      <select
+        [ngModel]="selectedStatus()"
+        (ngModelChange)="selectedStatus.set($event)"
+      >
+        <option value="ALL">All Statuses</option>
+        <option value="PENDING">Pending</option>
+        <option value="SCHEDULED">Scheduled</option>
+        <option value="CONFIRMED">Confirmed</option>
+        <option value="CHECKED_IN">Checked In</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="COMPLETED">Completed</option>
+        <option value="CANCELLED">Cancelled</option>
+        <option value="NO_SHOW">No Show</option>
+      </select>
+    </div>
+
+    @if (loading()) {
+      <div class="empty-state">Loading medical records...</div>
+    } @else if (filteredAppointments().length === 0) {
+      <div class="empty-state">No appointments found.</div>
+    } @else {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Appointment Date</th>
+              <th>Reason</th>
+              <th>Appointment Status</th>
+              <th>Medical Record</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (appointment of filteredAppointments(); track appointment.id) {
+              <tr>
+                <td>
+                  <strong>{{ getPatientName(appointment) }}</strong>
+                </td>
+
+                <td>{{ appointment.scheduledAt | date:'medium' }}</td>
+
+                <td>{{ appointment.reason || 'Not specified' }}</td>
+
+                <td>
+                  <span class="status-badge" [ngClass]="appointment.status.toLowerCase()">
+                    {{ appointment.status.replace('_', ' ') }}
+                  </span>
+                </td>
+
+                <td>
+                  @if (getRecordForAppointment(appointment.id); as record) {
+                    <span class="status-badge" [ngClass]="record.status.toLowerCase()">
+                      {{ record.status }}
+                    </span>
+                  } @else {
+                    <span class="muted">Not created</span>
+                  }
+                </td>
+
+                <td>
+                  @if (getRecordForAppointment(appointment.id); as record) {
+                    <button class="btn btn-primary"
+                      (click)="openRecordDetails(record.id)">
+                      View Record
+                    </button>
+                  } @else if (canCreateRecord(appointment)) {
+                    <button class="btn btn-primary"
+                      (click)="openCreateForm(appointment)">
+                      Create Record
+                    </button>
+                  } @else {
+                    <span class="muted">Unavailable</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  @if (showRecordForm()) {
+    <div class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <h2>{{ editingRecordId() ? 'Edit Medical Record' : 'Create Medical Record' }}</h2>
+            <p>Enter the patient's clinical information.</p>
+          </div>
+
+          <button class="close-btn" (click)="closeForms()">×</button>
+        </div>
+
+        <form (ngSubmit)="saveRecord()">
+          <div class="form-group">
+            <label>Diagnosis</label>
+            <textarea
+              name="diagnosis"
+              [(ngModel)]="recordForm.diagnosis"
+              maxlength="5000"
+              rows="3"
+              placeholder="Enter diagnosis">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Symptoms</label>
+            <textarea
+              name="symptoms"
+              [(ngModel)]="recordForm.symptoms"
+              maxlength="5000"
+              rows="3"
+              placeholder="Enter symptoms">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Clinical Notes</label>
+            <textarea
+              name="clinicalNotes"
+              [(ngModel)]="recordForm.clinicalNotes"
+              maxlength="10000"
+              rows="4"
+              placeholder="Enter clinical notes">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Treatment Plan</label>
+            <textarea
+              name="treatmentPlan"
+              [(ngModel)]="recordForm.treatmentPlan"
+              maxlength="10000"
+              rows="3"
+              placeholder="Enter treatment plan">
+            </textarea>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeForms()">
+              Cancel
+            </button>
+
+            <button type="submit" class="btn btn-primary" [disabled]="saving()">
+              {{ saving() ? 'Saving...' : (editingRecordId() ? 'Update Record' : 'Create Record') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (showDetails()) {
+    <div class="modal-backdrop">
+      <div class="modal-card details-modal">
+
+        <div class="modal-header">
+          <div>
+            <h2>Medical Record Details</h2>
+            <p>View and manage clinical information.</p>
+          </div>
+
+          <button class="close-btn" (click)="closeDetails()">×</button>
+        </div>
+
+        @if (loadingDetails()) {
+          <div class="empty-state">Loading record...</div>
+        } @else if (selectedRecord(); as record) {
+
+          <div class="record-status">
+            <span class="status-badge" [ngClass]="record.status.toLowerCase()">
+              {{ record.status }}
+            </span>
+
+            <span class="muted">
+              Recorded: {{ record.recordedAt | date:'medium' }}
+            </span>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Diagnosis</label>
+              <p>{{ record.diagnosis || 'Not provided' }}</p>
+            </div>
+
+            <div class="detail-item">
+              <label>Symptoms</label>
+              <p>{{ record.symptoms || 'Not provided' }}</p>
+            </div>
+
+            <div class="detail-item">
+              <label>Clinical Notes</label>
+              <p>{{ record.clinicalNotes || 'Not provided' }}</p>
+            </div>
+
+            <div class="detail-item">
+              <label>Treatment Plan</label>
+              <p>{{ record.treatmentPlan || 'Not provided' }}</p>
+            </div>
+          </div>
+
+          <!-- Laboratory Orders -->
+        <div class="lab-order-section">
+        <div class="section-header">
+            <div>
+            <h3>Laboratory Orders</h3>
+            <p>Order laboratory tests for this patient.</p>
+            </div>
+
+            @if (record.status === 'FINALIZED' && !showLabOrderForm()) {
+            <button
+                type="button"
+                class="btn btn-primary"
+                (click)="openLabOrderForm()">
+                + Create Lab Order
+            </button>
+            }
+        </div>
+
+        @if (createdLabOrder(); as order) {
+            <div class="lab-order-success">
+            <strong>Laboratory order created successfully.</strong>
+            <p>Test: {{ order.labTest.name }} ({{ order.labTest.code }})</p>
+            <p>Status: {{ order.status }}</p>
+            <p>Order ID: {{ order.id }}</p>
+            </div>
+        }
+
+        @if (showLabOrderForm()) {
+            <form class="lab-order-form" (ngSubmit)="createLabOrder()">
+
+            <h4>Create Laboratory Order</h4>
+
+            @if (loadingLabTests()) {
+                <p class="muted">Loading available laboratory tests...</p>
+            } @else if (labTests().length === 0) {
+                <p class="muted">
+                No active laboratory tests are available for your hospital.
+                </p>
+            } @else {
+                <div class="form-group">
+                <label for="labTest">Select Laboratory Test</label>
+
+                <select
+                    id="labTest"
+                    name="labTest"
+                    [(ngModel)]="selectedLabTestId"
+                    required>
+
+                    <option value="">-- Select a test --</option>
+
+                    @for (test of labTests(); track test.id) {
+                    <option [value]="test.id">
+                        {{ test.name }} ({{ test.code }}) - ₹{{ test.price }}
+                    </option>
+                    }
+                </select>
+                </div>
+
+                <div class="form-group">
+                <label for="labOrderNotes">Notes (Optional)</label>
+
+                <textarea
+                    id="labOrderNotes"
+                    name="labOrderNotes"
+                    [(ngModel)]="labOrderNotes"
+                    maxlength="2000"
+                    rows="3"
+                    placeholder="Enter any instructions for the laboratory technician">
+                </textarea>
+                </div>
+            }
+
+            <div class="modal-actions">
+                <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="closeLabOrderForm()">
+                Cancel
+                </button>
+
+                <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="
+                    loadingLabTests() ||
+                    labTests().length === 0 ||
+                    !selectedLabTestId ||
+                    labOrderSaving()
+                ">
+                {{ labOrderSaving() ? 'Creating...' : 'Create Order' }}
+                </button>
+            </div>
+            </form>
+        }
+        <!-- Existing Laboratory Orders -->
+        <div class="existing-lab-orders">
+
+        <h4>Ordered Tests and Results</h4>
+
+        @if (getLabOrdersForRecord(record.id).length === 0) {
+            <p class="muted">No laboratory orders found for this medical record.</p>
+        } @else {
+
+            @for (order of getLabOrdersForRecord(record.id); track order.id) {
+            <div class="lab-result-card">
+
+                <div class="lab-result-header">
+                @if (order.labTest) {
+                <div>
+                    <strong>{{ order.labTest.name }}</strong>
+                    <span class="muted">({{ order.labTest.code }})</span>
+                </div>
+                }
+
+                <span class="status-badge" [ngClass]="order.status.toLowerCase()">
+                    {{ order.status.replace('_', ' ') }}
+                </span>
+                </div>
+
+                @if (order.notes) {
+                <p><strong>Order Notes:</strong> {{ order.notes }}</p>
+                }
+
+                @if (order.status === 'RESULT_UPLOADED' || order.status === 'APPROVED') {
+                <div class="result-content">
+                    <strong>Laboratory Result</strong>
+                    <p>{{ order.resultText || 'No result text available.' }}</p>
+
+                    @if (order.resultFileUrl) {
+                    <a [href]="order.resultFileUrl" target="_blank" rel="noopener noreferrer">
+                        View Result File
+                    </a>
+                    }
+                </div>
+                }
+
+                @if (order.status === 'RESULT_UPLOADED') {
+                <div class="approval-form">
+
+                    <div class="form-group">
+                    <label [for]="'approval-' + order.id">
+                        Approval Notes (Optional)
+                    </label>
+
+                    <textarea
+                        [id]="'approval-' + order.id"
+                        [name]="'approval-' + order.id"
+                        [(ngModel)]="approvalNotes[order.id]"
+                        rows="2"
+                        placeholder="Enter approval notes">
+                    </textarea>
+                    </div>
+
+                    <button
+                    type="button"
+                    class="btn btn-primary"
+                    (click)="approveLabOrder(order)"
+                    [disabled]="approvingOrderId() === order.id">
+
+                    {{ approvingOrderId() === order.id
+                        ? 'Approving...'
+                        : 'Approve Result' }}
+                    </button>
+                </div>
+                }
+
+                @if (order.status === 'APPROVED') {
+                <div class="approved-message">
+                    <strong>Result approved</strong>
+
+                    @if (order.approvalNotes) {
+                    <p>Approval Notes: {{ order.approvalNotes }}</p>
+                    }
+                </div>
+                }
+
+            </div>
+            }
+        }
+        </div>
+        </div>
+
+          <div class="vitals-section">
+            <div class="section-header">
+              <h3>Vital Signs</h3>
+
+              @if (record.status === 'DRAFT') {
+                <button class="btn btn-secondary" (click)="openVitalsForm()">
+                  + Add Vitals
+                </button>
+              }
+            </div>
+
+            @if (vitals().length === 0) {
+              <p class="muted">No vital signs recorded.</p>
+            } @else {
+              <div class="vitals-list">
+                @for (vital of vitals(); track vital.id) {
+                  <div class="vital-card">
+                    @if (vital.systolicBP != null || vital.diastolicBP != null) {
+                      <span>Blood Pressure: {{ vital.systolicBP ?? '-' }}/{{ vital.diastolicBP ?? '-' }} mmHg</span>
+                    }
+                    @if (vital.pulseBpm != null) {
+                      <span>Pulse: {{ vital.pulseBpm }} bpm</span>
+                    }
+                    @if (vital.temperatureC != null) {
+                      <span>Temperature: {{ vital.temperatureC }} °C</span>
+                    }
+                    @if (vital.respiratoryRate != null) {
+                      <span>Respiratory Rate: {{ vital.respiratoryRate }}</span>
+                    }
+                    @if (vital.oxygenSaturation != null) {
+                      <span>Oxygen Saturation: {{ vital.oxygenSaturation }}%</span>
+                    }
+                    @if (vital.heightCm != null) {
+                      <span>Height: {{ vital.heightCm }} cm</span>
+                    }
+                    @if (vital.weightKg != null) {
+                      <span>Weight: {{ vital.weightKg }} kg</span>
+                    }
+                    @if (vital.notes) {
+                      <span>Notes: {{ vital.notes }}</span>
+                    }
+                    <small>{{ vital.recordedAt | date:'medium' }}</small>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          @if (showVitalsForm() && record.status === 'DRAFT') {
+            <form class="vitals-form" (ngSubmit)="saveVitals()">
+              <h3>Add Vital Signs</h3>
+
+              <div class="vitals-input-grid">
+                <div class="form-group">
+                  <label>Systolic BP</label>
+                  <input type="number" name="systolicBP" [(ngModel)]="vitalForm.systolicBP">
+                </div>
+
+                <div class="form-group">
+                  <label>Diastolic BP</label>
+                  <input type="number" name="diastolicBP" [(ngModel)]="vitalForm.diastolicBP">
+                </div>
+
+                <div class="form-group">
+                  <label>Pulse (bpm)</label>
+                  <input type="number" name="pulseBpm" [(ngModel)]="vitalForm.pulseBpm">
+                </div>
+
+                <div class="form-group">
+                  <label>Temperature (°C)</label>
+                  <input type="number" step="0.1" name="temperatureC" [(ngModel)]="vitalForm.temperatureC">
+                </div>
+
+                <div class="form-group">
+                  <label>Respiratory Rate</label>
+                  <input type="number" name="respiratoryRate" [(ngModel)]="vitalForm.respiratoryRate">
+                </div>
+
+                <div class="form-group">
+                  <label>Oxygen Saturation (%)</label>
+                  <input type="number" step="0.1" name="oxygenSaturation" [(ngModel)]="vitalForm.oxygenSaturation">
+                </div>
+
+                <div class="form-group">
+                  <label>Height (cm)</label>
+                  <input type="number" step="0.1" name="heightCm" [(ngModel)]="vitalForm.heightCm">
+                </div>
+
+                <div class="form-group">
+                  <label>Weight (kg)</label>
+                  <input type="number" step="0.1" name="weightKg" [(ngModel)]="vitalForm.weightKg">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Notes</label>
+                <textarea name="vitalNotes" [(ngModel)]="vitalForm.notes"></textarea>
+              </div>
+
+              <div class="modal-actions">
+                <button type="button" class="btn btn-secondary"
+                  (click)="showVitalsForm.set(false)">
+                  Cancel
+                </button>
+
+                <button type="submit" class="btn btn-primary" [disabled]="saving()">
+                  {{ saving() ? 'Saving...' : 'Save Vitals' }}
+                </button>
+              </div>
+            </form>
+          }
+
+          <div class="modal-actions record-actions">
+            @if (record.status === 'DRAFT') {
+              <button class="btn btn-secondary" (click)="openEditForm(record)">
+                Edit Record
+              </button>
+
+              <button class="btn btn-primary" (click)="finalizeRecord()" [disabled]="saving()">
+                {{ saving() ? 'Processing...' : 'Finalize Record' }}
+              </button>
+            }
+
+            <button class="btn btn-secondary" (click)="closeDetails()">
+              Close
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+</div>

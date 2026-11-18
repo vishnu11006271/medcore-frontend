@@ -1,0 +1,168 @@
+.invoice-page {
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 26px;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+  }
+}
+
+.filter-card,
+.table-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.filter-card {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  input {
+    flex: 1;
+    min-width: 220px;
+  }
+
+  input,
+  select {
+    min-height: 42px;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font: inherit;
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+
+  th,
+  td {
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  th {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  td {
+    font-size: 14px;
+  }
+}
+
+.invoice-number {
+  font-weight: 600;
+}
+
+.status-badge {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-draft { background: #f1f5f9; color: #475569; }
+.status-issued { background: #dbeafe; color: #1d4ed8; }
+.status-partial { background: #fef3c7; color: #92400e; }
+.status-paid { background: #dcfce7; color: #166534; }
+.status-void { background: #fee2e2; color: #991b1b; }
+
+.btn-primary,
+.btn-secondary,
+.btn-link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border: 0;
+  border-radius: 7px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  color: #fff;
+  background: #2563eb;
+}
+
+.btn-secondary {
+  color: #334155;
+  background: #e2e8f0;
+}
+
+.btn-link {
+  color: #2563eb;
+  background: transparent;
+  padding: 6px;
+}
+
+.state-message,
+.empty-state,
+.error-message {
+  padding: 28px;
+  text-align: center;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.error-message {
+  color: #b91c1c;
+}
+
+.empty-state {
+  color: #64748b;
+
+  h3 {
+    color: #0f172a;
+  }
+}
+
+@media (max-width: 640px) {
+  .invoice-page {
+    padding: 14px;
+  }
+
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .filter-card {
+    flex-direction: column;
+
+    input,
+    select,
+    button {
+      width: 100%;
+    }
+  }
+}

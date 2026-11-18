@@ -1,0 +1,201 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <h2>Prescription Queue</h2>
+      <p>View active prescriptions waiting for dispensing.</p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-btn"
+      (click)="loadActivePrescriptions()">
+      {{ isLoading() ? 'Refreshing...' : 'Refresh' }}
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-message">
+      Loading active prescriptions...
+    </div>
+  }
+
+  <!-- @if (errorMessage()) {
+    <div class="error-message">
+      {{ errorMessage() }}
+
+      <button type="button" (click)="loadActivePrescriptions()">
+        Retry
+      </button>
+    </div>
+  } -->
+    @if (successMessage()) {
+    <div class="success-message">
+        {{ successMessage() }}
+    </div>
+    }
+
+    @if (errorMessage()) {
+    <div class="error-message">
+        {{ errorMessage() }}
+    </div>
+    }
+
+  @if (!isLoading() && !errorMessage() && prescriptions().length === 0) {
+    <div class="empty-state">
+      <h3>No active prescriptions</h3>
+      <p>There are currently no prescriptions waiting for dispensing.</p>
+    </div>
+  }
+
+  @if (!isLoading() && prescriptions().length > 0) {
+    <div class="queue-summary">
+      <div class="summary-card">
+        <span>Total active prescriptions</span>
+        <strong>{{ prescriptions().length }}</strong>
+      </div>
+    </div>
+
+    <div class="prescription-list">
+      @for (prescription of prescriptions(); track prescription.id) {
+        <section class="prescription-card">
+
+          <div class="prescription-header">
+            <div>
+              <h3>
+                {{ prescription.patient.firstName }}
+                {{ prescription.patient.lastName }}
+              </h3>
+
+              <span class="patient-number">
+                {{ prescription.patient.patientNumber }}
+              </span>
+            </div>
+
+            <span class="status-badge">
+              {{ prescription.status }}
+            </span>
+          </div>
+
+          <div class="prescription-info">
+            <div>
+              <span class="field-label">Prescribed by</span>
+              <strong>
+                Dr. {{ prescription.doctor.firstName }}
+                {{ prescription.doctor.lastName }}
+              </strong>
+              <small>{{ prescription.doctor.specialization }}</small>
+            </div>
+
+            <div>
+              <span class="field-label">Prescription date</span>
+              <strong>{{ prescription.createdAt | date:'medium' }}</strong>
+            </div>
+
+            <div>
+              <span class="field-label">Remaining medicines</span>
+              <strong>{{ getRemainingItemCount(prescription) }}</strong>
+            </div>
+          </div>
+
+          @if (prescription.notes) {
+            <div class="prescription-notes">
+              <strong>Notes:</strong>
+              {{ prescription.notes }}
+            </div>
+          }
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Medicine</th>
+                  <th>Dosage</th>
+                  <th>Frequency</th>
+                  <th>Duration</th>
+                  <th>Prescribed</th>
+                  <th>Dispensed</th>
+                  <th>Remaining</th>
+                  <th>Instructions</th>
+                  <th>Quantity to Dispense</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (item of prescription.items; track item.id) {
+                  <tr>
+                    <td>
+                      <strong>{{ item.medicineName }}</strong>
+                      <small class="sub-text">
+                        {{ item.genericName || '—' }}
+                        {{ item.strength || '' }}
+                      </small>
+                    </td>
+
+                    <td>{{ item.dosage }}</td>
+                    <td>{{ item.frequency }}</td>
+
+                    <td>
+                      {{ item.durationDays
+                        ? item.durationDays + ' days'
+                        : '—' }}
+                    </td>
+
+                    <td>{{ item.prescribedQuantity }}</td>
+                    <td>{{ item.dispensedQuantity }}</td>
+
+                    <td>
+                      <span
+                        class="remaining-badge"
+                        [class.completed]="item.remainingQuantity === 0">
+                        {{ item.remainingQuantity }}
+                      </span>
+                    </td>
+
+                    <td>{{ item.instructions || '—' }}</td>
+                    <td>
+                    <input
+                        type="number"
+                        min="1"
+                        [max]="item.remainingQuantity"
+                        [value]="getDispenseQuantity(item.id, item.remainingQuantity)"
+                        (input)="updateDispenseQuantity(item.id, $any($event.target).value)"
+                        [disabled]="item.remainingQuantity <= 0 ||
+                                    dispensingItemIds().includes(item.id)"
+                    />
+                    </td>
+
+                    <td>
+                    <button
+                        type="button"
+                        class="dispense-btn"
+                        [disabled]="
+                        item.remainingQuantity <= 0 ||
+                        dispensingItemIds().includes(item.id)
+                        "
+                        (click)="dispenseMedicine(
+                        prescription,
+                        item.id,
+                        item.remainingQuantity
+                        )"
+                    >
+                        {{
+                        dispensingItemIds().includes(item.id)
+                            ? 'Dispensing...'
+                            : 'Dispense'
+                        }}
+                    </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+      }
+    </div>
+  }
+
+</div>

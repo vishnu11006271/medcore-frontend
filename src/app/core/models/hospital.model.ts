@@ -21,3 +21,10 @@ export interface CreateHospitalRequest {
   phone?: string;
   address?: string;
 }
+
+export type HospitalStatus =
+  | 'PENDING'
+  | 'VERIFIED'
+  | 'REJECTED'
+  | 'SUSPENDED';
+

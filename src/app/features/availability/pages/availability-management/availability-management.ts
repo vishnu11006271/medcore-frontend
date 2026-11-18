@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 
 import { DoctorService } from '../../../../core/services/doctor.service';
 import { AvailabilityService } from '../../../../core/services/availability.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 import {
   Doctor,
@@ -12,7 +13,8 @@ import {
 } from '../../../../core/models/doctor.model';
 
 import {
-  AvailabilityInterval
+  AvailabilityInterval,
+  AvailableSlot
 } from '../../../../core/models/availability.model';
 import { finalize } from 'rxjs';
 
@@ -30,6 +32,7 @@ export class AvailabilityManagementComponent implements OnInit {
 
   private doctorService = inject(DoctorService);
   private availabilityService = inject(AvailabilityService);
+  private authService = inject(AuthService);
 
   hospitals: HospitalOption[] = [];
   doctors: Doctor[] = [];
@@ -45,6 +48,12 @@ export class AvailabilityManagementComponent implements OnInit {
 
   errorMessage = '';
   successMessage = '';
+
+  selectedDate = '';
+  availableSlots: AvailableSlot[] = [];
+
+  readonly loadingSlots = signal(false);
+  readonly slotsChecked = signal(false);
 
   days = [
     { value: 0, label: 'Sunday' },
@@ -70,7 +79,32 @@ export class AvailabilityManagementComponent implements OnInit {
   slotDurationMinutes = 30;
 
   ngOnInit(): void {
-    this.loadHospitals();
+    const user = this.authService.user();
+
+    if (!user) {
+      this.errorMessage = 'Unable to identify the logged-in user.';
+      return;
+    }
+
+    if (user.role === 'SUPER_ADMIN') {
+      // Super Admin can select any hospital.
+      this.loadHospitals();
+      return;
+    }
+
+    if (user.role === 'HOSPITAL_ADMIN') {
+      // Automatically use the hospital assigned to this admin.
+      if (!user.hospitalId) {
+        this.errorMessage = 'No hospital is assigned to your account.';
+        return;
+      }
+
+      this.selectedHospitalId = user.hospitalId;
+      this.onHospitalChange();
+      return;
+    }
+
+    this.errorMessage = 'You are not authorized to manage availability.';
   }
 
   // loadHospitals(): void {
@@ -140,40 +174,50 @@ export class AvailabilityManagementComponent implements OnInit {
   //   });
   // }
   onHospitalChange(): void {
-  this.selectedDoctorId = '';
-  this.doctors = [];
-  this.schedule = [];
-  this.loadingDoctors.set(false);
+    const user = this.authService.user();
 
-  if (!this.selectedHospitalId) {
-    return;
+    // Hospital Admin must always use their assigned hospital.
+    if (user?.role === 'HOSPITAL_ADMIN') {
+      this.selectedHospitalId = user.hospitalId || '';
+    }
+
+    this.selectedDoctorId = '';
+    this.doctors = [];
+    this.schedule = [];
+    this.availableSlots = [];
+
+    this.slotsChecked.set(false);
+    this.loadingDoctors.set(false);
+
+    if (!this.selectedHospitalId) {
+      return;
+    }
+
+    this.loadingDoctors.set(true);
+    this.errorMessage = '';
+
+    this.doctorService.getDoctors(this.selectedHospitalId)
+      .pipe(
+        finalize(() => {
+          this.loadingDoctors.set(false);
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.doctors = response.data || [];
+        },
+        error: (error) => {
+          this.errorMessage =
+            error.error?.error?.message || 'Unable to load doctors.';
+        }
+      });
   }
 
-  this.loadingDoctors.set(true);
-  this.errorMessage = '';
-
-  this.doctorService.getDoctors(this.selectedHospitalId)
-    .pipe(
-      finalize(() => {
-        this.loadingDoctors.set(false);
-        console.log('Doctor loading:', this.loadingDoctors);
-      })
-    )
-    .subscribe({
-      next: (response) => {
-        this.doctors = response.data || [];
-        console.log('Doctors:', this.doctors);
-      },
-      error: (error) => {
-        console.error('Doctor API error:', error);
-
-        this.errorMessage =
-          error.error?.error?.message || 'Unable to load doctors.';
-      }
-    });
-}
-
   onDoctorChange(): void {
+    this.selectedDate = '';
+    this.availableSlots = [];
+    this.slotsChecked.set(false);
+    this.loadingSlots.set(false);
     this.schedule = [];
 
     if (!this.selectedDoctorId) {
@@ -404,6 +448,48 @@ export class AvailabilityManagementComponent implements OnInit {
             'Unable to save weekly availability.';
         }
       });
+  }
+
+  loadAvailableSlots(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.availableSlots = [];
+    this.slotsChecked.set(false);
+
+    if (!this.selectedDoctorId) {
+      this.errorMessage = 'Please select a doctor.';
+      return;
+    }
+
+    if (!this.selectedDate) {
+      this.errorMessage = 'Please select a date.';
+      return;
+    }
+
+    this.loadingSlots.set(true);
+
+    this.availabilityService
+      .getAvailableSlots(this.selectedDoctorId, this.selectedDate)
+      .pipe(
+        finalize(() => {
+          this.loadingSlots.set(false);
+        })
+      )
+      .subscribe({
+        next: response => {
+          this.availableSlots = response.data?.slots || [];
+          this.slotsChecked.set(true);
+        },
+        error: error => {
+          this.errorMessage =
+            error.error?.error?.message ||
+            'Unable to load available appointment slots.';
+        }
+      });
+  }
+
+  isSuperAdmin(): boolean {
+    return this.authService.user()?.role === 'SUPER_ADMIN';
   }
 
 

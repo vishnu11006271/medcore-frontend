@@ -1,0 +1,113 @@
+<div class="batches-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Medicine Batches</h1>
+      <p>
+        {{ medicine()?.name || 'Medicine inventory' }}
+        @if (medicine()?.strength) {
+          · {{ medicine()?.strength }}
+        }
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <a
+        routerLink="/dashboard/pharmacy/medicines"
+        class="btn btn-secondary">
+        Back to Medicines
+      </a>
+
+      @if (medicine()) {
+        <a
+          [routerLink]="[
+            '/dashboard/pharmacy/stock/receive',
+            medicine()!.id
+          ]"
+          class="btn btn-primary">
+          + Receive Stock
+        </a>
+      }
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <span>Total Batches</span>
+      <strong>{{ batches().length }}</strong>
+    </div>
+
+    <div class="summary-card">
+      <span>Total Received</span>
+      <strong>{{ totalReceived() }}</strong>
+    </div>
+
+    <div class="summary-card">
+      <span>Available in Batches</span>
+      <strong>{{ availableStock() }}</strong>
+    </div>
+
+    <div class="summary-card warning-card">
+      <span>Expired Batches</span>
+      <strong>{{ expiredBatches() }}</strong>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">Loading batches...</div>
+  } @else {
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Batch Number</th>
+            <th>Expiry Date</th>
+            <th>Received</th>
+            <th>Available</th>
+            <th>Purchase Price</th>
+            <th>Received Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (batch of batches(); track batch.id) {
+            <tr>
+              <td><strong>{{ batch.batchNumber }}</strong></td>
+              <td>{{ batch.expiryDate | date:'dd MMM yyyy' }}</td>
+              <td>{{ batch.quantityReceived }}</td>
+              <td>{{ batch.quantityAvailable }}</td>
+              <td>
+                {{ toNumber(batch.purchasePrice) | currency:'INR':'symbol':'1.2-2' }}
+              </td>
+              <td>{{ batch.receivedAt | date:'dd MMM yyyy' }}</td>
+              <td>
+                @if (isExpired(batch.expiryDate)) {
+                  <span class="status expired">Expired</span>
+                } @else if (isExpiringSoon(batch.expiryDate)) {
+                  <span class="status warning">Expiring Soon</span>
+                } @else {
+                  <span class="status active">Valid</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty-state">
+                No batches found. Receive stock to add the first batch.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>

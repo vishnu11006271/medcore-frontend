@@ -1,0 +1,155 @@
+<div class="booking-container">
+  <div class="booking-header">
+    <h2>Book an Appointment</h2>
+    <p>Select a hospital, department, doctor, and available time slot.</p>
+  </div>
+
+  @if (errorMessage) {
+    <div class="alert alert-error">{{ errorMessage }}</div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success">{{ successMessage }}</div>
+  }
+
+  <div class="booking-card">
+    <h3>Appointment Details</h3>
+
+    <!-- Hospital -->
+    <div class="form-group">
+      <label for="hospital">Hospital *</label>
+      <select
+        id="hospital"
+        [(ngModel)]="selectedHospitalId"
+        (ngModelChange)="onHospitalChange()"
+        [disabled]="loadingHospitals()"
+      >
+        <option value="">Select hospital</option>
+        @for (hospital of hospitals; track hospital.id) {
+          <option [value]="hospital.id">{{ hospital.name }}</option>
+        }
+      </select>
+      @if (loadingHospitals()) {
+        <small>Loading hospitals...</small>
+      }
+    </div>
+
+    <!-- Department -->
+    <div class="form-group">
+      <label for="department">Department *</label>
+      <select
+        id="department"
+        [(ngModel)]="selectedDepartmentId"
+        (ngModelChange)="onDepartmentChange()"
+        [disabled]="!selectedHospitalId || loadingDepartments()"
+      >
+        <option value="">Select department</option>
+        @for (department of departments; track department.id) {
+          <option [value]="department.id">{{ department.name }}</option>
+        }
+      </select>
+      @if (loadingDepartments()) {
+        <small>Loading departments...</small>
+      }
+    </div>
+
+    <!-- Doctor -->
+    <div class="form-group">
+      <label for="doctor">Doctor *</label>
+      <select
+        id="doctor"
+        [(ngModel)]="selectedDoctorId"
+        (ngModelChange)="onDoctorChange()"
+        [disabled]="!selectedDepartmentId || loadingDoctors()"
+      >
+        <option value="">Select doctor</option>
+        @for (doctor of doctors; track doctor.id) {
+          <option [value]="doctor.id">
+            Dr. {{ doctor.user.firstName }} {{ doctor.user.lastName }}
+            — {{ doctor.specialization }}
+          </option>
+        }
+      </select>
+      @if (loadingDoctors()) {
+        <small>Loading doctors...</small>
+      }
+      @if (
+        selectedDepartmentId &&
+        !loadingDoctors() &&
+        doctors.length === 0
+      ) {
+        <small>No active doctors found in this department.</small>
+      }
+    </div>
+
+    <!-- Appointment Date -->
+    <div class="form-group">
+      <label for="appointmentDate">Appointment Date *</label>
+      <input
+        id="appointmentDate"
+        type="date"
+        [(ngModel)]="selectedDate"
+        [disabled]="!selectedDoctorId"
+      />
+    </div>
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="loadAvailableSlots()"
+      [disabled]="!selectedDoctorId || !selectedDate || loadingSlots()"
+    >
+      {{ loadingSlots() ? 'Checking...' : 'Check Available Slots' }}
+    </button>
+
+    <!-- Available Slots -->
+    @if (availableSlots.length > 0) {
+      <div class="slots-section">
+        <h3>Available Time Slots</h3>
+
+        <div class="slots-grid">
+          @for (slot of availableSlots; track $index) {
+            <button
+              type="button"
+              class="slot-button"
+              [class.selected]="selectedSlot === slot"
+              [class.unavailable]="!slot.available"
+              [disabled]="!slot.available"
+              (click)="selectSlot(slot)"
+            >
+              {{ slot.startTime }} - {{ slot.endTime }}
+              <small>{{ slot.available ? 'Available' : 'Booked' }}</small>
+            </button>
+          }
+        </div>
+      </div>
+    } @else if (!loadingSlots() && selectedDate && selectedDoctorId) {
+      <p class="empty-message">
+        Check availability to view appointment slots.
+      </p>
+    }
+
+    <!-- Reason -->
+    <div class="form-group">
+      <label for="reason">Reason for Appointment</label>
+      <textarea
+        id="reason"
+        [(ngModel)]="reason"
+        maxlength="500"
+        rows="3"
+        placeholder="Briefly describe your reason for visiting"
+      ></textarea>
+      <small>{{ reason.length }}/500 characters</small>
+    </div>
+
+    <!-- Booking -->
+    <button
+      type="button"
+      class="book-button"
+      (click)="bookAppointment()"
+      [disabled]="!selectedSlot || booking()"
+    >
+      {{ booking() ? 'Booking...' : 'Book Appointment' }}
+    </button>
+  </div>
+</div>

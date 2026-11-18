@@ -1,0 +1,149 @@
+<div class="medicine-form-page">
+
+  <div class="page-header">
+    <div>
+      <h1>{{ isEditMode() ? 'Edit Medicine' : 'Add Medicine' }}</h1>
+      <p>
+        {{ isEditMode()
+          ? 'Update the medicine information.'
+          : 'Add a new medicine to your hospital catalogue.' }}
+      </p>
+    </div>
+
+    <a
+      routerLink="/dashboard/pharmacy/medicines"
+      class="btn btn-secondary">
+      Back to Catalogue
+    </a>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      Loading medicine details...
+    </div>
+  } @else {
+
+    <form
+      [formGroup]="medicineForm"
+      (ngSubmit)="submit()"
+      class="medicine-form">
+
+      <div class="form-grid">
+
+        <!-- Medicine Name -->
+        <div class="form-group">
+          <label for="name">Medicine Name <span>*</span></label>
+
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            placeholder="Enter medicine name" />
+
+          @if (f.name.touched && f.name.hasError('required')) {
+            <small class="field-error">Medicine name is required.</small>
+          }
+
+          @if (f.name.touched && f.name.hasError('minlength')) {
+            <small class="field-error">Minimum 2 characters required.</small>
+          }
+
+          @if (f.name.touched && f.name.hasError('maxlength')) {
+            <small class="field-error">Maximum 150 characters allowed.</small>
+          }
+        </div>
+
+        <!-- Generic Name -->
+        <div class="form-group">
+          <label for="genericName">Generic Name</label>
+
+          <input
+            id="genericName"
+            type="text"
+            formControlName="genericName"
+            placeholder="Enter generic name" />
+        </div>
+
+        <!-- Strength -->
+        <div class="form-group">
+          <label for="strength">Strength</label>
+
+          <input
+            id="strength"
+            type="text"
+            formControlName="strength"
+            placeholder="Example: 500 mg" />
+        </div>
+
+        <!-- Manufacturer -->
+        <div class="form-group">
+          <label for="manufacturer">Manufacturer</label>
+
+          <input
+            id="manufacturer"
+            type="text"
+            formControlName="manufacturer"
+            placeholder="Enter manufacturer name" />
+        </div>
+
+        <!-- Unit Price -->
+        <div class="form-group">
+          <label for="unitPrice">Unit Price (₹) <span>*</span></label>
+
+          <input
+            id="unitPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            formControlName="unitPrice"
+            placeholder="Enter unit price" />
+
+          @if (f.unitPrice.touched && f.unitPrice.hasError('required')) {
+            <small class="field-error">Unit price is required.</small>
+          }
+
+          @if (f.unitPrice.touched && f.unitPrice.hasError('min')) {
+            <small class="field-error">Price cannot be negative.</small>
+          }
+
+          @if (f.unitPrice.touched && f.unitPrice.hasError('pattern')) {
+            <small class="field-error">
+              Enter a valid price with up to 2 decimal places.
+            </small>
+          }
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+
+        <a
+          routerLink="/dashboard/pharmacy/medicines"
+          class="btn btn-secondary">
+          Cancel
+        </a>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isSaving()">
+
+          {{ isSaving()
+            ? 'Saving...'
+            : isEditMode()
+              ? 'Update Medicine'
+              : 'Save Medicine' }}
+
+        </button>
+
+      </div>
+
+    </form>
+  }
+</div>

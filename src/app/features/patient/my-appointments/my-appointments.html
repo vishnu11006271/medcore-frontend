@@ -1,0 +1,124 @@
+<div class="appointments-container">
+
+  <div class="page-header">
+    <div>
+      <h2>My Appointments</h2>
+      <p>View and manage your hospital appointments.</p>
+    </div>
+
+    <button
+      class="refresh-btn"
+      type="button"
+      (click)="retry()"
+      [disabled]="isLoading()">
+      Refresh
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button
+      type="button"
+      [class.active]="selectedTab === 'upcoming'"
+      (click)="selectTab('upcoming')">
+      Upcoming ({{ upcomingAppointments.length }})
+    </button>
+
+    <button
+      type="button"
+      [class.active]="selectedTab === 'past'"
+      (click)="selectTab('past')">
+      Past ({{ pastAppointments.length }})
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="message">
+      Loading appointments...
+    </div>
+  }
+
+  <!-- Error -->
+  @if (!isLoading() && errorMessage) {
+    <div class="error-message">
+      <p>{{ errorMessage }}</p>
+      <button type="button" (click)="retry()">Try Again</button>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!isLoading() && !errorMessage && displayedAppointments.length === 0) {
+    <div class="empty-state">
+      <h3>No {{ selectedTab }} appointments</h3>
+      <p>Your {{ selectedTab }} appointments will appear here.</p>
+    </div>
+  }
+
+  <!-- Appointment list -->
+  @if (!isLoading() && !errorMessage && displayedAppointments.length > 0) {
+    <div class="appointment-list">
+
+      @for (appointment of displayedAppointments; track appointment.id) {
+        <div class="appointment-card">
+
+          <div class="card-header">
+            <div>
+              <h3>{{ getDoctorName(appointment) }}</h3>
+              <p>{{ appointment.doctor.specialization }}</p>
+            </div>
+
+            <span
+              class="status"
+              [ngClass]="getStatusClass(appointment.status)">
+              {{ appointment.status.replace('_', ' ') }}
+            </span>
+          </div>
+
+          <div class="appointment-details">
+
+            <div class="detail">
+              <span class="label">Hospital</span>
+              <span>{{ appointment.hospital.name }}</span>
+            </div>
+
+            <div class="detail">
+              <span class="label">Department</span>
+              <span>{{ appointment.department.name }}</span>
+            </div>
+
+            <div class="detail">
+              <span class="label">Date</span>
+              <span>{{ appointment.scheduledAt | date:'dd MMM yyyy' }}</span>
+            </div>
+
+            <div class="detail">
+              <span class="label">Time</span>
+              <span>{{ appointment.scheduledAt | date:'hh:mm a' }}</span>
+            </div>
+
+            <div class="detail">
+              <span class="label">Duration</span>
+              <span>{{ appointment.durationMinutes }} minutes</span>
+            </div>
+            <button
+              type="button"
+              [routerLink]="['/dashboard/appointments', appointment.id]">
+              View Details
+            </button>
+
+            @if (appointment.reason) {
+              <div class="detail">
+                <span class="label">Reason</span>
+                <span>{{ appointment.reason }}</span>
+              </div>
+            }
+
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+
+</div>

@@ -29,7 +29,7 @@ export class DoctorService {
   // Get all hospitals (SUPER_ADMIN)
   getHospitals(): Observable<ApiResponse<HospitalOption[]>> {
     return this.http.get<ApiResponse<HospitalOption[]>>(
-      `${this.apiUrl}/hospitals`
+      `${this.apiUrl}/hospitals/verified`
     );
   }
 

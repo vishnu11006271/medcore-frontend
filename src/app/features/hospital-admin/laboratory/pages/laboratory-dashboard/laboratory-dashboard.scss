@@ -1,0 +1,155 @@
+
+.laboratory-dashboard {
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 30px;
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 24px;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+  }
+}
+
+.refresh-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.section {
+  margin-bottom: 32px;
+
+  h3 {
+    margin-bottom: 16px;
+    font-size: 18px;
+    color: #1e293b;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.stat-card {
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+
+  .stat-label {
+    color: #64748b;
+    font-size: 14px;
+  }
+
+  h2 {
+    margin: 12px 0 0;
+    font-size: 28px;
+    color: #1e293b;
+  }
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.status-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: white;
+
+  span {
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  h3 {
+    margin: 6px 0 0;
+    font-size: 23px;
+  }
+}
+
+.status-indicator {
+  width: 10px;
+  height: 42px;
+  border-radius: 5px;
+
+  &.ordered { background: #f59e0b; }
+  &.collected { background: #0ea5e9; }
+  &.processing { background: #6366f1; }
+  &.uploaded { background: #8b5cf6; }
+  &.approved { background: #16a34a; }
+  &.rejected { background: #dc2626; }
+  &.completed { background: #059669; }
+  &.cancelled { background: #64748b; }
+}
+
+.loading-state {
+  padding: 40px;
+  text-align: center;
+  color: #64748b;
+}
+
+.alert {
+  padding: 14px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+}
+
+.alert-error {
+  color: #b91c1c;
+  background: #fee2e2;
+
+  button {
+    margin-left: 12px;
+    cursor: pointer;
+  }
+}
+
+@media (max-width: 900px) {
+  .status-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .laboratory-dashboard {
+    padding: 14px;
+  }
+
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stats-grid,
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,102 @@
+<section class="details-container">
+
+  <button class="back-button" (click)="goBack()">
+    ← Back to My Appointments
+  </button>
+
+  @if (isLoading()) {
+    <div class="state-message">
+      Loading appointment details...
+    </div>
+  }
+
+  @else if (errorMessage()) {
+    <div class="error-message">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @else if (appointment(); as item) {
+    <div class="details-card">
+
+      <div class="details-header">
+        <div>
+          <h2>Appointment Details</h2>
+          <p>Appointment ID: {{ item.id }}</p>
+        </div>
+
+        <span class="status" [class]="item.status.toLowerCase()">
+          {{ item.status }}
+        </span>
+      </div>
+
+      <div class="details-grid">
+
+        <div class="detail-item">
+          <label>Doctor</label>
+          <strong>
+            Dr. {{ item.doctor.user.firstName }}
+            {{ item.doctor.user.lastName }}
+          </strong>
+        </div>
+
+        <div class="detail-item">
+          <label>Specialization</label>
+          <strong>{{ item.doctor.specialization }}</strong>
+        </div>
+
+        <div class="detail-item">
+          <label>Hospital</label>
+          <strong>{{ item.hospital.name }}</strong>
+        </div>
+
+        <div class="detail-item">
+          <label>Department</label>
+          <strong>{{ item.department.name }}</strong>
+        </div>
+
+        <div class="detail-item">
+          <label>Date</label>
+          <strong>{{ item.scheduledAt | date:'fullDate' }}</strong>
+        </div>
+
+        <div class="detail-item">
+          <label>Time</label>
+          <strong>{{ item.scheduledAt | date:'shortTime' }}</strong>
+        </div>
+
+        <div class="detail-item">
+          <label>Duration</label>
+          <strong>{{ item.durationMinutes }} minutes</strong>
+        </div>
+
+        <div class="detail-item">
+          <label>Booked On</label>
+          <strong>{{ item.createdAt | date:'medium' }}</strong>
+        </div>
+
+        <div class="detail-item full-width">
+          <label>Reason for Visit</label>
+          <strong>{{ item.reason || 'Not provided' }}</strong>
+        </div>
+
+      </div>
+      @if (
+        item.status === 'PENDING' ||
+        item.status === 'SCHEDULED' ||
+        item.status === 'CONFIRMED'
+        ) {
+        <div class="actions">
+            <button
+            type="button"
+            class="cancel-button"
+            (click)="cancelAppointment()"
+            [disabled]="isLoading()">
+            Cancel Appointment
+            </button>
+        </div>
+        }
+    </div>
+  }
+
+</section>

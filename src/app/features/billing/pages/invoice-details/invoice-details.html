@@ -1,0 +1,257 @@
+<section class="invoice-details-page">
+  <div class="page-header">
+    <div>
+      <h1>Invoice Details</h1>
+      <p>View invoice information and manage payments.</p>
+    </div>
+
+    <a routerLink="/dashboard/billing/invoices" class="btn-secondary">
+      Back to invoices
+    </a>
+  </div>
+
+  @if (loading() && !invoice()) {
+    <div class="state-message">Loading invoice...</div>
+  } @else if (invoice(); as item) {
+    <div class="invoice-card">
+      <div class="invoice-heading">
+        <div>
+          <h2>{{ item.invoiceNumber }}</h2>
+          <p>Created {{ item.createdAt | date:'dd MMM yyyy' }}</p>
+        </div>
+
+        <span class="status-badge">{{ item.status.replace('_', ' ') }}</span>
+      </div>
+
+      <div class="invoice-information">
+        <div>
+          <label>Patient</label>
+          <strong>{{ getPatientName() }}</strong>
+        </div>
+
+        <div>
+          <label>Doctor</label>
+          <strong>{{ getDoctorName() }}</strong>
+        </div>
+
+        <div>
+          <label>Invoice total</label>
+          <strong>{{ item.total | currency:'INR':'symbol':'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <h3>Invoice Items</h3>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Type</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (invoiceItem of item.items ?? []; track invoiceItem.id) {
+              <tr>
+                <td>{{ invoiceItem.description }}</td>
+                <td>{{ invoiceItem.itemType }}</td>
+                <td>{{ invoiceItem.quantity }}</td>
+                <td>{{ invoiceItem.unitPrice | currency:'INR':'symbol':'1.2-2' }}</td>
+                <td>{{ invoiceItem.amount | currency:'INR':'symbol':'1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="invoice-totals">
+        <p>
+          Subtotal:
+          <strong>{{ item.subtotal | currency:'INR':'symbol':'1.2-2' }}</strong>
+        </p>
+        <p>
+          Tax:
+          <strong>{{ item.tax | currency:'INR':'symbol':'1.2-2' }}</strong>
+        </p>
+        <p>
+          Discount:
+          <strong>{{ item.discount | currency:'INR':'symbol':'1.2-2' }}</strong>
+        </p>
+        <p class="grand-total">
+          Total:
+          <strong>{{ item.total | currency:'INR':'symbol':'1.2-2' }}</strong>
+        </p>
+      </div>
+
+      @if (item.status === 'DRAFT') {
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="submitting()"
+          (click)="issueInvoice()">
+          {{ submitting() ? 'Processing...' : 'Issue Invoice' }}
+        </button>
+      }
+    </div>
+
+    @if (balance(); as currentBalance) {
+      <div class="balance-card">
+        <h3>Payment Summary</h3>
+
+        <div class="balance-grid">
+          <div>
+            <label>Invoice Total</label>
+            <strong>{{ currentBalance.invoiceTotal | currency:'INR':'symbol':'1.2-2' }}</strong>
+          </div>
+
+          <div>
+            <label>Total Paid</label>
+            <strong>{{ currentBalance.totalPaid | currency:'INR':'symbol':'1.2-2' }}</strong>
+          </div>
+
+          <div>
+            <label>Total Refunded</label>
+            <strong>{{ currentBalance.totalRefunded | currency:'INR':'symbol':'1.2-2' }}</strong>
+          </div>
+
+          <div>
+            <label>Outstanding Balance</label>
+            <strong class="outstanding">
+              {{ currentBalance.balanceAmount | currency:'INR':'symbol':'1.2-2' }}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      @if (
+        currentBalance.balanceAmount > 0 &&
+        (item.status === 'ISSUED' || item.status === 'PARTIALLY_PAID')
+      ) {
+        <div class="payment-card">
+          <h3>Record Manual Payment</h3>
+
+          <form #paymentForm="ngForm" (ngSubmit)="recordManualPayment()">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="paymentAmount">Amount (₹) *</label>
+                <input
+                  id="paymentAmount"
+                  name="paymentAmount"
+                  type="number"
+                  min="0.01"
+                  [max]="currentBalance.balanceAmount"
+                  step="0.01"
+                  required
+                  [(ngModel)]="paymentAmount">
+              </div>
+
+              <div class="form-group">
+                <label for="paymentMethod">Payment Method *</label>
+                <select
+                  id="paymentMethod"
+                  name="paymentMethod"
+                  required
+                  [(ngModel)]="paymentMethod">
+                  @for (method of paymentMethods; track method) {
+                    <option [value]="method">{{ method.replace('_', ' ') }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="referenceNumber">Reference Number</label>
+                <input
+                  id="referenceNumber"
+                  name="referenceNumber"
+                  maxlength="100"
+                  [(ngModel)]="referenceNumber">
+              </div>
+
+              <div class="form-group">
+                <label for="paymentNotes">Notes</label>
+                <input
+                  id="paymentNotes"
+                  name="paymentNotes"
+                  maxlength="500"
+                  [(ngModel)]="paymentNotes">
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn-primary"
+              [disabled]="paymentForm.invalid || submitting()">
+              Record Payment
+            </button>
+          </form>
+
+          <div class="payment-divider">OR</div>
+
+          <button
+            type="button"
+            class="btn-razorpay"
+            [disabled]="submitting()"
+            (click)="payUsingRazorpay()">
+            Pay Online with Razorpay
+          </button>
+        </div>
+      }
+    }
+
+    <div class="payment-history-card">
+      <h3>Payment History</h3>
+
+      @if (paymentHistory(); as history) {
+        @if (history.payments.length === 0) {
+          <p class="empty-message">No payments recorded yet.</p>
+        } @else {
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Provider</th>
+                  <th>Status</th>
+                  <th>Recorded By</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (payment of history.payments; track payment.id) {
+                  <tr>
+                    <td>{{ payment.createdAt | date:'dd MMM yyyy, h:mm a' }}</td>
+                    <td>{{ payment.amount | currency:'INR':'symbol':'1.2-2' }}</td>
+                    <td>{{ payment.method.replace('_', ' ') }}</td>
+                    <td>{{ payment.provider }}</td>
+                    <td>{{ payment.status.replace('_', ' ') }}</td>
+                    <td>
+                      {{ payment.recordedBy
+                        ? payment.recordedBy.firstName + ' ' + payment.recordedBy.lastName
+                        : 'N/A' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      } @else {
+        <p>Loading payment history...</p>
+      }
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-message">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="success-message">{{ successMessage() }}</div>
+  }
+</section>

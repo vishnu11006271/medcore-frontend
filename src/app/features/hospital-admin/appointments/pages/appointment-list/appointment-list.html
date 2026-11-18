@@ -1,0 +1,183 @@
+<div class="appointments-page">
+  <div class="page-header">
+    <div>
+      <h2>Appointments</h2>
+      <p>Manage and monitor hospital appointments.</p>
+    </div>
+
+    <div class="total-count">
+      Total Appointments: <strong>{{ totalAppointments() }}</strong>
+    </div>
+  </div>
+  @if (actionMessage()) {
+    <div class="success-message">
+      {{ actionMessage() }}
+    </div>
+  }
+  <!-- Search and filters -->
+  <div class="filters">
+    <input
+      type="text"
+      placeholder="Search patient or doctor..."
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+      (keyup.enter)="applyFilters()"
+    />
+
+    <select
+      [ngModel]="selectedStatus()"
+      (ngModelChange)="selectedStatus.set($event)"
+    >
+      <option value="">All Statuses</option>
+      @for (status of statuses; track status) {
+        <option [value]="status">{{ status.replace('_', ' ') }}</option>
+      }
+    </select>
+
+    <div class="date-filter">
+      <label>From</label>
+      <input
+        type="date"
+        [ngModel]="fromDate()"
+        (ngModelChange)="fromDate.set($event)"
+      />
+    </div>
+
+    <div class="date-filter">
+      <label>To</label>
+      <input
+        type="date"
+        [ngModel]="toDate()"
+        (ngModelChange)="toDate.set($event)"
+      />
+    </div>
+
+    <button class="primary-btn" (click)="applyFilters()">
+      Apply
+    </button>
+
+    <button class="secondary-btn" (click)="clearFilters()">
+      Clear
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="state-message">Loading appointments...</div>
+  }
+
+  <!-- Error -->
+  @else if (error()) {
+    <div class="state-message error">
+      {{ error() }}
+      <button (click)="loadAppointments()">Retry</button>
+    </div>
+  }
+
+  <!-- Appointment table -->
+  @else if (appointments().length > 0) {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Department</th>
+            <th>Appointment Date</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (appointment of appointments(); track appointment.id) {
+            <tr>
+              <td>
+                <strong>{{ getPatientName(appointment) }}</strong>
+                <small>{{ appointment.patient.patientNumber }}</small>
+                <small>{{ appointment.patient.user.email }}</small>
+              </td>
+
+              <td>
+                {{ getDoctorName(appointment) }}
+                <small>{{ appointment.doctor.specialization }}</small>
+              </td>
+
+              <td>{{ appointment.department.name }}</td>
+
+              <td>
+                {{ appointment.scheduledAt | date:'dd MMM yyyy' }}
+                <small>{{ appointment.scheduledAt | date:'hh:mm a' }}</small>
+              </td>
+
+              <td>{{ appointment.reason || '—' }}</td>
+
+              <td>
+                <span
+                  class="status"
+                  [ngClass]="getStatusClass(appointment.status)"
+                >
+                  {{ appointment.status.replace('_', ' ') }}
+                </span>
+              </td>
+
+              <td class="action-cell">
+                @if (appointment.status === 'PENDING') {
+                  <button
+                    type="button"
+                    class="confirm-btn"
+                    (click)="confirmAppointment(appointment.id)"
+                    [disabled]="processingId() === appointment.id">
+
+                    {{
+                      processingId() === appointment.id
+                        ? 'Confirming...'
+                        : 'Confirm'
+                    }}
+                  </button>
+                }
+
+                <a [routerLink]="[
+                  '/dashboard/hospital-appointments',
+                  appointment.id
+                ]">
+                  View
+                </a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <span>
+        Page {{ currentPage() }} of {{ totalPages() }}
+      </span>
+
+      <div>
+        <button
+          (click)="previousPage()"
+          [disabled]="currentPage() === 1"
+        >
+          Previous
+        </button>
+
+        <button
+          (click)="nextPage()"
+          [disabled]="currentPage() >= totalPages()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  }
+
+  @else {
+    <div class="state-message">
+      No appointments found.
+    </div>
+  }
+</div>
