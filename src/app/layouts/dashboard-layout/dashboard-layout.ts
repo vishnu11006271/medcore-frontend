@@ -97,6 +97,12 @@ export class DashboardLayoutComponent {
         enabled: true
       },
       {
+        label: 'Staff',
+        icon: '♙',
+        route: '/dashboard/staff',
+        enabled: true
+      },
+      {
         label: 'Patients',
         icon: '♙',
         route: '/dashboard/patients',

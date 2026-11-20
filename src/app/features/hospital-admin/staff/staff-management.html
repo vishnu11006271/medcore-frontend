@@ -1,0 +1,64 @@
+<section class="staff-page">
+  <header class="page-header">
+    <div>
+      <h1>Staff management</h1>
+      <p>Create and manage staff accounts for your hospital.</p>
+    </div>
+  </header>
+
+  <div class="notice">New staff members receive an email OTP and must verify their email before signing in.</div>
+  <p class="alert error" *ngIf="error()" role="alert">{{ error() }}</p>
+  <p class="alert success" *ngIf="success()" role="status">{{ success() }}</p>
+
+  <section class="panel">
+    <h2>Onboard a staff member</h2>
+    <form [formGroup]="form" (ngSubmit)="createStaff()" novalidate>
+      <label>First name
+        <input formControlName="firstName" autocomplete="given-name" />
+      </label>
+      <label>Last name
+        <input formControlName="lastName" autocomplete="family-name" />
+      </label>
+      <label>Email
+        <input type="email" formControlName="email" autocomplete="email" />
+      </label>
+      <label>Phone (optional)
+        <input type="tel" formControlName="phone" autocomplete="tel" />
+      </label>
+      <label>Role
+        <select formControlName="role">
+          <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
+        </select>
+      </label>
+      <label>Temporary password
+        <input type="password" formControlName="temporaryPassword" autocomplete="new-password" />
+        <small>At least 12 characters. Share it securely with the staff member.</small>
+      </label>
+      <button type="submit" [disabled]="saving()">{{ saving() ? 'Creating…' : 'Create staff account' }}</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="table-heading">
+      <h2>Hospital staff</h2>
+      <button type="button" class="secondary" (click)="loadStaff()" [disabled]="loading()">Refresh</button>
+    </div>
+    <p *ngIf="loading()">Loading staff…</p>
+    <div class="table-wrap" *ngIf="!loading()">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Email verified</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let member of staff()">
+            <td>{{ member.firstName }} {{ member.lastName }}</td>
+            <td>{{ member.email }}</td>
+            <td>{{ member.role.replace('_', ' ') }}</td>
+            <td>{{ member.emailVerifiedAt ? 'Verified' : 'Pending' }}</td>
+            <td><span [class.inactive]="!member.isActive">{{ member.isActive ? 'Active' : 'Inactive' }}</span></td>
+            <td><button type="button" class="secondary" (click)="toggleStatus(member)">{{ member.isActive ? 'Deactivate' : 'Activate' }}</button></td>
+          </tr>
+          <tr *ngIf="staff().length === 0"><td colspan="6">No staff accounts have been created yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

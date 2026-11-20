@@ -8,7 +8,8 @@ import {
   map,
   catchError,
   of,
-  finalize
+  finalize,
+  shareReplay
 } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
@@ -26,6 +27,15 @@ import {
   providedIn: 'root'
 })
 export class AuthService {
+
+  // Concurrent 401 responses share a single refresh-token rotation.
+  private sessionVersion = 0;
+
+  private refreshInFlight?: Observable<ApiResponse<{
+    accessToken: string;
+    tokenType: 'Bearer';
+    expiresIn: number;
+  }>>;
 
   private readonly http = inject(HttpClient);
 
@@ -48,6 +58,8 @@ export class AuthService {
       { withCredentials: true }
     ).pipe(
       tap(response => {
+        this.sessionVersion++;
+        this.refreshInFlight = undefined;
         this.accessToken.set(response.data.accessToken);
         this.currentUser.set(response.data.user);
       })
@@ -80,23 +92,40 @@ export class AuthService {
     );
   }
 
-  refreshSession() {
+  refreshSession(): Observable<ApiResponse<{
+    accessToken: string;
+    tokenType: 'Bearer';
+    expiresIn: number;
+  }>> {
+    if (this.refreshInFlight) {
+      return this.refreshInFlight;
+    }
 
-    return this.http.post<
-      ApiResponse<{
-        accessToken: string;
-        tokenType: 'Bearer';
-        expiresIn: number;
-      }>
-    >(
+    const refreshVersion = this.sessionVersion;
+    const request = this.http.post<ApiResponse<{
+      accessToken: string;
+      tokenType: 'Bearer';
+      expiresIn: number;
+    }>>(
       `${this.apiUrl}/auth/refresh`,
       {},
       { withCredentials: true }
     ).pipe(
       tap(response => {
-        this.accessToken.set(response.data.accessToken);
-      })
+        if (refreshVersion === this.sessionVersion) {
+          this.accessToken.set(response.data.accessToken);
+        }
+      }),
+      finalize(() => {
+        if (refreshVersion === this.sessionVersion) {
+          this.refreshInFlight = undefined;
+        }
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
+
+    this.refreshInFlight = request;
+    return request;
   }
 
   getProfile() {
@@ -138,6 +167,8 @@ export class AuthService {
   }
 
   clearSession(): void {
+    this.sessionVersion++;
+    this.refreshInFlight = undefined;
     this.accessToken.set(null);
     this.currentUser.set(null);
   }
