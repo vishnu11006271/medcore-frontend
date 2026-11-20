@@ -8,6 +8,7 @@ import {
   Appointment,
   CreateAppointmentRequest,
   DoctorAppointment,
+  DoctorPatient,
   MyAppointment,
   HospitalAppointmentsData,
   HospitalAppointmentDetails
