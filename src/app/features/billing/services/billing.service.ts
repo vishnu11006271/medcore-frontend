@@ -41,6 +41,18 @@ export class BillingService {
     );
   }
 
+
+  // Get invoice PDF
+  getInvoicePdf(id: string): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/invoices/${id}/pdf`,
+      {
+        responseType: 'blob'
+      }
+    );
+  }
+
+
   // Create invoice
   createInvoice(
     payload: CreateInvoiceRequest

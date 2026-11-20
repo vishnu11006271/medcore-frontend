@@ -193,6 +193,13 @@ table {
   color: #64748b;
 }
 
+.invoice-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 768px) {
   .invoice-details-page {
     padding: 14px;

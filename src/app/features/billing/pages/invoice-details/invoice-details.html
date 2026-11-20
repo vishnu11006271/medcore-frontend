@@ -20,7 +20,25 @@
           <p>Created {{ item.createdAt | date:'dd MMM yyyy' }}</p>
         </div>
 
-        <span class="status-badge">{{ item.status.replace('_', ' ') }}</span>
+        <div class="invoice-actions">
+          <span class="status-badge">
+            {{ item.status.replace('_', ' ') }}
+          </span>
+
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="previewInvoicePdf()">
+            Preview PDF
+          </button>
+
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="downloadInvoicePdf()">
+            Download PDF
+          </button>
+        </div>
       </div>
 
       <div class="invoice-information">

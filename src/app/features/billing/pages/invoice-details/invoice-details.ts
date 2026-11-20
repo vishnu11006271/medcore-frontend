@@ -586,4 +586,68 @@ export class InvoiceDetailsComponent implements OnInit {
       fallback
     );
   }
+
+  previewInvoicePdf(): void {
+    if (!this.invoiceId) {
+      this.errorMessage.set('Invoice ID is missing.');
+      return;
+    }
+
+    this.errorMessage.set(null);
+
+    this.billingService.getInvoicePdf(this.invoiceId).subscribe({
+      next: (pdfBlob: Blob) => {
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        const previewWindow = window.open(pdfUrl, '_blank');
+
+        if (!previewWindow) {
+          URL.revokeObjectURL(pdfUrl);
+          this.errorMessage.set(
+            'Unable to open PDF. Please allow pop-ups in your browser.'
+          );
+          return;
+        }
+
+        previewWindow.addEventListener('beforeunload', () => {
+          URL.revokeObjectURL(pdfUrl);
+        });
+      },
+      error: error => {
+        this.errorMessage.set(
+          this.getErrorMessage(error, 'Unable to preview invoice PDF.')
+        );
+      }
+    });
+  }
+
+  downloadInvoicePdf(): void {
+    if (!this.invoiceId) {
+      this.errorMessage.set('Invoice ID is missing.');
+      return;
+    }
+
+    this.errorMessage.set(null);
+
+    this.billingService.getInvoicePdf(this.invoiceId).subscribe({
+      next: (pdfBlob: Blob) => {
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = `invoice-${this.invoiceId}.pdf`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(pdfUrl);
+      },
+      error: error => {
+        this.errorMessage.set(
+          this.getErrorMessage(error, 'Unable to download invoice PDF.')
+        );
+      }
+    });
+  }
 }
