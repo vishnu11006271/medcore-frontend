@@ -165,6 +165,8 @@ export class AuthService {
   }
 
   clearSession(): void {
+    this.sessionVersion++;
+    this.refreshInFlight = undefined;
     this.accessToken.set(null);
     this.currentUser.set(null);
   }
