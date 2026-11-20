@@ -121,6 +121,14 @@ export const routes: Routes = [
         data: { roles: ['DOCTOR'] }
       },
       {
+        path: 'staff',
+        canActivate: [roleGuard],
+        data: { roles: ['HOSPITAL_ADMIN'] },
+        loadComponent: () =>
+          import('./features/hospital-admin/staff/staff-management')
+            .then(m => m.StaffManagementComponent)
+      },
+      {
         path: 'patients',
         canActivate: [roleGuard],
         data: {
