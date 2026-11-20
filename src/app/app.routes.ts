@@ -120,20 +120,20 @@ export const routes: Routes = [
             .then(m => m.AppointmentDetails)
       },
       {
-        path: 'doctor-patients',
-        canActivate: [roleGuard],
-        data: { roles: ['DOCTOR'] },
-        loadComponent: () =>
-          import('./features/doctors/pages/doctor-patients/doctor-patients')
-            .then(m => m.DoctorPatients)
-      },
-      {
         path: 'doctor-patients/:id',
         canActivate: [roleGuard],
         data: { roles: ['DOCTOR'] },
         loadComponent: () =>
           import('./features/doctors/pages/doctor-patient-details/doctor-patient-details')
             .then(m => m.DoctorPatientDetails)
+      },
+      {
+        path: 'doctor-patients',
+        canActivate: [roleGuard],
+        data: { roles: ['DOCTOR'] },
+        loadComponent: () =>
+          import('./features/doctors/pages/doctor-patients/doctor-patients')
+            .then(m => m.DoctorPatients)
       },
       {
         path: 'doctor-appointments',
