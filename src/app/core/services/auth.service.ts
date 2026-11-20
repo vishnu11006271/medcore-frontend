@@ -8,7 +8,8 @@ import {
   map,
   catchError,
   of,
-  finalize
+  finalize,
+  shareReplay
 } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
@@ -26,6 +27,13 @@ import {
   providedIn: 'root'
 })
 export class AuthService {
+
+  // Concurrent 401 responses share a single refresh-token rotation.
+  private refreshInFlight?: Observable<ApiResponse<{
+    accessToken: string;
+    tokenType: 'Bearer';
+    expiresIn: number;
+  }>>;
 
   private readonly http = inject(HttpClient);
 
@@ -80,23 +88,35 @@ export class AuthService {
     );
   }
 
-  refreshSession() {
+  refreshSession(): Observable<ApiResponse<{
+    accessToken: string;
+    tokenType: 'Bearer';
+    expiresIn: number;
+  }>> {
+    if (this.refreshInFlight) {
+      return this.refreshInFlight;
+    }
 
-    return this.http.post<
-      ApiResponse<{
-        accessToken: string;
-        tokenType: 'Bearer';
-        expiresIn: number;
-      }>
-    >(
+    const request = this.http.post<ApiResponse<{
+      accessToken: string;
+      tokenType: 'Bearer';
+      expiresIn: number;
+    }>>(
       `${this.apiUrl}/auth/refresh`,
       {},
       { withCredentials: true }
     ).pipe(
       tap(response => {
         this.accessToken.set(response.data.accessToken);
-      })
+      }),
+      finalize(() => {
+        this.refreshInFlight = undefined;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
+
+    this.refreshInFlight = request;
+    return request;
   }
 
   getProfile() {
