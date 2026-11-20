@@ -1,0 +1,100 @@
+<div class="details-container">
+  <div class="page-header">
+    <div>
+      <button type="button" class="back-btn" (click)="goBack()">
+        ← Back to My Patients
+      </button>
+      <h2>Patient Details</h2>
+      <p>Profile and appointment history for {{ patientName || 'the selected patient' }}.</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="state-panel">Loading patient details...</div>
+  } @else if (errorMessage()) {
+    <div class="error-message" role="alert">{{ errorMessage() }}</div>
+  } @else if (patient(); as currentPatient) {
+    <section class="profile-card">
+      <div class="profile-heading">
+        <div class="avatar">
+          {{ currentPatient.user.firstName.charAt(0) }}{{ currentPatient.user.lastName.charAt(0) }}
+        </div>
+        <div>
+          <h3>{{ patientName }}</h3>
+          <span>{{ currentPatient.patientNumber || 'Patient ID not assigned' }}</span>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <div>
+          <span class="detail-label">Email</span>
+          <strong>{{ currentPatient.user.email }}</strong>
+        </div>
+        <div>
+          <span class="detail-label">Phone</span>
+          <strong>{{ currentPatient.user.phone || 'Not provided' }}</strong>
+        </div>
+        <div>
+          <span class="detail-label">Date of birth</span>
+          <strong>{{ currentPatient.dateOfBirth ? (currentPatient.dateOfBirth | date: 'dd MMM yyyy') : 'Not provided' }}</strong>
+        </div>
+        <div>
+          <span class="detail-label">Gender</span>
+          <strong>{{ currentPatient.gender || 'Not provided' }}</strong>
+        </div>
+        <div>
+          <span class="detail-label">Blood group</span>
+          <strong>{{ currentPatient.bloodGroup || 'Not provided' }}</strong>
+        </div>
+        <div>
+          <span class="detail-label">Emergency contact</span>
+          <strong>{{ currentPatient.emergencyContact || 'Not provided' }}</strong>
+        </div>
+        <div class="wide-field">
+          <span class="detail-label">Address</span>
+          <strong>{{ currentPatient.address || 'Not provided' }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="appointments-section">
+      <div class="section-heading">
+        <h3>Appointments with you</h3>
+        <span>{{ currentPatient.appointments.length }} total</span>
+      </div>
+
+      @if (currentPatient.appointments.length === 0) {
+        <div class="state-panel">No appointment history found.</div>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Hospital</th>
+                <th>Department</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (appointment of currentPatient.appointments; track appointment.id) {
+                <tr>
+                  <td>{{ appointment.scheduledAt | date: 'dd MMM yyyy' }}</td>
+                  <td>{{ appointment.scheduledAt | date: 'shortTime' }}</td>
+                  <td>{{ appointment.hospital.name }}</td>
+                  <td>{{ appointment.department.name }}</td>
+                  <td>{{ appointment.durationMinutes }} min</td>
+                  <td>{{ appointment.status }}</td>
+                  <td>{{ appointment.reason || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</div>

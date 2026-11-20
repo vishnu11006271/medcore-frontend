@@ -1,0 +1,167 @@
+.details-container {
+  padding: 24px;
+}
+
+.page-header {
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 14px 0 5px;
+    font-size: 24px;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+  }
+}
+
+.back-btn {
+  border: 0;
+  padding: 0;
+  color: #2563eb;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.profile-card,
+.appointments-section {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.profile-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e2e8f0;
+
+  h3 {
+    margin: 0 0 5px;
+    color: #0f172a;
+    font-size: 18px;
+  }
+
+  span {
+    color: #64748b;
+    font-size: 13px;
+  }
+}
+
+.avatar {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  border-radius: 50%;
+  color: #1d4ed8;
+  background: #dbeafe;
+  font-weight: 700;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding-top: 18px;
+
+  > div {
+    min-width: 0;
+  }
+
+  strong {
+    display: block;
+    margin-top: 5px;
+    color: #334155;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+}
+
+.wide-field {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+
+  h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 18px;
+  }
+
+  span {
+    color: #64748b;
+    font-size: 13px;
+  }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  th {
+    color: #475569;
+    background: #f8fafc;
+  }
+}
+
+.state-panel,
+.error-message {
+  padding: 18px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.state-panel {
+  color: #475569;
+  background: #f8fafc;
+}
+
+.error-message {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+@media (max-width: 640px) {
+  .details-container {
+    padding: 16px;
+  }
+
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wide-field {
+    grid-column: auto;
+  }
+}
