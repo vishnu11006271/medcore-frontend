@@ -139,4 +139,11 @@ export class AppointmentService {
       tap(() => this.notifyAppointmentUpdated())
     );
   }
+
+  getDoctorPatients(): Observable<ApiResponse<DoctorPatient[]>> {
+    return this.http.get<ApiResponse<DoctorPatient[]>>(
+      `${this.apiUrl}/appointments/doctor/my-patients`
+    );
+  }
+
 }
