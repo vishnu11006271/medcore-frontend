@@ -9,6 +9,7 @@ import {
   CreateAppointmentRequest,
   DoctorAppointment,
   DoctorPatient,
+  DoctorPatientDetails,
   MyAppointment,
   HospitalAppointmentsData,
   HospitalAppointmentDetails
@@ -144,6 +145,15 @@ export class AppointmentService {
   getDoctorPatients(): Observable<ApiResponse<DoctorPatient[]>> {
     return this.http.get<ApiResponse<DoctorPatient[]>>(
       `${this.apiUrl}/appointments/doctor/my-patients`
+    );
+  }
+
+
+  getDoctorPatientDetails(
+    patientId: string
+  ): Observable<ApiResponse<DoctorPatientDetails>> {
+    return this.http.get<ApiResponse<DoctorPatientDetails>>(
+      `${this.apiUrl}/appointments/doctor/my-patients/${patientId}`
     );
   }
 
