@@ -25,6 +25,13 @@ export const routes: Routes = [
         .then(m => m.LoginComponent)
   },
   {
+    path: 'register-patient',
+    loadComponent: () =>
+      import('./features/auth/register-patient/register-patient')
+        .then(m => m.RegisterPatientComponent)
+  },
+  {
+
     path: 'verify-email',
     loadComponent: () =>
       import('./features/auth/verify-email/verify-email')
