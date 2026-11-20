@@ -58,6 +58,8 @@ export class AuthService {
       { withCredentials: true }
     ).pipe(
       tap(response => {
+        this.sessionVersion++;
+        this.refreshInFlight = undefined;
         this.accessToken.set(response.data.accessToken);
         this.currentUser.set(response.data.user);
       })
