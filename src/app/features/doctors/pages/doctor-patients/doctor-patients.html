@@ -1,0 +1,106 @@
+<div class="patients-container">
+  <div class="page-header">
+    <div>
+      <h2>My Patients</h2>
+      <p>Patients who have booked an appointment with you.</p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-btn"
+      (click)="loadPatients()"
+      [disabled]="loading()">
+      {{ loading() ? 'Refreshing...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <div class="summary-row">
+    <div class="summary-card">
+      <span class="summary-label">Total patients</span>
+      <strong>{{ patients().length }}</strong>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Matching patients</span>
+      <strong>{{ filteredPatients().length }}</strong>
+    </div>
+  </div>
+
+  <div class="search-row">
+    <label for="patient-search">Search patients</label>
+    <input
+      #searchInput
+      id="patient-search"
+      type="search"
+      placeholder="Search by name, email, phone or patient ID"
+      [value]="searchTerm()"
+      (input)="searchTerm.set(searchInput.value)" />
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-message" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="state-panel">Loading your patients...</div>
+  } @else if (patients().length === 0) {
+    <div class="state-panel">
+      <h3>No patients yet</h3>
+      <p>Patients will appear here after they book an appointment with you.</p>
+    </div>
+  } @else if (filteredPatients().length === 0) {
+    <div class="state-panel">
+      <h3>No matching patients</h3>
+      <p>Try another name, email address, phone number or patient ID.</p>
+    </div>
+  } @else {
+    <div class="patient-grid">
+      @for (patient of filteredPatients(); track patient.id) {
+        <article class="patient-card">
+          <div class="patient-heading">
+            <div class="avatar">{{ getInitials(patient) }}</div>
+            <div class="patient-name">
+              <h3>{{ getPatientName(patient) }}</h3>
+              <span>{{ patient.patientNumber || 'Patient ID not assigned' }}</span>
+            </div>
+          </div>
+
+          <div class="patient-details">
+            <div>
+              <span class="detail-label">Email</span>
+              <span class="detail-value">{{ patient.user.email }}</span>
+            </div>
+            <div>
+              <span class="detail-label">Phone</span>
+              <span class="detail-value">{{ patient.user.phone || 'Not provided' }}</span>
+            </div>
+            <div>
+              <span class="detail-label">Gender</span>
+              <span class="detail-value">{{ patient.gender || 'Not provided' }}</span>
+            </div>
+            <div>
+              <span class="detail-label">Blood group</span>
+              <span class="detail-value">{{ patient.bloodGroup || 'Not provided' }}</span>
+            </div>
+          </div>
+
+          <div class="visit-summary">
+            <div>
+              <span class="detail-label">Appointments with you</span>
+              <strong>{{ patient.appointmentCount }}</strong>
+            </div>
+            <div>
+              <span class="detail-label">Last appointment</span>
+              <strong>
+                {{ patient.lastAppointmentAt
+                  ? (patient.lastAppointmentAt | date: 'dd MMM yyyy')
+                  : 'Not available' }}
+              </strong>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>
