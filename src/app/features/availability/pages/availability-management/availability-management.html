@@ -97,9 +97,9 @@
         type="button"
         class="btn btn-primary"
         (click)="saveWeeklySchedule()"
-        [disabled]="saving || loadingSchedule()">
+        [disabled]="saving() || loadingSchedule()">
 
-        {{ saving ? 'Saving...' : 'Save Schedule' }}
+        {{ saving() ? 'Saving...' : 'Save Schedule' }}
         </button>
       </div>
 
@@ -249,7 +249,7 @@
 
   <!-- Add/Edit working hours form -->
   @if (showIntervalForm) {
-    <div class="interval-form-card">
+    <div class="interval-form-card" #intervalFormSection>
 
       <h3>
         {{ isEditMode ? 'Edit Working Hours' : 'Add Working Hours' }}

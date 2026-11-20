@@ -1,5 +1,6 @@
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal,ElementRef,
+  ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -29,7 +30,8 @@ export class AvailabilityManagementComponent implements OnInit {
   constructor() {
   console.log('AvailabilityManagementComponent created');
 }
-
+  @ViewChild('intervalFormSection')
+  intervalFormSection?: ElementRef<HTMLElement>;
   private doctorService = inject(DoctorService);
   private availabilityService = inject(AvailabilityService);
   private authService = inject(AuthService);
@@ -44,7 +46,7 @@ export class AvailabilityManagementComponent implements OnInit {
   readonly loadingHospitals = signal(false);
   readonly loadingDoctors = signal(false);
   readonly loadingSchedule = signal(false);
-  saving = false;
+  readonly saving = signal(false);
 
   errorMessage = '';
   successMessage = '';
@@ -270,9 +272,14 @@ export class AvailabilityManagementComponent implements OnInit {
     this.slotDurationMinutes = 30;
 
     this.showIntervalForm = true;
+
+    this.scrollToIntervalForm();
   }
 
-  openEditForm(interval: AvailabilityInterval, index: number): void {
+  openEditForm(
+    interval: AvailabilityInterval,
+    index: number
+  ): void {
     this.selectedDay = interval.dayOfWeek;
     this.isEditMode = true;
     this.editingIndex = index;
@@ -282,6 +289,8 @@ export class AvailabilityManagementComponent implements OnInit {
     this.slotDurationMinutes = interval.slotDurationMinutes;
 
     this.showIntervalForm = true;
+
+    this.scrollToIntervalForm();
   }
 
   closeIntervalForm(): void {
@@ -419,7 +428,7 @@ export class AvailabilityManagementComponent implements OnInit {
       return;
     }
 
-    this.saving = true;
+    this.saving.set(true);
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -429,7 +438,7 @@ export class AvailabilityManagementComponent implements OnInit {
         startMinute: interval.startMinute,
         endMinute: interval.endMinute,
         slotDurationMinutes: interval.slotDurationMinutes,
-        isActive: interval.isActive ?? true
+        // isActive: interval.isActive ?? true
       }))
     };
 
@@ -438,11 +447,11 @@ export class AvailabilityManagementComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.schedule = response.data || [];
-          this.saving = false;
+          this.saving.set(false);
           this.successMessage = 'Weekly availability saved successfully.';
         },
         error: (error) => {
-          this.saving = false;
+          this.saving.set(false);
           this.errorMessage =
             error.error?.error?.message ||
             'Unable to save weekly availability.';
@@ -490,6 +499,15 @@ export class AvailabilityManagementComponent implements OnInit {
 
   isSuperAdmin(): boolean {
     return this.authService.user()?.role === 'SUPER_ADMIN';
+  }
+
+  private scrollToIntervalForm(): void {
+    setTimeout(() => {
+      this.intervalFormSection?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    });
   }
 
 
