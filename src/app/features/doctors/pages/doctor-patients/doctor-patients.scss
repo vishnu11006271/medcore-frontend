@@ -219,3 +219,20 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+
+.details-btn {
+  width: 100%;
+  margin: 0 0 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: #1d4ed8;
+  background: #eff6ff;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: #dbeafe;
+  }
+}
