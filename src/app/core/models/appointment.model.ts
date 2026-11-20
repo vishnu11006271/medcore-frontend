@@ -161,3 +161,19 @@ export interface HospitalAppointmentDetails {
     name: string;
   };
 }
+
+export interface DoctorPatient {
+  id: string;
+  patientNumber: string | null;
+  dateOfBirth: string | null;
+  gender: string | null;
+  bloodGroup: string | null;
+  appointmentCount: number;
+  lastAppointmentAt: string | null;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string | null;
+  };
+}
