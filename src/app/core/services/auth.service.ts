@@ -29,6 +29,8 @@ import {
 export class AuthService {
 
   // Concurrent 401 responses share a single refresh-token rotation.
+  private sessionVersion = 0;
+
   private refreshInFlight?: Observable<ApiResponse<{
     accessToken: string;
     tokenType: 'Bearer';
@@ -97,6 +99,7 @@ export class AuthService {
       return this.refreshInFlight;
     }
 
+    const refreshVersion = this.sessionVersion;
     const request = this.http.post<ApiResponse<{
       accessToken: string;
       tokenType: 'Bearer';
@@ -107,10 +110,14 @@ export class AuthService {
       { withCredentials: true }
     ).pipe(
       tap(response => {
-        this.accessToken.set(response.data.accessToken);
+        if (refreshVersion === this.sessionVersion) {
+          this.accessToken.set(response.data.accessToken);
+        }
       }),
       finalize(() => {
-        this.refreshInFlight = undefined;
+        if (refreshVersion === this.sessionVersion) {
+          this.refreshInFlight = undefined;
+        }
       }),
       shareReplay({ bufferSize: 1, refCount: false })
     );
