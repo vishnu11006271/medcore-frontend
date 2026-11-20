@@ -177,3 +177,33 @@ export interface DoctorPatient {
     phone: string | null;
   };
 }
+
+
+export interface DoctorPatientAppointment {
+  id: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  status: AppointmentStatus;
+  reason: string | null;
+  notes: string | null;
+  department: { name: string };
+  hospital: { name: string };
+}
+
+export interface DoctorPatientDetails {
+  id: string;
+  patientNumber: string | null;
+  dateOfBirth: string | null;
+  gender: string | null;
+  bloodGroup: string | null;
+  address: string | null;
+  emergencyContact: string | null;
+  createdAt: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string | null;
+  };
+  appointments: DoctorPatientAppointment[];
+}
