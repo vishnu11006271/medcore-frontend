@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 
 import { AppointmentService } from '../../../../core/services/appointment.service';
@@ -14,6 +15,7 @@ import { DoctorPatient } from '../../../../core/models/appointment.model';
 })
 export class DoctorPatients implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
+  private readonly router = inject(Router);
 
   readonly patients = signal<DoctorPatient[]>([]);
   readonly searchTerm = signal('');
@@ -60,6 +62,10 @@ export class DoctorPatients implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  openPatientDetails(patientId: string): void {
+    this.router.navigate(['/dashboard/doctor-patients', patientId]);
   }
 
   getPatientName(patient: DoctorPatient): string {
