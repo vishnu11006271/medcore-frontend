@@ -1,15 +1,8 @@
 <div class="patients-page">
 
-  <div class="page-header">
-    <div>
-      <h1>Patients</h1>
-      <p>Manage and view patients registered with your hospital.</p>
-    </div>
-
-    <div class="patient-count">
-      Total Patients: <strong>{{ totalPatients() }}</strong>
-    </div>
-  </div>
+  <app-page-header title="Patients" description="Manage and view patients registered with your hospital." marginBottom="24px">
+    <div pageHeaderAction class="patient-count">Total Patients: <strong>{{ totalPatients() }}</strong></div>
+  </app-page-header>
 
   <div class="search-section">
     <div class="search-box">
@@ -58,12 +51,8 @@
 
     @if (patients().length > 0) {
 
-      <div
-        class="table-container"
-        role="region"
-        aria-label="Patients table. Scroll horizontally to view all columns."
-        tabindex="0">
-        <table>
+      <app-table-container ariaLabel="Patients table. Scroll horizontally to view all columns." variant="bordered">
+        <table class="mobile-table">
           <thead>
             <tr>
               <th>Patient</th>
@@ -116,7 +105,8 @@
             }
           </tbody>
         </table>
-      </div>
+      
+      </app-table-container>
 
       <div class="pagination">
         <label class="page-size-control">

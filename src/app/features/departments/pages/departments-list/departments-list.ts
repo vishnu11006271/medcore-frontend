@@ -1,3 +1,5 @@
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header';
+import { TableContainerComponent } from '../../../../shared/components/table-container/table-container';
 import {
   Component,
   OnInit,
@@ -33,7 +35,7 @@ type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
 @Component({
   selector: 'app-departments-list',
   standalone: true,
-  imports: [
+  imports: [PageHeaderComponent, TableContainerComponent,
     CommonModule,
     ReactiveFormsModule,
     DataStateComponent,

@@ -1,3 +1,5 @@
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header';
+import { TableContainerComponent } from '../../../../shared/components/table-container/table-container';
 import {
   Component,
   computed,
@@ -38,7 +40,7 @@ type HospitalAction = 'VERIFY' | 'REJECT';
 @Component({
   selector: 'app-hospitals-list',
   standalone: true,
-  imports: [
+  imports: [PageHeaderComponent, TableContainerComponent,
     CommonModule,
     ReactiveFormsModule,
     DataStateComponent,

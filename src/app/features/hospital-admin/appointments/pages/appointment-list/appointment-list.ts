@@ -1,3 +1,5 @@
+import { PageHeaderComponent } from '../../../../../shared/components/page-header/page-header';
+import { TableContainerComponent } from '../../../../../shared/components/table-container/table-container';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,7 +17,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'app-appointment-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [PageHeaderComponent, TableContainerComponent,CommonModule, FormsModule, RouterLink],
   templateUrl: './appointment-list.html',
   styleUrl: './appointment-list.scss'
 })

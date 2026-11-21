@@ -1,14 +1,7 @@
 <div class="appointments-page">
-  <div class="page-header">
-    <div>
-      <h2>Appointments</h2>
-      <p>Manage and monitor hospital appointments.</p>
-    </div>
-
-    <div class="total-count">
-      Total Appointments: <strong>{{ totalAppointments() }}</strong>
-    </div>
-  </div>
+  <app-page-header title="Appointments" description="Manage and monitor hospital appointments." marginBottom="24px">
+    <div pageHeaderAction class="total-count">Total Appointments: <strong>{{ totalAppointments() }}</strong></div>
+  </app-page-header>
   @if (actionMessage()) {
     <div class="success-message">
       {{ actionMessage() }}
@@ -76,12 +69,8 @@
 
   <!-- Appointment table -->
   @else if (appointments().length > 0) {
-    <div
-        class="table-wrapper"
-        role="region"
-        aria-label="Appointments table. Scroll horizontally to view all columns."
-        tabindex="0">
-      <table>
+    <app-table-container ariaLabel="Appointments table. Scroll horizontally to view all columns." variant="bordered">
+      <table class="mobile-table">
         <thead>
           <tr>
             <th>Patient</th>
@@ -153,7 +142,8 @@
           }
         </tbody>
       </table>
-    </div>
+    
+      </app-table-container>
 
     <!-- Pagination -->
     <div class="pagination">

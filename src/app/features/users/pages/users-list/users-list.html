@@ -1,19 +1,8 @@
 <section class="users-page">
 
-  <div class="page-header">
-    <div>
-      <h1>Platform User Management</h1>
-      <p>View, search and manage users across the platform.</p>
-    </div>
-
-    <button
-      type="button"
-      class="secondary-button"
-      (click)="loadUsers(pagination().page)"
-      [disabled]="loading()">
-      Refresh
-    </button>
-  </div>
+  <app-page-header title="Platform User Management" description="View, search and manage users across the platform." marginBottom="24px">
+  <button pageHeaderAction type="button" class="secondary-button" (click)="loadUsers(pagination().page)" [disabled]="loading()">Refresh</button>
+</app-page-header>
 
   @if (successMessage()) {
     <div class="success-message" role="status">
@@ -143,12 +132,8 @@
       />
     } @else if (users().length > 0) {
 
-      <div
-        class="table-wrapper"
-        role="region"
-        aria-label="Platform users table. Scroll horizontally to view all columns."
-        tabindex="0">
-        <table>
+      <app-table-container ariaLabel="Platform users table. Scroll horizontally to view all columns." variant="plain">
+        <table class="mobile-table">
           <thead>
             <tr>
               <th>User</th>
@@ -224,7 +209,8 @@
             }
           </tbody>
         </table>
-      </div>
+      
+      </app-table-container>
 
       <!-- Pagination -->
       <div class="pagination">

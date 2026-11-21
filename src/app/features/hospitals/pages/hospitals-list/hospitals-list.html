@@ -1,19 +1,9 @@
 <section class="hospitals-page">
 
   <!-- Page header -->
-  <div class="page-header">
-    <div>
-      <h1>Hospital Management</h1>
-      <p>Register, manage and verify hospitals on the platform.</p>
-    </div>
-
-    <button
-      type="button"
-      class="primary-button"
-      (click)="openCreateForm()">
-      + Add Hospital
-    </button>
-  </div>
+  <app-page-header title="Hospital Management" description="Register, manage and verify hospitals on the platform." marginBottom="0">
+  <button pageHeaderAction type="button" class="primary-button" (click)="openCreateForm()">+ Add Hospital</button>
+</app-page-header>
 
   <!-- Success message -->
   @if (successMessage()) {
@@ -271,13 +261,9 @@
       />
     } @else if (filteredHospitals().length > 0) {
 
-      <div
-        class="table-wrapper"
-        role="region"
-        aria-label="Hospitals table. Scroll horizontally to view all columns."
-        tabindex="0">
+      <app-table-container ariaLabel="Hospitals table. Scroll horizontally to view all columns." variant="plain">
 
-        <table>
+        <table class="mobile-table">
           <thead>
             <tr>
               <th>Hospital</th>
@@ -361,7 +347,8 @@
           </tbody>
         </table>
 
-      </div>
+      
+      </app-table-container>
     }
 
   </div>
