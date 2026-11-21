@@ -1,0 +1,201 @@
+:host {
+  display: block;
+}
+
+.hospital-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  h1 {
+    margin: 0 0 7px;
+    color: #172b4d;
+    font-size: 25px;
+  }
+
+  p {
+    margin: 0;
+    color: #8492a6;
+    font-size: 13px;
+  }
+}
+
+.refresh-button,
+.dashboard-state button {
+  border: 0;
+  border-radius: 6px;
+  padding: 10px 16px;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.65;
+  }
+}
+
+.hospital-summary,
+.panel {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #e8edf3;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.hospital-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  h2 {
+    margin: 0 0 6px;
+    color: #243b5a;
+    font-size: 17px;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+}
+
+.hospital-status {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #e7f8ef;
+  color: #168653;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.panel-heading,
+.status-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panel-heading {
+  margin-bottom: 22px;
+
+  h2 {
+    margin: 0 0 6px;
+    color: #243b5a;
+    font-size: 16px;
+  }
+
+  p {
+    margin: 0;
+    color: #8492a6;
+    font-size: 12px;
+  }
+}
+
+.panel-tag {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: #f2f6fb;
+  color: #60748c;
+  font-size: 11px;
+}
+
+.status-item {
+  margin-bottom: 17px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.status-heading {
+  margin-bottom: 8px;
+  color: #52647c;
+  font-size: 12px;
+  text-transform: capitalize;
+
+  strong {
+    color: #263c59;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.progress-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #edf1f6;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #3678db;
+  transition: width 180ms ease;
+}
+
+.dashboard-state {
+  padding: 32px 20px;
+  border: 1px solid #e8edf3;
+  border-radius: 12px;
+  background: #fff;
+  color: #64748b;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 8px;
+    color: #243b5a;
+    font-size: 18px;
+  }
+
+  p {
+    margin: 0 0 16px;
+  }
+}
+
+.error-state {
+  border-color: #fecaca;
+  background: #fffafa;
+}
+
+.inline-error {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fff1f2;
+  color: #9f1239;
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .page-heading,
+  .hospital-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .hospital-summary,
+  .panel {
+    padding: 15px;
+  }
+}
