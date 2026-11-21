@@ -1,0 +1,101 @@
+<section class="dashboard-page hospital-dashboard">
+  <header class="page-heading">
+    <div>
+      <h1>Hospital Overview</h1>
+      <p>Live operational statistics for your hospital.</p>
+    </div>
+    <button
+      type="button"
+      class="refresh-button"
+      (click)="loadOverview()"
+      [disabled]="loading()"
+    >
+      {{ loading() ? 'Refreshing...' : 'Refresh data' }}
+    </button>
+  </header>
+
+  @if (loading() && !overview()) {
+    <div class="dashboard-state" role="status" aria-live="polite">
+      Loading hospital dashboard...
+    </div>
+  } @else if (error() && !overview()) {
+    <div class="dashboard-state error-state" role="alert">
+      <h2>Unable to load hospital dashboard</h2>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="loadOverview()">Try again</button>
+    </div>
+  } @else if (overview(); as data) {
+    @if (error()) {
+      <div class="inline-error" role="alert">{{ error() }}</div>
+    }
+
+    <section class="hospital-summary" aria-label="Hospital details">
+      <div>
+        <h2>{{ data.hospital.name }}</h2>
+        @if (data.hospital.address) {
+          <p>{{ data.hospital.address }}</p>
+        }
+        @if (data.hospital.email || data.hospital.phone) {
+          <p>
+            {{ data.hospital.email }}
+            @if (data.hospital.email && data.hospital.phone) {
+              <span aria-hidden="true"> · </span>
+            }
+            {{ data.hospital.phone }}
+          </p>
+        }
+      </div>
+      <span class="hospital-status">{{ data.hospital.status }}</span>
+    </section>
+
+    <section class="stats-grid" aria-label="Hospital statistics">
+      @for (stat of statCards(); track stat.title) {
+        <app-stat-card
+          [title]="stat.title"
+          [value]="stat.value"
+          [change]="stat.change"
+          [icon]="stat.icon"
+          [trend]="stat.trend"
+        />
+      }
+    </section>
+
+    <section class="panel appointment-status-panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Appointments by Status</h2>
+          <p>Current distribution of appointments across your hospital.</p>
+        </div>
+        <span class="panel-tag">{{ data.statistics.totalAppointments }} total</span>
+      </div>
+
+      <div class="status-list">
+        @for (item of appointmentStatuses(); track item.status) {
+          <div class="status-item">
+            <div class="status-heading">
+              <span>{{ item.label }}</span>
+              <strong>{{ item.count }}</strong>
+            </div>
+            <div
+              class="progress-track"
+              role="progressbar"
+              [attr.aria-label]="item.label + ' appointments'"
+              [attr.aria-valuenow]="item.count"
+              [attr.aria-valuemin]="0"
+              [attr.aria-valuemax]="data.statistics.totalAppointments"
+            >
+              <div
+                class="progress-fill"
+                [style.width.%]="statusPercentage(item.count)"
+              ></div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  } @else {
+    <div class="dashboard-state" role="status">
+      No hospital dashboard information is available.
+    </div>
+  }
+</section>
