@@ -23,19 +23,19 @@ describe('DataStateComponent', () => {
   });
 
   it('shows an error and emits retry action', () => {
-    const actionSpy = vi.fn();
+    let actionCount = 0;
     fixture.componentInstance.variant = 'error';
     fixture.componentInstance.title = 'Unable to load users';
     fixture.componentInstance.message = 'Request failed';
     fixture.componentInstance.actionLabel = 'Retry';
-    fixture.componentInstance.action.subscribe(actionSpy);
+    fixture.componentInstance.action.subscribe(() => actionCount++);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[role="alert"]').textContent)
       .toContain('Request failed');
 
     fixture.nativeElement.querySelector('button').click();
-    expect(actionSpy).toHaveBeenCalledOnce();
+    expect(actionCount).toBe(1);
   });
 
   it('shows a helpful empty state', () => {
