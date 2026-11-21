@@ -590,3 +590,250 @@ td {
     padding: 15px;
   }
 }
+/* Patient dashboard */
+.dashboard-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.view-all-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.view-all-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondary-action {
+  background: #fff;
+  color: #2563eb;
+  border-color: #cbd5e1;
+}
+
+.patient-stats-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.patient-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  min-width: 0;
+}
+
+.patient-stat-card .stat-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 24px;
+}
+
+.patient-stat-card h3 {
+  margin: 0 0 5px;
+  color: #243b5a;
+  font-size: 25px;
+  font-variant-numeric: tabular-nums;
+}
+
+.patient-stat-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.patient-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: 18px;
+}
+
+.patient-next-appointment,
+.patient-status-panel {
+  min-width: 0;
+}
+
+.next-appointment-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.next-appointment-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 82px;
+  min-height: 88px;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.next-appointment-date strong {
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.next-appointment-date span {
+  margin-top: 5px;
+  font-size: 11px;
+}
+
+.next-appointment-details {
+  min-width: 0;
+}
+
+.next-appointment-details h4 {
+  margin: 0 0 5px;
+  color: #243b5a;
+  font-size: 16px;
+}
+
+.next-appointment-details > p {
+  margin: 0 0 12px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.appointment-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: #52647c;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.patient-status-analytics {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.text-link {
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+}
+
+.compact-empty-state {
+  padding: 16px 8px;
+}
+
+.compact-empty-state h4,
+.empty-state h4 {
+  margin: 0 0 7px;
+  color: #334155;
+}
+
+.compact-empty-state p,
+.empty-state p {
+  margin: 0 0 12px;
+}
+
+.patient-recent-appointments .panel-heading {
+  align-items: flex-start;
+}
+
+.patient-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.patient-quick-actions .quick-action-card {
+  min-width: 0;
+}
+
+.status.scheduled,
+.status.checked-in {
+  color: #0e7490;
+  background: #cffafe;
+}
+
+.status.pending {
+  color: #a16207;
+  background: #fef3c7;
+}
+
+.status.completed {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.status.cancelled,
+.status.no-show {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+@media (max-width: 1100px) {
+  .patient-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .patient-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .patient-quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .patient-status-analytics {
+    grid-template-columns: 1fr;
+  }
+
+  .patient-quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-actions {
+    width: 100%;
+  }
+
+  .dashboard-actions .view-all-btn {
+    flex: 1 1 auto;
+  }
+
+  .next-appointment-content {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 550px) {
+  .patient-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .patient-stat-card {
+    padding: 16px;
+  }
+}

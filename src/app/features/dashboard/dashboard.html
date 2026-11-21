@@ -193,6 +193,141 @@
       </div>
     </div>
   </section>
+} @else if (currentUser()?.role === 'PATIENT') {
+  <section class="dashboard-page patient-dashboard">
+    <header class="page-heading">
+      <div>
+        <h1>Patient Dashboard</h1>
+        <p>Welcome back, {{ currentUser()?.firstName }}. Here's an overview of your care and appointments.</p>
+      </div>
+      <div class="dashboard-actions">
+        <button type="button" class="view-all-btn secondary-action" (click)="loadPatientAppointments()" [disabled]="patientLoading()">
+          {{ patientLoading() ? 'Refreshing...' : 'Refresh' }}
+        </button>
+        <a routerLink="/dashboard/appointments/book" class="view-all-btn">Book Appointment</a>
+      </div>
+    </header>
+
+    @if (patientError()) {
+      <div class="error-message" role="alert">
+        {{ patientError() }}
+        <button type="button" (click)="loadPatientAppointments()">Retry</button>
+      </div>
+    }
+
+    <div class="stats-grid patient-stats-grid">
+      @for (stat of patientStats(); track stat.key) {
+        <article class="patient-stat-card">
+          <div class="stat-icon">{{ stat.icon }}</div>
+          <div><h3>{{ stat.value }}</h3><p>{{ stat.title }}</p></div>
+        </article>
+      }
+    </div>
+
+    <section class="patient-overview-grid" aria-label="Patient appointment insights">
+      <article class="panel patient-next-appointment">
+        <div class="panel-heading">
+          <div><h3>Next Appointment</h3><p>Your next scheduled visit.</p></div>
+          <span class="panel-tag">Upcoming</span>
+        </div>
+        @if (patientLoading() && !patientAppointments().length) {
+          <div class="loading-state" role="status">Loading your appointments...</div>
+        } @else if (patientUpcomingAppointments().length > 0) {
+          @let nextAppointment = patientUpcomingAppointments()[0];
+          <div class="next-appointment-content">
+            <div class="next-appointment-date">
+              <strong>{{ nextAppointment.scheduledAt | date:'dd' }}</strong>
+              <span>{{ nextAppointment.scheduledAt | date:'MMM yyyy' }}</span>
+            </div>
+            <div class="next-appointment-details">
+              <h4>{{ getPatientDoctorName(nextAppointment) }}</h4>
+              <p>{{ nextAppointment.doctor.specialization }}</p>
+              <div class="appointment-meta">
+                <span>{{ nextAppointment.scheduledAt | date:'EEEE, hh:mm a' }}</span>
+                <span>{{ nextAppointment.hospital.name }}</span>
+                <span>{{ nextAppointment.department.name }}</span>
+              </div>
+              <span class="status" [ngClass]="getPatientStatusClass(nextAppointment.status)">
+                {{ nextAppointment.status.replace('_', ' ') }}
+              </span>
+            </div>
+          </div>
+          <a class="text-link" [routerLink]="['/dashboard/appointments', nextAppointment.id]">View appointment details →</a>
+        } @else if (!patientError()) {
+          <div class="empty-state compact-empty-state">
+            <h4>No upcoming appointments</h4>
+            <p>When you book a visit, its details will appear here.</p>
+            <a routerLink="/dashboard/appointments/book" class="text-link">Book your first appointment →</a>
+          </div>
+        }
+      </article>
+
+      <article class="panel patient-status-panel">
+        <div class="panel-heading">
+          <div><h3>Appointment Overview</h3><p>Distribution of your appointment statuses.</p></div>
+          <span class="panel-tag">{{ patientStatusDonut().total }} total</span>
+        </div>
+        <div class="patient-status-analytics">
+          <div class="status-donut" role="img"
+            [attr.aria-label]="'Appointment status distribution: ' + patientStatusDonut().total + ' total appointments'"
+            [style.background]="patientStatusDonut().background">
+            <div class="donut-center"><strong>{{ patientStatusDonut().total }}</strong><span>Total</span></div>
+          </div>
+          <div class="status-legend">
+            @if (patientStatusDonut().total > 0) {
+              @for (item of patientStatusDonut().segments; track item.status) {
+                @if (item.count > 0) {
+                  <div class="legend-item">
+                    <span class="legend-label"><span class="legend-dot" [style.background]="item.color"></span>{{ item.label }}</span>
+                    <strong>{{ item.count }}</strong>
+                    <small>{{ item.percentage | number:'1.0-1' }}%</small>
+                  </div>
+                }
+              }
+            } @else if (!patientLoading() && !patientError()) {
+              <p class="chart-empty">No appointment history yet.</p>
+            }
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel patient-recent-appointments">
+      <div class="panel-heading">
+        <div><h3>Latest Appointments</h3><p>Your five most recently booked visits.</p></div>
+        <a routerLink="/dashboard/my-appointments" class="text-link">View all →</a>
+      </div>
+      @if (patientLoading() && !patientAppointments().length) {
+        <div class="loading-state" role="status">Loading appointment history...</div>
+      } @else if (!patientError() && patientRecentAppointments().length > 0) {
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Doctor</th><th>Hospital</th><th>Department</th><th>Date &amp; Time</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              @for (appointment of patientRecentAppointments(); track appointment.id) {
+                <tr>
+                  <td>{{ getPatientDoctorName(appointment) }}</td>
+                  <td>{{ appointment.hospital.name }}</td>
+                  <td>{{ appointment.department.name }}</td>
+                  <td>{{ appointment.scheduledAt | date:'medium' }}</td>
+                  <td><span class="status" [ngClass]="getPatientStatusClass(appointment.status)">{{ appointment.status.replace('_', ' ') }}</span></td>
+                  <td><a [routerLink]="['/dashboard/appointments', appointment.id]" class="text-link">Details</a></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else if (!patientError()) {
+        <div class="empty-state"><h4>No appointment history</h4><p>Your booked appointments will appear here.</p></div>
+      }
+    </section>
+
+    <div class="patient-quick-actions">
+      <a routerLink="/dashboard/appointments/book" class="quick-action-card"><span>＋</span><strong>Book an Appointment</strong><small>Find a doctor and schedule a visit</small></a>
+      <a routerLink="/dashboard/my-appointments" class="quick-action-card"><span>▣</span><strong>Manage Appointments</strong><small>Review upcoming and past visits</small></a>
+      <a routerLink="/dashboard/my-lab-results" class="quick-action-card"><span>⌁</span><strong>My Lab Results</strong><small>Review available laboratory results</small></a>
+    </div>
+  </section>
 } @else {
   <section class="dashboard-page">
     <header class="page-heading">
