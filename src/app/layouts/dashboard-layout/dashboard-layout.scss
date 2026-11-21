@@ -5,17 +5,22 @@
 
 .app-container {
   display: flex;
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
   background: #f5f7fb;
 }
 
 .sidebar {
+  display: flex;
+  flex: 0 0 255px;
+  flex-direction: column;
   width: 255px;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
   background: #172b4d;
   color: #fff;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
   transition: transform 0.25s ease;
   z-index: 20;
 }
@@ -96,6 +101,10 @@
 }
 
 .nav-section {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 10px 14px;
 }
 
@@ -179,13 +188,18 @@ nav {
 }
 
 .main-area {
-  flex: 1;
-  min-width: 0;
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
+  width: 0;
+  min-width: 0;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .topbar {
+  flex: 0 0 auto;
   min-height: 75px;
   padding: 0 28px;
   background: #fff;
@@ -200,7 +214,9 @@ nav {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
+  min-width: 0;
+  margin-left: auto;
 }
 
 .menu-toggle {
@@ -227,55 +243,6 @@ nav {
   color: #c0cad7;
 }
 
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  width: 270px;
-  padding: 10px 12px;
-  background: #f5f7fb;
-  border: 1px solid #edf0f5;
-  border-radius: 8px;
-  color: #8190a5;
-}
-
-.search-box input {
-  width: 100%;
-  min-width: 0;
-  border: 0;
-  outline: none;
-  background: transparent;
-  font-size: 11px;
-  color: #344b68;
-}
-
-.shortcut {
-  white-space: nowrap;
-  font-size: 9px;
-}
-
-.notification-button {
-  position: relative;
-  width: 35px;
-  height: 35px;
-  border: 0;
-  border-radius: 8px;
-  background: #f5f7fb;
-  color: #50657f;
-  font-size: 17px;
-  cursor: pointer;
-}
-
-.notification-dot {
-  position: absolute;
-  top: 7px;
-  right: 8px;
-  width: 6px;
-  height: 6px;
-  background: #e24f4f;
-  border-radius: 50%;
-}
-
 .profile-details strong {
   display: block;
   font-size: 11px;
@@ -290,14 +257,22 @@ nav {
 }
 
 .content-area {
-  flex: 1;
-  padding: 27px;
+  flex: 1 1 auto;
   min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 27px;
 }
 
 .footer {
   display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
   justify-content: space-between;
+  gap: 8px 18px;
   padding: 16px 28px;
   border-top: 1px solid #e8edf3;
   background: #fff;
@@ -310,8 +285,10 @@ nav {
 }
 
 .logout-button {
-  width: 100%;
-  padding: 12px 16px;
+  width: auto;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 10px 14px;
   border: none;
   border-radius: 8px;
   background: transparent;
@@ -364,6 +341,11 @@ nav {
   }
 }
 
+.nav-parent.active {
+  background: #3479df;
+  color: #fff;
+}
+
 .submenu-arrow {
   margin-left: auto;
   font-size: 18px;
@@ -404,8 +386,10 @@ nav {
   .sidebar {
     position: fixed;
     inset: 0 auto 0 0;
+    width: min(285px, 86vw);
     height: 100dvh;
     transform: translateX(-100%);
+    z-index: 30;
   }
 
   .sidebar.sidebar-open {
@@ -422,11 +406,15 @@ nav {
     position: fixed;
     inset: 0;
     background: rgba(15, 23, 42, 0.45);
-    z-index: 19;
+    z-index: 29;
   }
 
   .topbar {
     padding: 0 18px;
+  }
+
+  .main-area {
+    width: 100%;
   }
 
   .content-area {
@@ -435,13 +423,28 @@ nav {
 }
 
 @media (max-width: 600px) {
-  .search-box {
+  .profile-details {
     display: none;
   }
 
-  .profile-details,
   .breadcrumb {
+    display: flex;
+    min-width: 0;
+  }
+
+  .breadcrumb span {
     display: none;
+  }
+
+  .breadcrumb strong {
+    max-width: 42vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header-left {
+    min-width: 0;
   }
 
   .topbar {
@@ -453,8 +456,17 @@ nav {
   }
 
   .footer {
-    padding: 14px;
-    gap: 8px;
+    padding: 12px 14px;
+    gap: 6px 12px;
     font-size: 9px;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  .logout-button {
+    padding: 9px 10px;
+    font-size: 12px;
   }
 }

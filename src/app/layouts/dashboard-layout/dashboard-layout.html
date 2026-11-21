@@ -5,7 +5,7 @@
   }
 
   <!-- Sidebar -->
-  <aside class="sidebar" [class.sidebar-open]="sidebarOpen">
+  <aside id="dashboard-sidebar" class="sidebar" [class.sidebar-open]="sidebarOpen">
 
     <div class="brand">
       <div class="brand-icon">M</div>
@@ -37,7 +37,7 @@
       <span class="nav-heading">MAIN MENU</span>
 
       
-    <nav>
+    <nav aria-label="Main navigation">
       @for (item of navigation(); track item.label) {
 
         @if (item.enabled && item.children?.length) {
@@ -47,19 +47,20 @@
             <button
               type="button"
               class="nav-item nav-parent"
-              (click)="toggleDoctors()"
-              [attr.aria-expanded]="doctorsExpanded">
+              (click)="toggleGroup(item)"
+              [attr.aria-expanded]="isGroupExpanded(item)"
+              [class.active]="isGroupActive(item)">
 
               <span class="nav-icon">{{ item.icon }}</span>
               <span>{{ item.label }}</span>
 
               <span class="submenu-arrow">
-                {{ doctorsExpanded ? '⌄' : '›' }}
+                {{ isGroupExpanded(item) ? '⌄' : '›' }}
               </span>
 
             </button>
 
-            @if (doctorsExpanded) {
+            @if (isGroupExpanded(item)) {
               <div class="submenu">
 
                 @for (child of item.children; track child.label) {
@@ -67,7 +68,7 @@
                   <a
                     [routerLink]="child.route"
                     routerLinkActive="active"
-                    [routerLinkActiveOptions]="{ exact: true }"
+                    [routerLinkActiveOptions]="{ exact: false }"
                     class="submenu-item"
                     (click)="closeSidebar()">
 
@@ -88,7 +89,7 @@
           <a
             [routerLink]="item.route"
             routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
+            [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
             class="nav-item"
             (click)="closeSidebar()">
 
@@ -140,6 +141,8 @@
           class="menu-toggle"
           (click)="toggleSidebar()"
           aria-label="Toggle navigation"
+          aria-controls="dashboard-sidebar"
+          [attr.aria-expanded]="sidebarOpen"
         >
           ☰
         </button>
@@ -147,30 +150,11 @@
         <div class="breadcrumb">
           <span>Workspace</span>
           <span class="breadcrumb-separator">/</span>
-          <strong>Dashboard</strong>
+          <strong>{{ currentPageTitle }}</strong>
         </div>
       </div>
 
       <div class="header-actions">
-
-        <div class="search-box">
-          <span>⌕</span>
-          <input
-            type="search"
-            placeholder="Search patients, doctors..."
-            aria-label="Search"
-          />
-          <span class="shortcut">⌘ K</span>
-        </div>
-
-        <button
-          type="button"
-          class="notification-button"
-          aria-label="Notifications"
-        >
-          ♧
-          <span class="notification-dot"></span>
-        </button>
 
         <div class="profile">
           <div class="avatar">{{ userInitials() }}</div>
@@ -193,8 +177,8 @@
 
     </header>
 
-    <section class="content-area">
-      <router-outlet />
+    <section #contentArea class="content-area" tabindex="0">
+      <router-outlet (activate)="scrollContentToTop()" />
     </section>
 
     <footer class="footer">

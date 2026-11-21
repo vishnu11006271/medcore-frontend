@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, computed, inject } from '@angular/core';
 import {
   RouterLink,
   RouterLinkActive,
@@ -28,9 +28,11 @@ export class DashboardLayoutComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  doctorsExpanded = false;
-
   sidebarOpen = false;
+
+  @ViewChild('contentArea') private contentArea?: ElementRef<HTMLElement>;
+
+  private groupExpandedState: Record<string, boolean> = {};
 
   // Read the authenticated user from AuthService.
   readonly currentUser = this.authService.user;
@@ -58,8 +60,8 @@ export class DashboardLayoutComponent {
       .toUpperCase();
   });
 
-  // Only Dashboard is enabled for now.
-  // Other pages will be enabled as their modules are implemented.
+  // Role-specific navigation. Items without a route remain disabled
+  // until their corresponding feature is available.
   private readonly navigationByRole: Record<UserRole, NavigationItem[]> = {
     SUPER_ADMIN: [
       { label: 'Dashboard', icon: '▦', route: '/dashboard', enabled: true },
@@ -210,8 +212,8 @@ export class DashboardLayoutComponent {
       {
         label: 'Lab Results',
         icon: '⚗',
-        route: '/dashboard/doctor-lab-results',
-        enabled: true
+        route: null,
+        enabled: false
       }
     ],
 
@@ -350,6 +352,10 @@ export class DashboardLayoutComponent {
     this.sidebarOpen = false;
   }
 
+  scrollContentToTop(): void {
+    this.contentArea?.nativeElement.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
   logout(): void {
     this.authService.logout().subscribe({
       next: () => this.router.navigate(['/login']),
@@ -357,7 +363,44 @@ export class DashboardLayoutComponent {
     });
   }
 
-  toggleDoctors(): void {
-    this.doctorsExpanded = !this.doctorsExpanded;
+  toggleGroup(item: NavigationItem): void {
+    this.groupExpandedState = {
+      ...this.groupExpandedState,
+      [item.label]: !this.isGroupExpanded(item)
+    };
+  }
+
+  isGroupExpanded(item: NavigationItem): boolean {
+    if (Object.prototype.hasOwnProperty.call(this.groupExpandedState, item.label)) {
+      return this.groupExpandedState[item.label];
+    }
+
+    return this.isGroupActive(item);
+  }
+
+  isGroupActive(item: NavigationItem): boolean {
+    const currentPath = this.router.url.split(/[?#]/)[0];
+
+    return (item.children ?? []).some(child =>
+      !!child.route &&
+      (currentPath === child.route || currentPath.startsWith(`${child.route}/`))
+    );
+  }
+
+  get currentPageTitle(): string {
+    const currentPath = this.router.url.split(/[?#]/)[0];
+    const items = this.navigation().flatMap(item => [
+      item,
+      ...(item.children ?? [])
+    ]);
+
+    const activeItem = items
+      .filter(item =>
+        !!item.route &&
+        (currentPath === item.route || currentPath.startsWith(`${item.route}/`))
+      )
+      .sort((a, b) => (b.route?.length ?? 0) - (a.route?.length ?? 0))[0];
+
+    return activeItem?.label ?? 'Dashboard';
   }
 }

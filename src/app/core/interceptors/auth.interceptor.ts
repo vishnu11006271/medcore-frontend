@@ -1,47 +1,49 @@
 import {
-  HttpInterceptorFn,
-  HttpErrorResponse
+  HttpErrorResponse,
+  HttpInterceptorFn
 } from '@angular/common/http';
-
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 import { AuthService } from '../services/auth.service';
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
+export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const authService = inject(AuthService);
 
-//   const apiUrl = 'http://localhost:3000';
+  // Never send the bearer token or refresh cookie to a third-party origin.
+  const apiOrigin = new URL(environment.apiUrl).origin;
+  const requestOrigin = new URL(request.url, environment.apiUrl).origin;
 
-  // Attach access token to the request.
+  if (requestOrigin !== apiOrigin) {
+    return next(request);
+  }
+
   const accessToken = authService.getAccessToken();
+  const authRequest = request.clone({
+    ...(accessToken
+      ? {
+          setHeaders: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        }
+      : {}),
+    withCredentials: true
+  });
 
-  const authReq = accessToken
-    ? req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${accessToken}`
-        },
-        withCredentials: true
-      })
-    : req.clone({
-        withCredentials: true
-      });
+  const isPublicAuthRequest =
+    request.url.includes('/auth/login') ||
+    request.url.includes('/auth/refresh') ||
+    request.url.includes('/auth/register') ||
+    request.url.includes('/auth/verify-email') ||
+    request.url.includes('/auth/resend-verification-otp');
 
-  return next(authReq).pipe(
+  return next(authRequest).pipe(
     catchError((error: HttpErrorResponse) => {
-
-      // Refresh only when the access token has expired.
-      if (
-        error.status === 401 &&
-        !req.url.includes('/auth/login') &&
-        !req.url.includes('/auth/refresh') &&
-        !req.url.includes('/auth/register') &&
-        !req.url.includes('/auth/verify-email')
-      ) {
+      if (error.status === 401 && !isPublicAuthRequest) {
         return authService.refreshSession().pipe(
           switchMap(response => {
-
-            const retryRequest = req.clone({
+            const retryRequest = request.clone({
               setHeaders: {
                 Authorization: `Bearer ${response.data.accessToken}`
               },
@@ -50,7 +52,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
             return next(retryRequest);
           }),
-
           catchError(refreshError => {
             authService.clearSession();
             return throwError(() => refreshError);
