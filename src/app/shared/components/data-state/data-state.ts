@@ -16,13 +16,6 @@ export class DataStateComponent {
 
   @Output() action = new EventEmitter<void>();
 
-  get role(): string {
-    return this.variant === 'error' ? 'alert' : 'status';
-  }
-
-  get live(): string {
-    return this.variant === 'loading' ? 'polite' : 'off';
-  }
 
   onAction(): void {
     this.action.emit();
