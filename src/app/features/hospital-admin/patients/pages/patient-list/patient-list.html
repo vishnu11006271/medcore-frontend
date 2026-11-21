@@ -45,9 +45,8 @@
   }
 
   @if (errorMessage()) {
-    <div class="error-message">
+    <div class="error-message" role="alert">
       {{ errorMessage() }}
-
       <button type="button" (click)="loadPatients()">
         Retry
       </button>
@@ -81,24 +80,16 @@
                     <div class="avatar">
                       {{ getInitials(patient) }}
                     </div>
-
                     <span>{{ getPatientName(patient) }}</span>
                   </div>
                 </td>
 
                 <td>{{ patient.patientNumber }}</td>
-
                 <td>{{ patient.user.email }}</td>
-
                 <td>{{ patient.user.phone || 'N/A' }}</td>
-
                 <td>{{ patient.gender || 'N/A' }}</td>
-
                 <td>{{ patient.bloodGroup || 'N/A' }}</td>
-
-                <td>
-                  {{ patient.createdAt | date:'dd MMM yyyy' }}
-                </td>
+                <td>{{ patient.createdAt | date:'dd MMM yyyy' }}</td>
 
                 <td>
                   <a
@@ -115,16 +106,26 @@
       </div>
 
       <div class="pagination">
+        <label class="page-size-control">
+          Rows per page
+          <select
+            [ngModel]="pageSize()"
+            (ngModelChange)="changePageSize($event)"
+            [disabled]="loading()"
+          >
+            @for (size of pageSizeOptions; track size) {
+              <option [ngValue]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
 
-        <span>
-          Page {{ currentPage() }} of {{ totalPages() }}
-        </span>
+        <span>Page {{ currentPage() }} of {{ totalPages() }}</span>
 
         <div class="pagination-actions">
           <button
             type="button"
             (click)="previousPage()"
-            [disabled]="currentPage() <= 1"
+            [disabled]="currentPage() <= 1 || loading()"
           >
             Previous
           </button>
@@ -132,22 +133,18 @@
           <button
             type="button"
             (click)="nextPage()"
-            [disabled]="currentPage() >= totalPages()"
+            [disabled]="currentPage() >= totalPages() || loading()"
           >
             Next
           </button>
         </div>
-
       </div>
 
     } @else {
-
       <div class="empty-state">
         <h3>No patients found</h3>
         <p>There are no patients matching your search.</p>
       </div>
-
     }
   }
-
 </div>
