@@ -89,6 +89,8 @@
         id="appointmentDate"
         type="date"
         [(ngModel)]="selectedDate"
+        (ngModelChange)="onDateChange()"
+        [min]="minAppointmentDate"
         [disabled]="!selectedDoctorId"
       />
     </div>
