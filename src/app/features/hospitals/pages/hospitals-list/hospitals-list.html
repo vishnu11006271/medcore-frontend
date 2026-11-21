@@ -364,80 +364,20 @@
 
   <!-- Approve / Reject confirmation dialog -->
   @if (pendingAction(); as pending) {
-
-    <div class="confirmation-backdrop">
-
-      <div
-        class="confirmation-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="action-title">
-
-        @if (pending.action === 'VERIFY') {
-
-          <h2 id="action-title">Approve Hospital</h2>
-
-          <p>
-            Are you sure you want to approve
-            <strong>{{ pending.hospital.name }}</strong>?
-          </p>
-
-          <p class="warning-text">
-            Its status will change from PENDING to VERIFIED.
-          </p>
-
-        } @else {
-
-          <h2 id="action-title">Reject Hospital</h2>
-
-          <p>
-            Are you sure you want to reject
-            <strong>{{ pending.hospital.name }}</strong>?
-          </p>
-
-          <p class="warning-text">
-            The hospital will no longer be in the pending approval list.
-          </p>
-
-        }
-
-        @if (actionError()) {
-          <div class="error-message" role="alert">
-            {{ actionError() }}
-          </div>
-        }
-
-        <div class="dialog-actions">
-
-          <button
-            type="button"
-            class="secondary-button"
-            [disabled]="processingAction()"
-            (click)="cancelHospitalAction()">
-            Cancel
-          </button>
-
-          <button
-            type="button"
-            [class.primary-button]="pending.action === 'VERIFY'"
-            [class.reject-button]="pending.action === 'REJECT'"
-            [disabled]="processingAction()"
-            (click)="confirmHospitalAction()">
-
-            @if (processingAction()) {
-              Processing...
-            } @else if (pending.action === 'VERIFY') {
-              Confirm Approval
-            } @else {
-              Confirm Rejection
-            }
-
-          </button>
-
-        </div>
-
-      </div>
-    </div>
+    <app-confirmation-dialog
+      [title]="pending.action === 'VERIFY' ? 'Approve Hospital' : 'Reject Hospital'"
+      [message]="'Are you sure you want to ' + (pending.action === 'VERIFY' ? 'approve ' : 'reject ') + pending.hospital.name + '?'"
+      [description]="pending.action === 'VERIFY'
+        ? 'Its status will change from PENDING to VERIFIED.'
+        : 'The hospital will no longer be in the pending approval list.'"
+      [confirmText]="pending.action === 'VERIFY' ? 'Confirm Approval' : 'Confirm Rejection'"
+      [confirmVariant]="pending.action === 'VERIFY' ? 'success' : 'danger'"
+      [busy]="processingAction()"
+      busyText="Processing..."
+      [errorMessage]="actionError()"
+      (confirmed)="confirmHospitalAction()"
+      (cancelled)="cancelHospitalAction()"
+    />
   }
 
 </section>
