@@ -9,13 +9,12 @@
       Total Appointments: <strong>{{ totalAppointments() }}</strong>
     </div>
   </div>
-
   @if (actionMessage()) {
-    <div class="success-message" role="status">
+    <div class="success-message">
       {{ actionMessage() }}
     </div>
   }
-
+  <!-- Search and filters -->
   <div class="filters">
     <input
       type="text"
@@ -53,20 +52,30 @@
       />
     </div>
 
-    <button class="primary-btn" (click)="applyFilters()">Apply</button>
-    <button class="secondary-btn" (click)="clearFilters()">Clear</button>
+    <button class="primary-btn" (click)="applyFilters()">
+      Apply
+    </button>
+
+    <button class="secondary-btn" (click)="clearFilters()">
+      Clear
+    </button>
   </div>
 
+  <!-- Loading -->
   @if (loading()) {
-    <div class="state-message" role="status" aria-live="polite">
-      Loading appointments...
-    </div>
-  } @else if (error()) {
-    <div class="state-message error" role="alert">
+    <div class="state-message">Loading appointments...</div>
+  }
+
+  <!-- Error -->
+  @else if (error()) {
+    <div class="state-message error">
       {{ error() }}
-      <button type="button" (click)="loadAppointments()">Retry</button>
+      <button (click)="loadAppointments()">Retry</button>
     </div>
-  } @else if (appointments().length > 0) {
+  }
+
+  <!-- Appointment table -->
+  @else if (appointments().length > 0) {
     <div class="table-wrapper">
       <table>
         <thead>
@@ -105,7 +114,10 @@
               <td>{{ appointment.reason || '—' }}</td>
 
               <td>
-                <span class="status" [ngClass]="getStatusClass(appointment.status)">
+                <span
+                  class="status"
+                  [ngClass]="getStatusClass(appointment.status)"
+                >
                   {{ appointment.status.replace('_', ' ') }}
                 </span>
               </td>
@@ -117,11 +129,19 @@
                     class="confirm-btn"
                     (click)="confirmAppointment(appointment.id)"
                     [disabled]="processingId() === appointment.id">
-                    {{ processingId() === appointment.id ? 'Confirming...' : 'Confirm' }}
+
+                    {{
+                      processingId() === appointment.id
+                        ? 'Confirming...'
+                        : 'Confirm'
+                    }}
                   </button>
                 }
 
-                <a [routerLink]="['/dashboard/hospital-appointments', appointment.id]">
+                <a [routerLink]="[
+                  '/dashboard/hospital-appointments',
+                  appointment.id
+                ]">
                   View
                 </a>
               </td>
@@ -131,41 +151,39 @@
       </table>
     </div>
 
+    <!-- Pagination -->
     <div class="pagination">
       <label class="page-size-control">
         Rows per page
-        <select
-          [ngModel]="pageSize()"
-          (ngModelChange)="changePageSize($event)"
-          [disabled]="loading()"
-        >
+        <select [ngModel]="pageSize()" (ngModelChange)="changePageSize($event)" [disabled]="loading()">
           @for (size of pageSizeOptions; track size) {
             <option [ngValue]="size">{{ size }}</option>
           }
         </select>
       </label>
-
-      <span>Page {{ currentPage() }} of {{ totalPages() }}</span>
+      <span>
+        Page {{ currentPage() }} of {{ totalPages() }}
+      </span>
 
       <div>
         <button
-          type="button"
           (click)="previousPage()"
-          [disabled]="currentPage() === 1 || loading()"
+          [disabled]="currentPage() === 1"
         >
           Previous
         </button>
 
         <button
-          type="button"
           (click)="nextPage()"
-          [disabled]="currentPage() >= totalPages() || loading()"
+          [disabled]="currentPage() >= totalPages()"
         >
           Next
         </button>
       </div>
     </div>
-  } @else {
+  }
+
+  @else {
     <div class="state-message">
       No appointments found.
     </div>
