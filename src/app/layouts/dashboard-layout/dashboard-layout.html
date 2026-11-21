@@ -47,19 +47,20 @@
             <button
               type="button"
               class="nav-item nav-parent"
-              (click)="toggleDoctors()"
-              [attr.aria-expanded]="doctorsExpanded">
+              (click)="toggleGroup(item)"
+              [attr.aria-expanded]="isGroupExpanded(item)"
+              [class.active]="isGroupActive(item)">
 
               <span class="nav-icon">{{ item.icon }}</span>
               <span>{{ item.label }}</span>
 
               <span class="submenu-arrow">
-                {{ doctorsExpanded ? '⌄' : '›' }}
+                {{ isGroupExpanded(item) ? '⌄' : '›' }}
               </span>
 
             </button>
 
-            @if (doctorsExpanded) {
+            @if (isGroupExpanded(item)) {
               <div class="submenu">
 
                 @for (child of item.children; track child.label) {
@@ -67,7 +68,7 @@
                   <a
                     [routerLink]="child.route"
                     routerLinkActive="active"
-                    [routerLinkActiveOptions]="{ exact: true }"
+                    [routerLinkActiveOptions]="{ exact: false }"
                     class="submenu-item"
                     (click)="closeSidebar()">
 
@@ -88,7 +89,7 @@
           <a
             [routerLink]="item.route"
             routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
+            [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
             class="nav-item"
             (click)="closeSidebar()">
 
@@ -147,30 +148,11 @@
         <div class="breadcrumb">
           <span>Workspace</span>
           <span class="breadcrumb-separator">/</span>
-          <strong>Dashboard</strong>
+          <strong>{{ currentPageTitle }}</strong>
         </div>
       </div>
 
       <div class="header-actions">
-
-        <div class="search-box">
-          <span>⌕</span>
-          <input
-            type="search"
-            placeholder="Search patients, doctors..."
-            aria-label="Search"
-          />
-          <span class="shortcut">⌘ K</span>
-        </div>
-
-        <button
-          type="button"
-          class="notification-button"
-          aria-label="Notifications"
-        >
-          ♧
-          <span class="notification-dot"></span>
-        </button>
 
         <div class="profile">
           <div class="avatar">{{ userInitials() }}</div>
