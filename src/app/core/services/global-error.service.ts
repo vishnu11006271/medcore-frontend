@@ -72,7 +72,7 @@ export class GlobalErrorService {
     } else if (error.status === 429) {
       message = serverMessage || 'Too many requests. Please wait a moment and try again.';
     } else if (error.status >= 500) {
-      message = 'The server could not complete your request. Please try again later.';
+      message = serverMessage || 'The server could not complete your request. Please try again later.';
     } else {
       message = serverMessage || 'The request could not be completed. Please try again.';
     }
