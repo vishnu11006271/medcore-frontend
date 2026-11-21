@@ -54,6 +54,8 @@ export class AppointmentBookingComponent implements OnInit {
 
   errorMessage = '';
   successMessage = '';
+  minAppointmentDate = this.getLocalDateString();
+  private slotRequestId = 0;
 
   ngOnInit(): void {
     this.loadHospitals();
@@ -79,6 +81,8 @@ export class AppointmentBookingComponent implements OnInit {
   }
 
   onHospitalChange(): void {
+    this.slotRequestId++;
+    this.loadingSlots.set(false);
     this.selectedDepartmentId = '';
     this.selectedDoctorId = '';
     this.selectedDate = '';
@@ -109,6 +113,8 @@ export class AppointmentBookingComponent implements OnInit {
   }
 
   onDepartmentChange(): void {
+    this.slotRequestId++;
+    this.loadingSlots.set(false);
     this.selectedDoctorId = '';
     this.selectedDate = '';
     this.doctors = [];
@@ -139,14 +145,33 @@ export class AppointmentBookingComponent implements OnInit {
   }
 
   onDoctorChange(): void {
+    this.slotRequestId++;
+    this.loadingSlots.set(false);
     this.selectedDate = '';
     this.availableSlots = [];
     this.selectedSlot = null;
   }
 
-  loadAvailableSlots(): void {
+  onDateChange(): void {
+    this.slotRequestId++;
+    this.availableSlots = [];
+    this.selectedSlot = null;
     this.errorMessage = '';
     this.successMessage = '';
+    this.loadingSlots.set(false);
+  }
+
+  private getLocalDateString(): string {
+    const now = new Date();
+    const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    return localDate.toISOString().slice(0, 10);
+  }
+
+  loadAvailableSlots(preserveMessages = false): void {
+    if (!preserveMessages) {
+      this.errorMessage = '';
+      this.successMessage = '';
+    }
     this.availableSlots = [];
     this.selectedSlot = null;
 
@@ -155,16 +180,24 @@ export class AppointmentBookingComponent implements OnInit {
       return;
     }
 
+    if (this.selectedDate < this.minAppointmentDate) {
+      this.errorMessage = 'Please select today or a future date.';
+      return;
+    }
+
+    const requestId = ++this.slotRequestId;
     this.loadingSlots.set(true);
 
     this.availabilityService
       .getAvailableSlots(this.selectedDoctorId, this.selectedDate)
       .subscribe({
         next: response => {
+          if (requestId !== this.slotRequestId) return;
           this.availableSlots = response.data?.slots || [];
           this.loadingSlots.set(false);
         },
         error: error => {
+          if (requestId !== this.slotRequestId) return;
           this.loadingSlots.set(false);
           this.errorMessage =
             error.error?.error?.message || 'Unable to load available slots.';
@@ -185,19 +218,21 @@ export class AppointmentBookingComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
+    if (this.booking()) return;
+
     if (
       !this.selectedHospitalId ||
       !this.selectedDoctorId ||
       !this.selectedDate ||
-      !this.selectedSlot
+      this.selectedDate < this.minAppointmentDate ||
+      !this.selectedSlot ||
+      !this.availableSlots.includes(this.selectedSlot) ||
+      !this.selectedSlot.available
     ) {
       this.errorMessage = 'Please complete all required booking fields.';
       return;
     }
 
-    // const scheduledAt = new Date(
-    //   `${this.selectedDate}T${this.selectedSlot.startTime}:00`
-    // ).toISOString();
     const localDateTime =`${this.selectedDate}T${this.selectedSlot.startTime}:00`;
 
     const appointmentDate = new Date(localDateTime);
@@ -226,7 +261,7 @@ export class AppointmentBookingComponent implements OnInit {
         this.reason = '';
 
         // Refresh availability so the newly booked slot is no longer offered.
-        this.loadAvailableSlots();
+        this.loadAvailableSlots(true);
       },
       error: error => {
         this.booking.set(false);

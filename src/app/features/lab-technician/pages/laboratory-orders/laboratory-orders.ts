@@ -1,5 +1,6 @@
 import {
   Component,
+  HostListener,
   OnInit,
   inject,
   signal,
@@ -177,8 +178,16 @@ export class LaboratoryOrdersComponent implements OnInit {
 
   // Clear selected order
   closeDetails(): void {
+    if (this.actionLoading()) return;
     this.selectedOrder.set(null);
     this.showResultForm.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.selectedOrder() && !this.actionLoading()) {
+      this.closeDetails();
+    }
   }
 
   // Collect sample

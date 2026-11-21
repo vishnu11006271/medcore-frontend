@@ -19,6 +19,7 @@ export class StaffManagementComponent implements OnInit {
   readonly staff = signal<StaffMember[]>([]);
   readonly loading = signal(false);
   readonly saving = signal(false);
+  readonly updatingStaffIds = signal<string[]>([]);
   readonly error = signal('');
   readonly success = signal('');
 
@@ -94,8 +95,23 @@ export class StaffManagementComponent implements OnInit {
   }
 
   toggleStatus(member: StaffMember): void {
+    if (this.updatingStaffIds().includes(member.id)) return;
+
+    const nextStatus = !member.isActive;
+    const action = nextStatus ? 'activate' : 'deactivate';
+    const confirmed = window.confirm(
+      `Are you sure you want to ${action} ${member.firstName} ${member.lastName}?`
+    );
+    if (!confirmed) return;
+
     this.error.set('');
-    this.staffService.updateStatus(member.id, !member.isActive).subscribe({
+    this.updatingStaffIds.update(ids => [...ids, member.id]);
+
+    this.staffService.updateStatus(member.id, nextStatus).pipe(
+      finalize(() => this.updatingStaffIds.update(
+        ids => ids.filter(id => id !== member.id)
+      ))
+    ).subscribe({
       next: response => this.staff.update(items =>
         items.map(item => item.id === member.id ? response.data : item)
       ),

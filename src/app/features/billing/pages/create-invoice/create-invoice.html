@@ -10,8 +10,8 @@
     </a>
   </div>
 
-  @if (loadingAppointments()) {
-    <div class="state-message">Loading completed appointments...</div>
+  @if (loadingAppointments() || loadingInvoices()) {
+    <div class="state-message">Loading appointments and checking existing invoices...</div>
   } @else {
     <form #invoiceForm="ngForm" (ngSubmit)="createInvoice()">
       <div class="form-card">
@@ -63,13 +63,16 @@
         </div>
 
         @if (errorMessage()) {
-          <div class="error-message">{{ errorMessage() }}</div>
+          <div class="error-message" role="alert">
+            {{ errorMessage() }}
+            <button type="button" (click)="loadData()" [disabled]="loadingAppointments() || loadingInvoices()">Retry</button>
+          </div>
         }
 
         <button
           type="submit"
           class="btn-primary"
-          [disabled]="invoiceForm.invalid || submitting() || !availableAppointments().length">
+          [disabled]="invoiceForm.invalid || submitting() || loadingAppointments() || loadingInvoices() || invoiceCheckFailed() || !availableAppointments().length">
           {{ submitting() ? 'Creating...' : 'Create Invoice' }}
         </button>
       </div>

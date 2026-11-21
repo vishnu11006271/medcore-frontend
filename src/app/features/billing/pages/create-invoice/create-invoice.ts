@@ -6,7 +6,7 @@ import {
   inject,
   signal
 } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
@@ -33,6 +33,8 @@ export class CreateInvoiceComponent implements OnInit {
   readonly invoices = signal<Invoice[]>([]);
 
   readonly loadingAppointments = signal(false);
+  readonly loadingInvoices = signal(false);
+  readonly invoiceCheckFailed = signal(false);
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
@@ -56,7 +58,12 @@ export class CreateInvoiceComponent implements OnInit {
   }
 
   loadData(): void {
+    if (this.loadingAppointments() || this.loadingInvoices()) return;
+
     this.loadingAppointments.set(true);
+    this.loadingInvoices.set(true);
+    this.invoiceCheckFailed.set(false);
+    this.appointmentId = '';
     this.errorMessage.set(null);
 
     // Load completed hospital appointments.
@@ -78,23 +85,32 @@ export class CreateInvoiceComponent implements OnInit {
       },
       error: error => {
         this.errorMessage.set(
-          error?.error?.message || 'Unable to load appointments.'
+          error?.error?.error?.message || error?.error?.message || 'Unable to load appointments.'
         );
         this.loadingAppointments.set(false);
       }
     });
 
-    // Load invoices so appointments that already have invoices are excluded.
+    // Do not allow invoice creation until duplicate-invoice checking succeeds.
     this.billingService.getInvoices().subscribe({
       next: response => {
         if (response.success) {
           this.invoices.set(response.data ?? []);
+        } else {
+          this.invoiceCheckFailed.set(true);
+          this.errorMessage.set(
+            response.message || 'Unable to check existing invoices. Please refresh and try again.'
+          );
         }
+        this.loadingInvoices.set(false);
       },
-      error: () => {
+      error: error => {
+        this.invoiceCheckFailed.set(true);
         this.errorMessage.set(
+          error?.error?.error?.message ||
           'Unable to check existing invoices. Please refresh and try again.'
         );
+        this.loadingInvoices.set(false);
       }
     });
   }
@@ -112,13 +128,32 @@ export class CreateInvoiceComponent implements OnInit {
   }
 
   createInvoice(): void {
+    if (this.loadingAppointments() || this.loadingInvoices() || this.submitting()) {
+      return;
+    }
+
     if (!this.appointmentId) {
       this.errorMessage.set('Please select a completed appointment.');
       return;
     }
 
-    if (this.tax < 0 || this.discount < 0) {
-      this.errorMessage.set('Tax and discount cannot be negative.');
+    if (
+      this.invoiceCheckFailed() ||
+      !this.availableAppointments().some(item => item.id === this.appointmentId)
+    ) {
+      this.errorMessage.set(
+        'Unable to verify this appointment. Refresh the page and try again.'
+      );
+      return;
+    }
+
+    if (
+      !Number.isFinite(Number(this.tax)) ||
+      !Number.isFinite(Number(this.discount)) ||
+      this.tax < 0 ||
+      this.discount < 0
+    ) {
+      this.errorMessage.set('Tax and discount must be valid non-negative amounts.');
       return;
     }
 
@@ -150,7 +185,9 @@ export class CreateInvoiceComponent implements OnInit {
       error: error => {
         this.submitting.set(false);
         this.errorMessage.set(
-          error?.error?.message || 'Unable to create invoice.'
+          error?.error?.error?.message ||
+          error?.error?.message ||
+          'Unable to create invoice.'
         );
       }
     });

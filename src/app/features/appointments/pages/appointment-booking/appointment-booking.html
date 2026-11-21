@@ -5,11 +5,11 @@
   </div>
 
   @if (errorMessage) {
-    <div class="alert alert-error">{{ errorMessage }}</div>
+    <div class="alert alert-error" role="alert">{{ errorMessage }}</div>
   }
 
   @if (successMessage) {
-    <div class="alert alert-success">{{ successMessage }}</div>
+    <div class="alert alert-success" role="status">{{ successMessage }}</div>
   }
 
   <div class="booking-card">
@@ -89,6 +89,8 @@
         id="appointmentDate"
         type="date"
         [(ngModel)]="selectedDate"
+        (ngModelChange)="onDateChange()"
+        [min]="minAppointmentDate"
         [disabled]="!selectedDoctorId"
       />
     </div>

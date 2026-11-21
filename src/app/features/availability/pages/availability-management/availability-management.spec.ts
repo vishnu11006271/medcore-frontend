@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AvailabilityManagement } from './availability-management';
+import { AvailabilityManagementComponent } from './availability-management';
 
-describe('AvailabilityManagement', () => {
-  let component: AvailabilityManagement;
-  let fixture: ComponentFixture<AvailabilityManagement>;
+describe('AvailabilityManagementComponent', () => {
+  let component: AvailabilityManagementComponent;
+  let fixture: ComponentFixture<AvailabilityManagementComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AvailabilityManagement],
+      imports: [AvailabilityManagementComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AvailabilityManagement);
+    fixture = TestBed.createComponent(AvailabilityManagementComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

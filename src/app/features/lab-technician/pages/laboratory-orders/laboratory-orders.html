@@ -209,7 +209,9 @@
         <button
           type="button"
           class="close-btn"
-          (click)="closeDetails()">
+          aria-label="Close order details"
+          (click)="closeDetails()"
+          [disabled]="actionLoading()">
           ×
         </button>
 
