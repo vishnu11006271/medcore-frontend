@@ -18,6 +18,11 @@ interface NavigationItem {
   children?: NavigationItem[];
 }
 
+interface BreadcrumbItem {
+  label: string;
+  url?: string;
+}
+
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
@@ -388,20 +393,100 @@ export class DashboardLayoutComponent {
     );
   }
 
-  get currentPageTitle(): string {
-    const currentPath = this.router.url.split(/[?#]/)[0];
-    const items = this.navigation().flatMap(item => [
-      item,
-      ...(item.children ?? [])
+  get breadcrumbs(): BreadcrumbItem[] {
+    const segments = this.router.url.split(/[?#]/)[0].split('/').filter(Boolean);
+    const dashboardIndex = segments.indexOf('dashboard');
+
+    if (dashboardIndex < 0) {
+      return [{ label: 'Workspace' }];
+    }
+
+    const routeSegments = segments.slice(dashboardIndex + 1);
+    const crumbs: BreadcrumbItem[] = [{ label: 'Workspace', url: '/dashboard' }];
+
+    if (routeSegments.length === 0) {
+      crumbs.push({ label: 'Dashboard' });
+      return crumbs;
+    }
+
+    const navigationItems = this.navigation().flatMap(item => [
+      { item, parent: null as NavigationItem | null },
+      ...(item.children ?? []).map(child => ({ item: child, parent: item }))
     ]);
 
-    const activeItem = items
-      .filter(item =>
-        !!item.route &&
-        (currentPath === item.route || currentPath.startsWith(`${item.route}/`))
-      )
-      .sort((a, b) => (b.route?.length ?? 0) - (a.route?.length ?? 0))[0];
+    const segmentLabels: Record<string, string> = {
+      appointments: 'Appointments',
+      book: 'Book Appointment',
+      'my-appointments': 'My Appointments',
+      'doctor-appointments': 'Doctor Appointments',
+      'hospital-appointments': 'Hospital Appointments',
+      patients: 'Patients',
+      doctors: 'Doctors',
+      departments: 'Departments',
+      hospitals: 'Hospitals',
+      users: 'Platform Users',
+      availability: 'Availability',
+      staff: 'Staff',
+      laboratory: 'Laboratory',
+      'laboratory-tests': 'Laboratory Tests',
+      'laboratory-orders': 'Laboratory Orders',
+      'doctor-patients': 'My Patients',
+      'doctor-medical-records': 'Medical Records',
+      'my-lab-results': 'Lab Results',
+      pharmacy: 'Pharmacy',
+      medicines: 'Medicines',
+      batches: 'Batches',
+      stock: 'Stock',
+      receive: 'Receive Stock',
+      prescriptions: 'Prescriptions',
+      active: 'Active Queue',
+      billing: 'Billing',
+      invoices: 'Invoices',
+      new: 'Create Invoice',
+      edit: 'Edit'
+    };
 
-    return activeItem?.label ?? 'Dashboard';
+    let currentPath = '/dashboard';
+    let previousResource = '';
+
+    for (const segment of routeSegments) {
+      currentPath += `/${segment}`;
+
+      if (/^(\d+|[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}|[a-z0-9_-]{24,})$/i.test(segment)) {
+        const detailNames: Record<string, string> = {
+          patients: 'Patient Details',
+          doctors: 'Doctor Details',
+          appointments: 'Appointment Details',
+          medicines: 'Medicine Details',
+          invoices: 'Invoice Details'
+        };
+        crumbs.push({ label: detailNames[previousResource] ?? 'Details' });
+        continue;
+      }
+
+      const match = navigationItems.find(({ item }) => item.route === currentPath);
+      if (match) {
+        if (match.parent && !crumbs.some(crumb => crumb.label === match.parent?.label)) {
+          crumbs.push({ label: match.parent.label });
+        }
+        crumbs.push({ label: match.item.label, url: currentPath });
+      } else {
+        crumbs.push({
+          label: segmentLabels[segment] ?? segment
+            .split('-')
+            .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' '),
+          url: currentPath
+        });
+      }
+
+      previousResource = segment;
+    }
+
+    return crumbs;
+  }
+
+  get currentPageTitle(): string {
+    return this.breadcrumbs[this.breadcrumbs.length - 1]?.label ?? 'Dashboard';
   }
 }

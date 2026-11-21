@@ -147,11 +147,21 @@
           ☰
         </button>
 
-        <div class="breadcrumb">
-          <span>Workspace</span>
-          <span class="breadcrumb-separator">/</span>
-          <strong>{{ currentPageTitle }}</strong>
-        </div>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <ol>
+            @for (item of breadcrumbs; track item.label + (item.url ?? 'current')) {
+              <li>
+                @if (item.url && !$last) {
+                  <a [routerLink]="item.url">{{ item.label }}</a>
+                } @else if ($last) {
+                  <span aria-current="page">{{ item.label }}</span>
+                } @else {
+                  <span>{{ item.label }}</span>
+                }
+              </li>
+            }
+          </ol>
+        </nav>
       </div>
 
       <div class="header-actions">
