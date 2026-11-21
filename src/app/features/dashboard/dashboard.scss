@@ -315,8 +315,153 @@ td {
   font-size: 13px;
 }
 
+.doctor-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.doctor-analytics-panel {
+  min-width: 0;
+}
+
+.doctor-status-analytics {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 18px;
+}
+
+.status-donut {
+  display: grid;
+  place-items: center;
+  width: min(100%, 170px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: 50%;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 16%;
+    border-radius: 50%;
+    background: #fff;
+  }
+}
+
+.donut-center {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+
+  strong {
+    color: #243b5a;
+    font-size: 23px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  span {
+    color: #8492a6;
+    font-size: 10px;
+  }
+}
+
+.status-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.legend-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  color: #52647c;
+  font-size: 11px;
+
+  strong {
+    color: #263c59;
+  }
+
+  small {
+    min-width: 38px;
+    color: #8492a6;
+    text-align: right;
+  }
+}
+
+.legend-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+}
+
+.weekly-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 10px;
+  min-height: 210px;
+  padding-top: 12px;
+}
+
+.weekly-chart-column {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  height: 190px;
+
+  strong {
+    color: #52647c;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.weekly-chart-track {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 130px;
+  border-bottom: 1px solid #e2e8f0;
+
+  span {
+    width: min(65%, 28px);
+    min-height: 3px;
+    border-radius: 5px 5px 0 0;
+    background: #3678db;
+    transition: height 180ms ease;
+  }
+}
+
+.weekly-chart-day {
+  color: #8492a6;
+  font-size: 10px;
+}
+
+.chart-empty {
+  color: #64748b;
+  font-size: 12px;
+}
+
 .doctor-schedule {
-  margin-top: 24px;
+  margin-top: 0;
 }
 
 .doctor-quick-actions {
@@ -405,6 +550,10 @@ td {
 }
 
 @media (max-width: 1100px) {
+  .doctor-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -416,6 +565,14 @@ td {
 }
 
 @media (max-width: 550px) {
+  .doctor-status-analytics {
+    grid-template-columns: 1fr;
+  }
+
+  .status-donut {
+    width: min(60%, 170px);
+  }
+
   .stats-grid {
     grid-template-columns: 1fr;
   }

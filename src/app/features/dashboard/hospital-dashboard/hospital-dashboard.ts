@@ -102,6 +102,44 @@ export class HospitalDashboardComponent implements OnInit {
     }));
   });
 
+  readonly appointmentStatusDonut = computed(() => {
+    const colors: Record<HospitalAppointmentStatus, string> = {
+      PENDING: '#f59e0b',
+      SCHEDULED: '#06b6d4',
+      CONFIRMED: '#2563eb',
+      CHECKED_IN: '#8b5cf6',
+      IN_PROGRESS: '#7c3aed',
+      COMPLETED: '#10b981',
+      CANCELLED: '#ef4444',
+      NO_SHOW: '#64748b',
+    };
+    const total = this.overview()?.statistics.totalAppointments ?? 0;
+    let offset = 0;
+    const segments = this.appointmentStatuses().map((item) => {
+      const percentage = total > 0 ? (item.count / total) * 100 : 0;
+      const segment = {
+        ...item,
+        color: colors[item.status],
+        percentage,
+        start: offset,
+        end: offset + percentage,
+      };
+      offset += percentage;
+      return segment;
+    });
+    const stops = segments
+      .filter((item) => item.percentage > 0)
+      .map((item) => `${item.color} ${item.start}% ${item.end}%`);
+
+    return {
+      total,
+      segments,
+      background: stops.length
+        ? `conic-gradient(${stops.join(', ')})`
+        : 'conic-gradient(#edf1f6 0% 100%)',
+    };
+  });
+
   ngOnInit(): void {
     this.loadOverview();
   }

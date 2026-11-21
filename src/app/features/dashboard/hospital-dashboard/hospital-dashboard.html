@@ -69,28 +69,31 @@
         <span class="panel-tag">{{ data.statistics.totalAppointments }} total</span>
       </div>
 
-      <div class="status-list">
-        @for (item of appointmentStatuses(); track item.status) {
-          <div class="status-item">
-            <div class="status-heading">
-              <span>{{ item.label }}</span>
-              <strong>{{ item.count }}</strong>
-            </div>
-            <div
-              class="progress-track"
-              role="progressbar"
-              [attr.aria-label]="item.label + ' appointments'"
-              [attr.aria-valuenow]="item.count"
-              [attr.aria-valuemin]="0"
-              [attr.aria-valuemax]="data.statistics.totalAppointments"
-            >
-              <div
-                class="progress-fill"
-                [style.width.%]="statusPercentage(item.count)"
-              ></div>
-            </div>
+      <div class="appointment-analytics">
+        <div
+          class="status-donut"
+          role="img"
+          [attr.aria-label]="'Appointment status distribution: ' + appointmentStatusDonut().total + ' total appointments'"
+          [style.background]="appointmentStatusDonut().background"
+        >
+          <div class="donut-center">
+            <strong>{{ appointmentStatusDonut().total }}</strong>
+            <span>Total</span>
           </div>
-        }
+        </div>
+
+        <div class="status-legend">
+          @for (item of appointmentStatusDonut().segments; track item.status) {
+            <div class="legend-item">
+              <span class="legend-label">
+                <span class="legend-dot" [style.background]="item.color"></span>
+                {{ item.label }}
+              </span>
+              <strong>{{ item.count }}</strong>
+              <small>{{ item.percentage | number:'1.0-1' }}%</small>
+            </div>
+          }
+        </div>
       </div>
     </section>
   } @else {

@@ -41,6 +41,82 @@ export class DashboardComponent {
     'TODAY' | 'UPCOMING' | 'COMPLETED' | 'CANCELLED'
   >('TODAY');
 
+  readonly doctorStatusDonut = computed(() => {
+    const statuses = [
+      { status: 'PENDING', label: 'Pending', color: '#f59e0b' },
+      { status: 'SCHEDULED', label: 'Scheduled', color: '#06b6d4' },
+      { status: 'CONFIRMED', label: 'Confirmed', color: '#2563eb' },
+      { status: 'CHECKED_IN', label: 'Checked in', color: '#8b5cf6' },
+      { status: 'IN_PROGRESS', label: 'In progress', color: '#7c3aed' },
+      { status: 'COMPLETED', label: 'Completed', color: '#10b981' },
+      { status: 'CANCELLED', label: 'Cancelled', color: '#ef4444' },
+      { status: 'NO_SHOW', label: 'No show', color: '#64748b' },
+    ] as const;
+    const appointments = this.doctorAppointments();
+    const total = appointments.length;
+    let offset = 0;
+    const segments = statuses.map((item) => {
+      const count = appointments.filter(
+        (appointment) => appointment.status === item.status
+      ).length;
+      const percentage = total > 0 ? (count / total) * 100 : 0;
+      const segment = {
+        ...item,
+        count,
+        percentage,
+        start: offset,
+        end: offset + percentage,
+      };
+      offset += percentage;
+      return segment;
+    });
+    const stops = segments
+      .filter((item) => item.percentage > 0)
+      .map((item) => `${item.color} ${item.start}% ${item.end}%`);
+
+    return {
+      total,
+      segments,
+      background: stops.length
+        ? `conic-gradient(${stops.join(', ')})`
+        : 'conic-gradient(#edf1f6 0% 100%)',
+    };
+  });
+
+  readonly nextSevenDaysTrend = computed(() => {
+    const appointments = this.doctorAppointments();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() + index);
+      const count = appointments.filter((appointment) => {
+        const scheduled = new Date(appointment.scheduledAt);
+        return (
+          scheduled.getFullYear() === date.getFullYear() &&
+          scheduled.getMonth() === date.getMonth() &&
+          scheduled.getDate() === date.getDate()
+        );
+      }).length;
+
+      return {
+        key: date.toISOString().slice(0, 10),
+        label: date.toLocaleDateString('en-IN', { weekday: 'short' }),
+        dateLabel: date.toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+        }),
+        count,
+      };
+    });
+    const maxCount = Math.max(1, ...days.map((day) => day.count));
+
+    return days.map((day) => ({
+      ...day,
+      height: day.count > 0 ? Math.max(6, (day.count / maxCount) * 100) : 0,
+    }));
+  });
+
   ngOnInit(): void {
     if (this.currentUser()?.role !== 'DOCTOR') {
       return;
