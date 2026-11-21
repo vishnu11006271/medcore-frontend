@@ -78,7 +78,7 @@ export class CreateInvoiceComponent implements OnInit {
       },
       error: error => {
         this.errorMessage.set(
-          error?.error?.message || 'Unable to load appointments.'
+          error?.error?.error?.message || error?.error?.message || 'Unable to load appointments.'
         );
         this.loadingAppointments.set(false);
       }
@@ -112,12 +112,21 @@ export class CreateInvoiceComponent implements OnInit {
   }
 
   createInvoice(): void {
+    if (this.loadingAppointments() || this.loadingInvoices() || this.submitting()) {
+      return;
+    }
+
+    if (!this.availableAppointments().some(item => item.id === this.appointmentId)) {
+      this.errorMessage.set('Please select an eligible completed appointment. Refresh the page and try again.');
+      return;
+    }
+
     if (!this.appointmentId) {
       this.errorMessage.set('Please select a completed appointment.');
       return;
     }
 
-    if (this.tax < 0 || this.discount < 0) {
+    if (!Number.isFinite(Number(this.tax)) || !Number.isFinite(Number(this.discount)) || this.tax < 0 || this.discount < 0) {
       this.errorMessage.set('Tax and discount cannot be negative.');
       return;
     }
@@ -150,7 +159,7 @@ export class CreateInvoiceComponent implements OnInit {
       error: error => {
         this.submitting.set(false);
         this.errorMessage.set(
-          error?.error?.message || 'Unable to create invoice.'
+          error?.error?.error?.message || error?.error?.message || 'Unable to create invoice.'
         );
       }
     });
