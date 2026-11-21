@@ -9,7 +9,8 @@
     <button
       type="button"
       class="refresh-btn"
-      (click)="loadActivePrescriptions()">
+      (click)="loadActivePrescriptions()"
+      [disabled]="isLoading()">
       {{ isLoading() ? 'Refreshing...' : 'Refresh' }}
     </button>
   </div>
@@ -20,15 +21,6 @@
     </div>
   }
 
-  <!-- @if (errorMessage()) {
-    <div class="error-message">
-      {{ errorMessage() }}
-
-      <button type="button" (click)="loadActivePrescriptions()">
-        Retry
-      </button>
-    </div>
-  } -->
     @if (successMessage()) {
     <div class="success-message">
         {{ successMessage() }}
@@ -36,8 +28,11 @@
     }
 
     @if (errorMessage()) {
-    <div class="error-message">
+    <div class="error-message" role="alert">
         {{ errorMessage() }}
+        <button type="button" (click)="loadActivePrescriptions()" [disabled]="isLoading()">
+          Retry
+        </button>
     </div>
     }
 
@@ -158,6 +153,7 @@
                     <input
                         type="number"
                         min="1"
+                        step="1"
                         [max]="item.remainingQuantity"
                         [value]="getDispenseQuantity(item.id, item.remainingQuantity)"
                         (input)="updateDispenseQuantity(item.id, $any($event.target).value)"
