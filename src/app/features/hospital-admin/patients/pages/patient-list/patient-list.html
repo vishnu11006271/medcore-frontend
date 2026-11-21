@@ -58,12 +58,8 @@
 
     @if (patients().length > 0) {
 
-      <div
-        class="table-container"
-        role="region"
-        aria-label="Patients table. Scroll horizontally to view all columns."
-        tabindex="0">
-        <table>
+      <app-table-container ariaLabel="Patients table. Scroll horizontally to view all columns." variant="bordered">
+        <table class="mobile-table">
           <thead>
             <tr>
               <th>Patient</th>
@@ -116,7 +112,8 @@
             }
           </tbody>
         </table>
-      </div>
+      
+      </app-table-container>
 
       <div class="pagination">
         <label class="page-size-control">
