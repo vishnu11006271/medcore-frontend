@@ -46,8 +46,15 @@ export class PatientListComponent implements OnInit {
     ).subscribe({
       next: (response) => {
         this.patients.set(response.data.patients);
-        this.totalPatients.set(response.data.pagination.total);
-        this.totalPages.set(response.data.pagination.totalPages);
+
+        this.totalPatients.set(
+          response.data.pagination.total
+        );
+
+        this.totalPages.set(
+          response.data.pagination.totalPages
+        );
+
         this.loading.set(false);
       },
 
@@ -56,6 +63,7 @@ export class PatientListComponent implements OnInit {
           error.error?.error?.message ||
           'Unable to load patients.'
         );
+
         this.loading.set(false);
       }
     });
