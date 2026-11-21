@@ -5,7 +5,7 @@
   }
 
   <!-- Sidebar -->
-  <aside class="sidebar" [class.sidebar-open]="sidebarOpen">
+  <aside id="dashboard-sidebar" class="sidebar" [class.sidebar-open]="sidebarOpen">
 
     <div class="brand">
       <div class="brand-icon">M</div>
@@ -37,7 +37,7 @@
       <span class="nav-heading">MAIN MENU</span>
 
       
-    <nav>
+    <nav aria-label="Main navigation">
       @for (item of navigation(); track item.label) {
 
         @if (item.enabled && item.children?.length) {
@@ -141,6 +141,8 @@
           class="menu-toggle"
           (click)="toggleSidebar()"
           aria-label="Toggle navigation"
+          aria-controls="dashboard-sidebar"
+          [attr.aria-expanded]="sidebarOpen"
         >
           ☰
         </button>
