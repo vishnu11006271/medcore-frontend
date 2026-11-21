@@ -90,6 +90,8 @@ export class PrescriptionQueueComponent implements OnInit {
     itemId: string,
     remainingQuantity: number
   ): void {
+    if (this.dispensingItemIds().includes(itemId)) return;
+
     const quantity = this.getDispenseQuantity(itemId, remainingQuantity);
 
     if (!Number.isInteger(quantity) || quantity < 1) {
