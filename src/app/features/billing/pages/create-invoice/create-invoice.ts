@@ -126,6 +126,11 @@ export class CreateInvoiceComponent implements OnInit {
       return;
     }
 
+    if (this.invoiceCheckFailed() || !this.availableAppointments().some(item => item.id === this.appointmentId)) {
+      this.errorMessage.set('Unable to verify this appointment. Refresh the page and try again.');
+      return;
+    }
+
     if (!Number.isFinite(Number(this.tax)) || !Number.isFinite(Number(this.discount)) || this.tax < 0 || this.discount < 0) {
       this.errorMessage.set('Tax and discount cannot be negative.');
       return;
