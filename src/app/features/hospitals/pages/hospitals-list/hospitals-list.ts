@@ -17,6 +17,7 @@ import {
 import { finalize } from 'rxjs';
 
 import { HospitalService } from '../../../../core/services/hospital.service';
+import { DataStateComponent } from '../../../../shared/components/data-state/data-state';
 
 import {
   Hospital,
@@ -38,7 +39,8 @@ type HospitalAction = 'VERIFY' | 'REJECT';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    DataStateComponent
   ],
   templateUrl: './hospitals-list.html',
   styleUrl: './hospitals-list.scss'

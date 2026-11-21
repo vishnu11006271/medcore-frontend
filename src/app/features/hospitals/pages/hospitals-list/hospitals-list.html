@@ -23,15 +23,10 @@
   }
 
   <!-- Error message -->
-  @if (errorMessage()) {
+  @if (errorMessage() && hospitals().length > 0) {
     <div class="error-message" role="alert">
       {{ errorMessage() }}
-
-      <button
-        type="button"
-        (click)="loadHospitals()">
-        Retry
-      </button>
+      <button type="button" (click)="loadHospitals()">Retry</button>
     </div>
   }
 
@@ -259,18 +254,22 @@
     </div>
 
     @if (loading()) {
-      <div class="table-message">
-        Loading hospitals...
-      </div>
-    }
-
-    @else if (filteredHospitals().length === 0 && !errorMessage()) {
-      <div class="table-message">
-        No hospitals found for this status.
-      </div>
-    }
-
-    @else if (filteredHospitals().length > 0) {
+      <app-data-state variant="loading" message="Loading hospitals..." />
+    } @else if (errorMessage() && hospitals().length === 0) {
+      <app-data-state
+        variant="error"
+        title="Unable to load hospitals"
+        [message]="errorMessage() || ''"
+        actionLabel="Retry"
+        (action)="loadHospitals()"
+      />
+    } @else if (filteredHospitals().length === 0) {
+      <app-data-state
+        variant="empty"
+        title="No hospitals found"
+        message="No hospitals match the selected status filter."
+      />
+    } @else if (filteredHospitals().length > 0) {
 
       <div class="table-wrapper">
 

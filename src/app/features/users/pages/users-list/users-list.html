@@ -21,13 +21,10 @@
     </div>
   }
 
-  @if (errorMessage()) {
+  @if (errorMessage() && users().length > 0) {
     <div class="error-message" role="alert">
       {{ errorMessage() }}
-
-      <button type="button" (click)="loadUsers(pagination().page)">
-        Retry
-      </button>
+      <button type="button" (click)="loadUsers(pagination().page)">Retry</button>
     </div>
   }
 
@@ -129,18 +126,22 @@
     </div>
 
     @if (loading()) {
-      <div class="table-message">
-        Loading users...
-      </div>
-    }
-
-    @else if (users().length === 0 && !errorMessage()) {
-      <div class="table-message">
-        No users found.
-      </div>
-    }
-
-    @else if (users().length > 0) {
+      <app-data-state variant="loading" message="Loading users..." />
+    } @else if (errorMessage() && users().length === 0) {
+      <app-data-state
+        variant="error"
+        title="Unable to load users"
+        [message]="errorMessage() || ''"
+        actionLabel="Retry"
+        (action)="loadUsers(pagination().page)"
+      />
+    } @else if (users().length === 0) {
+      <app-data-state
+        variant="empty"
+        title="No users found"
+        message="No users match the current filters. Try adjusting your search criteria."
+      />
+    } @else if (users().length > 0) {
 
       <div class="table-wrapper">
         <table>
