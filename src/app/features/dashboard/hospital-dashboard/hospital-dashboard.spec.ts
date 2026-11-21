@@ -88,8 +88,29 @@ describe('HospitalDashboardComponent', () => {
     expect(fixture.nativeElement.textContent).toContain(
       'Dashboard unavailable'
     );
-    expect(fixture.nativeElement.querySelector('button').textContent).toContain(
-      'Try again'
+    const retryButton = fixture.nativeElement.querySelector(
+      '.error-state button'
+    ) as HTMLButtonElement;
+
+    expect(retryButton).toBeTruthy();
+    expect(retryButton.textContent).toContain('Try again');
+
+    retryButton.click();
+    fixture.detectChanges();
+
+    const retryRequest = httpMock.expectOne(
+      `${environment.apiUrl}/hospital-dashboard/overview`
+    );
+    expect(retryRequest.request.method).toBe('GET');
+    retryRequest.flush({
+      success: true,
+      message: 'Hospital dashboard overview fetched successfully',
+      data: overview,
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain(
+      'Medcore Test Hospital'
     );
   });
 });
