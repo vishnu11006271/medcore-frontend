@@ -8,11 +8,12 @@ import {
 import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { FormFieldComponent } from '../../../shared/components/form-field/form-field';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FormFieldComponent],
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
@@ -47,6 +48,30 @@ export class LoginComponent {
 
   get password() {
     return this.loginForm.controls.password;
+  }
+
+  getFieldError(control: AbstractControl): string {
+    if (!control.touched || !control.invalid) {
+      return '';
+    }
+
+    if (control.hasError('required')) {
+      return 'This field is required.';
+    }
+
+    if (control.hasError('email')) {
+      return 'Enter a valid email address.';
+    }
+
+    if (control.hasError('minlength')) {
+      return `Enter at least ${control.getError('minlength').requiredLength} characters.`;
+    }
+
+    if (control.hasError('maxlength')) {
+      return `Use no more than ${control.getError('maxlength').requiredLength} characters.`;
+    }
+
+    return 'Please check this value.';
   }
 
   togglePassword(): void {
