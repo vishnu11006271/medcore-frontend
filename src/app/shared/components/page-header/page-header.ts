@@ -14,10 +14,12 @@ import { Component, Input } from '@angular/core';
       </div>
     </header>
   `,
+  host: {
+    '[style.margin-bottom]': 'marginBottom'
+  },
   styles: [`
     :host {
       display: block;
-      margin-bottom: var(--page-header-margin-bottom, 24px);
     }
 
     .page-header {
