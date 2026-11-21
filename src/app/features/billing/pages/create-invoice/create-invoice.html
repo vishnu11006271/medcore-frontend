@@ -63,7 +63,10 @@
         </div>
 
         @if (errorMessage()) {
-          <div class="error-message">{{ errorMessage() }}</div>
+          <div class="error-message" role="alert">
+            {{ errorMessage() }}
+            <button type="button" (click)="loadData()" [disabled]="loadingAppointments() || loadingInvoices()">Retry</button>
+          </div>
         }
 
         <button
