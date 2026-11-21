@@ -1,0 +1,22 @@
+<div class="form-field">
+  <label [for]="inputId">
+    {{ label }}
+    @if (required) {
+      <span class="required-indicator" aria-hidden="true">*</span>
+    }
+  </label>
+
+  <ng-content />
+
+  @if (hint) {
+    <small class="field-hint" [id]="inputId + '-hint'">
+      {{ hint }}
+    </small>
+  }
+
+  @if (error) {
+    <small class="field-error" [id]="inputId + '-error'" role="alert">
+      {{ error }}
+    </small>
+  }
+</div>
