@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 
 import {
+  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
   Validators
@@ -13,6 +14,7 @@ import {
 
 import { Router } from '@angular/router';
 import { HospitalRegistrationService } from '../../../../core/services/hospital-registration.service';
+import { FormFieldComponent } from '../../../../shared/components/form-field/form-field';
 
 
 @Component({
@@ -20,7 +22,8 @@ import { HospitalRegistrationService } from '../../../../core/services/hospital-
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormFieldComponent
   ],
   templateUrl: './hospital-registration.html',
   styleUrl: './hospital-registration.scss'
@@ -121,6 +124,34 @@ export class HospitalRegistrationComponent {
 
   get controls() {
     return this.registrationForm.controls;
+  }
+
+  getFieldError(control: AbstractControl): string {
+    if (!control.touched || !control.invalid) {
+      return '';
+    }
+
+    if (control.hasError('required')) {
+      return 'This field is required.';
+    }
+
+    if (control.hasError('email')) {
+      return 'Enter a valid email address.';
+    }
+
+    if (control.hasError('minlength')) {
+      return `Enter at least ${control.getError('minlength').requiredLength} characters.`;
+    }
+
+    if (control.hasError('maxlength')) {
+      return `Use no more than ${control.getError('maxlength').requiredLength} characters.`;
+    }
+
+    if (control.hasError('pattern')) {
+      return 'Use lowercase letters, numbers and single hyphens only.';
+    }
+
+    return 'Please check this value.';
   }
 
   /**
