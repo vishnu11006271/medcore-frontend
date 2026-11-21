@@ -25,8 +25,8 @@
           placeholder="Enter your email"
           autocomplete="username"
           [attr.aria-required]="true"
-          [attr.aria-invalid]="email.touched && email.invalid"
-          [attr.aria-describedby]="email.touched && email.invalid ? 'email-error' : null"
+            [attr.aria-invalid]="email.touched && email.invalid"
+            [attr.aria-describedby]="email.touched && email.invalid ? 'email-error' : null"
         />
       </app-form-field>
 
@@ -44,7 +44,7 @@
             placeholder="Enter your password"
             autocomplete="current-password"
             [attr.aria-required]="true"
-          [attr.aria-invalid]="password.touched && password.invalid"
+            [attr.aria-invalid]="password.touched && password.invalid"
             [attr.aria-describedby]="password.touched && password.invalid ? 'password-error' : null"
           />
           <button
