@@ -1,0 +1,21 @@
+@if (variant === 'loading') {
+  <section class="data-state loading" role="status" aria-live="polite">
+    <span class="spinner" aria-hidden="true"></span>
+    <p>{{ message || 'Loading...' }}</p>
+  </section>
+} @else if (variant === 'error') {
+  <section class="data-state error" role="alert">
+    <span class="state-icon" aria-hidden="true">!</span>
+    <h3>{{ title || 'Unable to load data' }}</h3>
+    <p>{{ message || 'Something went wrong. Please try again.' }}</p>
+    @if (actionLabel) {
+      <button type="button" (click)="onAction()">{{ actionLabel }}</button>
+    }
+  </section>
+} @else {
+  <section class="data-state empty" role="status">
+    <span class="state-icon" aria-hidden="true">—</span>
+    <h3>{{ title || 'No data available' }}</h3>
+    <p>{{ message || 'There is nothing to display yet.' }}</p>
+  </section>
+}
