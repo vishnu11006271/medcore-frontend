@@ -26,7 +26,8 @@ export class PatientListComponent implements OnInit {
   searchTerm = '';
 
   currentPage = signal<number>(1);
-  pageSize = 10;
+  readonly pageSize = signal<number>(10);
+  readonly pageSizeOptions = [10, 25, 50] as const;
   totalPages = signal<number>(0);
   totalPatients = signal<number>(0);
 
@@ -40,20 +41,13 @@ export class PatientListComponent implements OnInit {
 
     this.patientService.getPatients(
       this.currentPage(),
-      this.pageSize,
+      this.pageSize(),
       this.searchTerm
     ).subscribe({
       next: (response) => {
         this.patients.set(response.data.patients);
-
-        this.totalPatients.set(
-          response.data.pagination.total
-        );
-
-        this.totalPages.set(
-          response.data.pagination.totalPages
-        );
-
+        this.totalPatients.set(response.data.pagination.total);
+        this.totalPages.set(response.data.pagination.totalPages);
         this.loading.set(false);
       },
 
@@ -62,7 +56,6 @@ export class PatientListComponent implements OnInit {
           error.error?.error?.message ||
           'Unable to load patients.'
         );
-
         this.loading.set(false);
       }
     });
@@ -75,6 +68,16 @@ export class PatientListComponent implements OnInit {
 
   clearSearch(): void {
     this.searchTerm = '';
+    this.currentPage.set(1);
+    this.loadPatients();
+  }
+
+  changePageSize(value: number): void {
+    if (!this.pageSizeOptions.some(option => option === value)) {
+      return;
+    }
+
+    this.pageSize.set(value);
     this.currentPage.set(1);
     this.loadPatients();
   }
