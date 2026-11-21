@@ -54,7 +54,7 @@
             <td>{{ member.role.replace('_', ' ') }}</td>
             <td>{{ member.emailVerifiedAt ? 'Verified' : 'Pending' }}</td>
             <td><span [class.inactive]="!member.isActive">{{ member.isActive ? 'Active' : 'Inactive' }}</span></td>
-            <td><button type="button" class="secondary" (click)="toggleStatus(member)">{{ member.isActive ? 'Deactivate' : 'Activate' }}</button></td>
+            <td><button type="button" class="secondary" (click)="toggleStatus(member)" [disabled]="updatingStaffIds().includes(member.id)">{{ updatingStaffIds().includes(member.id) ? 'Updating…' : (member.isActive ? 'Deactivate' : 'Activate') }}</button></td>
           </tr>
           <tr *ngIf="staff().length === 0"><td colspan="6">No staff accounts have been created yet.</td></tr>
         </tbody>
