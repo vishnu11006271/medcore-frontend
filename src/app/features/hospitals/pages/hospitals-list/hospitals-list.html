@@ -271,7 +271,11 @@
       />
     } @else if (filteredHospitals().length > 0) {
 
-      <div class="table-wrapper">
+      <div
+        class="table-wrapper"
+        role="region"
+        aria-label="Hospitals table. Scroll horizontally to view all columns."
+        tabindex="0">
 
         <table>
           <thead>
