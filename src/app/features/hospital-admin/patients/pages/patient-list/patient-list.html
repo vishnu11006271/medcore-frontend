@@ -1,15 +1,8 @@
 <div class="patients-page">
 
-  <div class="page-header">
-    <div>
-      <h1>Patients</h1>
-      <p>Manage and view patients registered with your hospital.</p>
-    </div>
-
-    <div class="patient-count">
-      Total Patients: <strong>{{ totalPatients() }}</strong>
-    </div>
-  </div>
+  <app-page-header title="Patients" description="Manage and view patients registered with your hospital." marginBottom="24px">
+    <div pageHeaderAction class="patient-count">Total Patients: <strong>{{ totalPatients() }}</strong></div>
+  </app-page-header>
 
   <div class="search-section">
     <div class="search-box">
