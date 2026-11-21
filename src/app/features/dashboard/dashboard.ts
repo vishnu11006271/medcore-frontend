@@ -11,7 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService } from '../../core/services/auth.service';
 import { AppointmentService } from '../../core/services/appointment.service';
-import { DoctorAppointment } from '../../core/models/appointment.model';
+import { DoctorAppointment, MyAppointment } from '../../core/models/appointment.model';
 import { PlatformAnalyticsComponent } from
   '../../features/platform-analytics/components/platform-analytics/platform-analytics';
 import { HospitalDashboardComponent } from './hospital-dashboard/hospital-dashboard';
@@ -34,6 +34,102 @@ export class DashboardComponent {
   private readonly appointmentService = inject(AppointmentService);
 
   readonly currentUser = this.authService.user;
+  readonly patientAppointments = signal<MyAppointment[]>([]);
+  readonly patientLoading = signal(false);
+  readonly patientError = signal('');
+
+  readonly patientUpcomingAppointments = computed(() => {
+    const now = Date.now();
+    return this.patientAppointments()
+      .filter((appointment) =>
+        new Date(appointment.scheduledAt).getTime() >= now &&
+        this.isActivePatientStatus(appointment.status)
+      )
+      .sort((a, b) =>
+        new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
+      );
+  });
+
+  readonly patientRecentAppointments = computed(() =>
+    [...this.patientAppointments()]
+      .sort((a, b) =>
+        new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
+      )
+      .slice(0, 5)
+  );
+
+  readonly patientStats = computed(() => {
+    const appointments = this.patientAppointments();
+    return [
+      {
+        key: 'TOTAL',
+        title: 'Total Appointments',
+        value: appointments.length,
+        icon: '▦',
+      },
+      {
+        key: 'UPCOMING',
+        title: 'Upcoming',
+        value: this.patientUpcomingAppointments().length,
+        icon: '◷',
+      },
+      {
+        key: 'COMPLETED',
+        title: 'Completed',
+        value: appointments.filter((item) => item.status === 'COMPLETED').length,
+        icon: '✓',
+      },
+      {
+        key: 'CANCELLED',
+        title: 'Cancelled',
+        value: appointments.filter((item) => item.status === 'CANCELLED').length,
+        icon: '✕',
+      },
+    ];
+  });
+
+  readonly patientStatusDonut = computed(() => {
+    const statuses = [
+      { status: 'PENDING', label: 'Pending', color: '#f59e0b' },
+      { status: 'SCHEDULED', label: 'Scheduled', color: '#06b6d4' },
+      { status: 'CONFIRMED', label: 'Confirmed', color: '#2563eb' },
+      { status: 'CHECKED_IN', label: 'Checked in', color: '#8b5cf6' },
+      { status: 'IN_PROGRESS', label: 'In progress', color: '#7c3aed' },
+      { status: 'COMPLETED', label: 'Completed', color: '#10b981' },
+      { status: 'CANCELLED', label: 'Cancelled', color: '#ef4444' },
+      { status: 'NO_SHOW', label: 'No show', color: '#64748b' },
+    ] as const;
+    const appointments = this.patientAppointments();
+    const total = appointments.length;
+    let offset = 0;
+    const segments = statuses.map((item) => {
+      const count = appointments.filter(
+        (appointment) => appointment.status === item.status
+      ).length;
+      const percentage = total > 0 ? (count / total) * 100 : 0;
+      const segment = {
+        ...item,
+        count,
+        percentage,
+        start: offset,
+        end: offset + percentage,
+      };
+      offset += percentage;
+      return segment;
+    });
+    const stops = segments
+      .filter((item) => item.percentage > 0)
+      .map((item) => `${item.color} ${item.start}% ${item.end}%`);
+
+    return {
+      total,
+      segments,
+      background: stops.length
+        ? `conic-gradient(${stops.join(', ')})`
+        : 'conic-gradient(#edf1f6 0% 100%)',
+    };
+  });
+
   readonly doctorAppointments = signal<DoctorAppointment[]>([]);
   readonly doctorLoading = signal(false);
   readonly doctorError = signal('');
@@ -118,6 +214,11 @@ export class DashboardComponent {
   });
 
   ngOnInit(): void {
+    if (this.currentUser()?.role === 'PATIENT') {
+      this.loadPatientAppointments();
+      return;
+    }
+
     if (this.currentUser()?.role !== 'DOCTOR') {
       return;
     }
@@ -126,6 +227,41 @@ export class DashboardComponent {
     this.appointmentService.appointmentUpdated$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadDoctorAppointments());
+  }
+
+  private isActivePatientStatus(status: string): boolean {
+    return ['PENDING', 'SCHEDULED', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS']
+      .includes(status);
+  }
+
+  loadPatientAppointments(): void {
+    this.patientLoading.set(true);
+    this.patientError.set('');
+
+    this.appointmentService
+      .getMyAppointments()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.patientAppointments.set(response.data ?? []);
+          this.patientLoading.set(false);
+        },
+        error: (error) => {
+          this.patientError.set(
+            error.error?.error?.message ||
+              'Unable to load your appointments.'
+          );
+          this.patientLoading.set(false);
+        },
+      });
+  }
+
+  getPatientDoctorName(appointment: MyAppointment): string {
+    return `Dr. ${appointment.doctor.user.firstName} ${appointment.doctor.user.lastName}`;
+  }
+
+  getPatientStatusClass(status: string): string {
+    return status.toLowerCase().replace(/_/g, '-');
   }
 
   loadDoctorAppointments(): void {
