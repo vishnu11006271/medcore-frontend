@@ -17,6 +17,7 @@ import { finalize } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
 import { HospitalService } from '../../../../core/services/hospital.service';
 import { DepartmentService } from '../../../../core/services/department.service';
+import { DataStateComponent } from '../../../../shared/components/data-state/data-state';
 
 import { Hospital } from '../../../../core/models/hospital.model';
 
@@ -33,7 +34,8 @@ type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    DataStateComponent
   ],
   templateUrl: './departments-list.html',
   styleUrl: './departments-list.scss'
