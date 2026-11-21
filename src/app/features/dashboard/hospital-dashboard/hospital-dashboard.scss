@@ -121,38 +121,87 @@
   font-size: 11px;
 }
 
-.status-item {
-  margin-bottom: 17px;
+.appointment-analytics {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 28px;
+}
 
-  &:last-child {
-    margin-bottom: 0;
+.status-donut {
+  display: grid;
+  place-items: center;
+  width: min(100%, 220px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: 50%;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 16%;
+    border-radius: 50%;
+    background: #fff;
   }
 }
 
-.status-heading {
-  margin-bottom: 8px;
+.donut-center {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  strong {
+    color: #243b5a;
+    font-size: 27px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  span {
+    color: #8492a6;
+    font-size: 11px;
+  }
+}
+
+.status-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.legend-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
   color: #52647c;
   font-size: 12px;
-  text-transform: capitalize;
 
   strong {
     color: #263c59;
     font-variant-numeric: tabular-nums;
   }
+
+  small {
+    min-width: 42px;
+    color: #8492a6;
+    text-align: right;
+  }
 }
 
-.progress-track {
-  height: 7px;
-  overflow: hidden;
-  border-radius: 10px;
-  background: #edf1f6;
+.legend-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: #3678db;
-  transition: width 180ms ease;
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 50%;
 }
 
 .dashboard-state {
@@ -197,5 +246,14 @@
   .hospital-summary,
   .panel {
     padding: 15px;
+  }
+
+  .appointment-analytics {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .status-donut {
+    width: min(65%, 190px);
   }
 }
