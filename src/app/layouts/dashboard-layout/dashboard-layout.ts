@@ -8,6 +8,7 @@ import {
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { UserRole } from '../../core/models/auth.model';
+import { NotificationCenterComponent } from '../../shared/components/notification-center/notification-center';
 
 interface NavigationItem {
   label: string;
@@ -20,7 +21,7 @@ interface NavigationItem {
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationCenterComponent],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.scss'
 })

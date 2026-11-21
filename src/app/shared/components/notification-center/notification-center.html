@@ -1,0 +1,68 @@
+<div class="notification-center">
+  <button
+    type="button"
+    class="notification-trigger"
+    aria-label="Notifications"
+    aria-haspopup="true"
+    [attr.aria-expanded]="isOpen()"
+    (click)="togglePanel()">
+    <span class="bell-icon" aria-hidden="true">🔔</span>
+    @if (unreadCount() > 0) {
+      <span class="unread-badge" aria-label="{{ unreadCount() }} unread notifications">
+        {{ unreadCount() > 99 ? '99+' : unreadCount() }}
+      </span>
+    }
+  </button>
+
+  @if (isOpen()) {
+    <section class="notification-panel" role="region" aria-label="Notifications">
+      <header class="panel-header">
+        <div>
+          <h2>Notifications</h2>
+          <p>{{ unreadCount() }} unread</p>
+        </div>
+        <button
+          type="button"
+          class="mark-all-button"
+          [disabled]="unreadCount() === 0 || isUpdating()"
+          (click)="markAllAsRead()">
+          {{ isUpdating() ? 'Updating…' : 'Mark all read' }}
+        </button>
+      </header>
+
+      @if (errorMessage()) {
+        <p class="panel-error" role="alert">{{ errorMessage() }}</p>
+        <button type="button" class="retry-button" (click)="loadNotifications()">Retry</button>
+      } @else if (isLoading()) {
+        <p class="panel-state" role="status">Loading notifications…</p>
+      } @else if (notifications().length === 0) {
+        <div class="empty-state">
+          <span aria-hidden="true">🔔</span>
+          <strong>You're all caught up</strong>
+          <p>New notifications will appear here.</p>
+        </div>
+      } @else {
+        <ul class="notification-list">
+          @for (notification of notifications(); track notification.id) {
+            <li>
+              <button
+                type="button"
+                class="notification-item"
+                [class.unread]="!notification.readAt"
+                (click)="openNotification(notification)">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span class="notification-content">
+                  <strong>{{ notification.title }}</strong>
+                  <span>{{ notification.message }}</span>
+                  <time [attr.datetime]="notification.createdAt">
+                    {{ notification.createdAt | date:'medium' }}
+                  </time>
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</div>
