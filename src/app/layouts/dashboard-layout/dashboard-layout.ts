@@ -452,7 +452,7 @@ export class DashboardLayoutComponent {
     for (const segment of routeSegments) {
       currentPath += `/${segment}`;
 
-      if (/^(\\d+|[0-9a-f]{8}-[0-9a-f-]{27,}|[a-z0-9_-]{24,})$/i.test(segment)) {
+      if (/^(\d+|[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}|[a-z0-9_-]{24,})$/i.test(segment)) {
         const detailNames: Record<string, string> = {
           patients: 'Patient Details',
           doctors: 'Doctor Details',
