@@ -71,8 +71,10 @@ export class AppointmentListComponent implements OnInit {
         this.appointments.set(response.data.appointments);
 
         const pagination = response.data.pagination;
+
         this.totalPages.set(pagination.totalPages);
         this.totalAppointments.set(pagination.total);
+
         this.loading.set(false);
       },
       error: (err) => {
@@ -80,6 +82,7 @@ export class AppointmentListComponent implements OnInit {
           err.error?.error?.message ||
           'Unable to load appointments. Please try again.'
         );
+
         this.loading.set(false);
       }
     });
@@ -96,6 +99,7 @@ export class AppointmentListComponent implements OnInit {
     this.fromDate.set('');
     this.toDate.set('');
     this.currentPage.set(1);
+
     this.loadAppointments();
   }
 
@@ -145,7 +149,10 @@ export class AppointmentListComponent implements OnInit {
         this.actionMessage.set(
           response.message || 'Appointment confirmed successfully.'
         );
+
         this.processingId.set(null);
+
+        // Reload the current page using existing filters.
         this.loadAppointments();
       },
       error: (error: HttpErrorResponse) => {
@@ -153,6 +160,7 @@ export class AppointmentListComponent implements OnInit {
           error.error?.error?.message ||
           'Unable to confirm appointment.'
         );
+
         this.processingId.set(null);
       }
     });
