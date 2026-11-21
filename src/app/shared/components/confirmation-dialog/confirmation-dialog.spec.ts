@@ -17,8 +17,8 @@ describe('ConfirmationDialogComponent', () => {
   });
 
   it('should render the supplied title and message', () => {
-    component.title = 'Deactivate user';
-    component.message = 'Are you sure?';
+    fixture.componentRef.setInput('title', 'Deactivate user');
+    fixture.componentRef.setInput('message', 'Are you sure?');
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('h2').textContent).toContain('Deactivate user');
@@ -38,7 +38,7 @@ describe('ConfirmationDialogComponent', () => {
   });
 
   it('should disable actions while busy', () => {
-    component.busy = true;
+    fixture.componentRef.setInput('busy', true);
     fixture.detectChanges();
 
     const buttons = fixture.nativeElement.querySelectorAll('button');
