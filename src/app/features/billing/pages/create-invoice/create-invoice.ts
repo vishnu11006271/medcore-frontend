@@ -33,6 +33,8 @@ export class CreateInvoiceComponent implements OnInit {
   readonly invoices = signal<Invoice[]>([]);
 
   readonly loadingAppointments = signal(false);
+  readonly loadingInvoices = signal(false);
+  readonly invoiceCheckFailed = signal(false);
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
@@ -57,6 +59,9 @@ export class CreateInvoiceComponent implements OnInit {
 
   loadData(): void {
     this.loadingAppointments.set(true);
+    this.loadingInvoices.set(true);
+    this.invoiceCheckFailed.set(false);
+    this.appointmentId = '';
     this.errorMessage.set(null);
 
     // Load completed hospital appointments.
@@ -84,17 +89,26 @@ export class CreateInvoiceComponent implements OnInit {
       }
     });
 
-    // Load invoices so appointments that already have invoices are excluded.
+    // Do not allow invoice creation until duplicate-invoice checking succeeds.
     this.billingService.getInvoices().subscribe({
       next: response => {
         if (response.success) {
           this.invoices.set(response.data ?? []);
+        } else {
+          this.invoiceCheckFailed.set(true);
+          this.errorMessage.set(
+            response.message || 'Unable to check existing invoices. Please refresh and try again.'
+          );
         }
+        this.loadingInvoices.set(false);
       },
-      error: () => {
+      error: error => {
+        this.invoiceCheckFailed.set(true);
         this.errorMessage.set(
+          error?.error?.error?.message ||
           'Unable to check existing invoices. Please refresh and try again.'
         );
+        this.loadingInvoices.set(false);
       }
     });
   }
@@ -116,23 +130,28 @@ export class CreateInvoiceComponent implements OnInit {
       return;
     }
 
-    if (!this.availableAppointments().some(item => item.id === this.appointmentId)) {
-      this.errorMessage.set('Please select an eligible completed appointment. Refresh the page and try again.');
-      return;
-    }
-
     if (!this.appointmentId) {
       this.errorMessage.set('Please select a completed appointment.');
       return;
     }
 
-    if (this.invoiceCheckFailed() || !this.availableAppointments().some(item => item.id === this.appointmentId)) {
-      this.errorMessage.set('Unable to verify this appointment. Refresh the page and try again.');
+    if (
+      this.invoiceCheckFailed() ||
+      !this.availableAppointments().some(item => item.id === this.appointmentId)
+    ) {
+      this.errorMessage.set(
+        'Unable to verify this appointment. Refresh the page and try again.'
+      );
       return;
     }
 
-    if (!Number.isFinite(Number(this.tax)) || !Number.isFinite(Number(this.discount)) || this.tax < 0 || this.discount < 0) {
-      this.errorMessage.set('Tax and discount cannot be negative.');
+    if (
+      !Number.isFinite(Number(this.tax)) ||
+      !Number.isFinite(Number(this.discount)) ||
+      this.tax < 0 ||
+      this.discount < 0
+    ) {
+      this.errorMessage.set('Tax and discount must be valid non-negative amounts.');
       return;
     }
 
@@ -164,7 +183,9 @@ export class CreateInvoiceComponent implements OnInit {
       error: error => {
         this.submitting.set(false);
         this.errorMessage.set(
-          error?.error?.error?.message || error?.error?.message || 'Unable to create invoice.'
+          error?.error?.error?.message ||
+          error?.error?.message ||
+          'Unable to create invoice.'
         );
       }
     });
