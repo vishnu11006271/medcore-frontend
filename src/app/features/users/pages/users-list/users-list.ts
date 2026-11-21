@@ -39,6 +39,8 @@ export class UsersList implements OnInit {
   readonly pendingUser = signal<PlatformUser | null>(null);
   readonly statusError = signal<string | null>(null);
 
+  readonly pageSizeOptions = [10, 25, 50] as const;
+
   readonly pagination = signal<UsersPagination>({
     total: 0,
     page: 1,
@@ -131,6 +133,19 @@ export class UsersList implements OnInit {
       emailVerified: ''
     });
 
+    this.loadUsers(1);
+  }
+
+  changePageSize(value: number): void {
+    if (!this.pageSizeOptions.some(option => option === value) || this.loading()) {
+      return;
+    }
+
+    this.pagination.update(current => ({
+      ...current,
+      page: 1,
+      limit: value
+    }));
     this.loadUsers(1);
   }
 

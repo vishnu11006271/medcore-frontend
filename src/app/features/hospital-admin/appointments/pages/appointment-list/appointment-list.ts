@@ -27,7 +27,8 @@ export class AppointmentListComponent implements OnInit {
   readonly error = signal('');
 
   readonly currentPage = signal(1);
-  readonly pageSize = 10;
+  readonly pageSize = signal(10);
+  readonly pageSizeOptions = [10, 25, 50] as const;
   readonly totalPages = signal(0);
   readonly totalAppointments = signal(0);
 
@@ -60,7 +61,7 @@ export class AppointmentListComponent implements OnInit {
 
     this.appointmentService.getHospitalAppointments(
       this.currentPage(),
-      this.pageSize,
+      this.pageSize(),
       this.selectedStatus(),
       this.fromDate(),
       this.toDate(),
@@ -99,6 +100,16 @@ export class AppointmentListComponent implements OnInit {
     this.toDate.set('');
     this.currentPage.set(1);
 
+    this.loadAppointments();
+  }
+
+  changePageSize(value: number): void {
+    if (!this.pageSizeOptions.some(option => option === value)) {
+      return;
+    }
+
+    this.pageSize.set(value);
+    this.currentPage.set(1);
     this.loadAppointments();
   }
 

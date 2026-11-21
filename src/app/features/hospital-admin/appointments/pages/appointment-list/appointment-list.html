@@ -153,6 +153,14 @@
 
     <!-- Pagination -->
     <div class="pagination">
+      <label class="page-size-control">
+        Rows per page
+        <select [ngModel]="pageSize()" (ngModelChange)="changePageSize($event)" [disabled]="loading()">
+          @for (size of pageSizeOptions; track size) {
+            <option [ngValue]="size">{{ size }}</option>
+          }
+        </select>
+      </label>
       <span>
         Page {{ currentPage() }} of {{ totalPages() }}
       </span>

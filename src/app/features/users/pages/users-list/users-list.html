@@ -224,6 +224,14 @@
 
       <!-- Pagination -->
       <div class="pagination">
+        <label class="page-size-control">
+          Rows per page
+          <select [value]="pagination().limit" (change)="changePageSize(+$any($event.target).value)" [disabled]="loading()">
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
 
         <span>
           Page {{ pagination().page }} of {{ pagination().totalPages }}
