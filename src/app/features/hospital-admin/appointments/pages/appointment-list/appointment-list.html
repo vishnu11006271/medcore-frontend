@@ -76,7 +76,11 @@
 
   <!-- Appointment table -->
   @else if (appointments().length > 0) {
-    <div class="table-wrapper">
+    <div
+        class="table-wrapper"
+        role="region"
+        aria-label="Appointments table. Scroll horizontally to view all columns."
+        tabindex="0">
       <table>
         <thead>
           <tr>
