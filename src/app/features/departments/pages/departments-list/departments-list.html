@@ -2,7 +2,7 @@
 
   <!-- Page Header -->
   <app-page-header title="Department Management" description="Manage hospital departments, details and availability." marginBottom="24px">
-  <button type="button" class="btn btn-primary" (click)="openCreateForm()" [disabled]="!selectedHospitalId() || isLoading()">+ Add Department</button>
+  <button pageHeaderAction type="button" class="btn btn-primary" (click)="openCreateForm()" [disabled]="!selectedHospitalId() || isLoading()">+ Add Department</button>
 </app-page-header>
 
   <!-- Hospital Selector: SUPER_ADMIN only -->
@@ -237,12 +237,8 @@
       <!-- Department Table -->
       @if (!isLoading() && paginatedDepartments().length > 0) {
 
-        <div
-        class="table-wrapper"
-        role="region"
-        aria-label="Departments table. Scroll horizontally to view all columns."
-        tabindex="0">
-          <table>
+        <app-table-container ariaLabel="Departments table. Scroll horizontally to view all columns." variant="plain">
+          <table class="mobile-table">
 
             <thead>
               <tr>
@@ -317,7 +313,8 @@
             </tbody>
 
           </table>
-        </div>
+        
+      </app-table-container>
       }
 
       <!-- Empty State -->
