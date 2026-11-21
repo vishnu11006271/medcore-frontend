@@ -462,15 +462,14 @@ nav {
     min-width: 0;
   }
 
-  .breadcrumb span {
+  .breadcrumb li:not(:last-child) {
     display: none;
   }
 
-  .breadcrumb strong {
+  .breadcrumb li:last-child {
     max-width: 42vw;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .header-left {
