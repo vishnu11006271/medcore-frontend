@@ -56,10 +56,9 @@
   }
 
   <!-- Error Message -->
-  @if (errorMessage()) {
+  @if (errorMessage() && (departments().length > 0 || showForm())) {
     <div class="alert alert-error">
       {{ errorMessage() }}
-
       <button
         type="button"
         class="btn-link"
@@ -235,13 +234,19 @@
 
       <!-- Loading -->
       @if (isLoading()) {
-        <div class="loading-state">
-          Loading departments...
-        </div>
+        <app-data-state variant="loading" message="Loading departments..." />
+      } @else if (errorMessage() && departments().length === 0) {
+        <app-data-state
+          variant="error"
+          title="Unable to load departments"
+          [message]="errorMessage()"
+          actionLabel="Retry"
+          (action)="loadDepartments()"
+        />
       }
 
       <!-- Department Table -->
-      @if (!isLoading() && paginatedDepartments().length > 0) {
+      @if (!isLoading() && !errorMessage() && paginatedDepartments().length > 0) {
 
         <div class="table-wrapper">
           <table>
@@ -323,16 +328,20 @@
       }
 
       <!-- Empty State -->
-      @if (!isLoading() && paginatedDepartments().length === 0) {
-        <div class="empty-state">
-          @if (departments().length === 0) {
-            <h3>No departments yet</h3>
-            <p>Create the first department for this hospital.</p>
-          } @else {
-            <h3>No matching departments</h3>
-            <p>Try changing your search or status filter.</p>
-          }
-        </div>
+      @if (!isLoading() && !errorMessage() && paginatedDepartments().length === 0) {
+        @if (departments().length === 0) {
+          <app-data-state
+            variant="empty"
+            title="No departments yet"
+            message="Create the first department for this hospital."
+          />
+        } @else {
+          <app-data-state
+            variant="empty"
+            title="No matching departments"
+            message="Try changing your search or status filter."
+          />
+        }
       }
 
       <!-- Pagination -->
