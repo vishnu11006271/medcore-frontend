@@ -215,3 +215,38 @@ table {
     gap: 12px;
   }
 }
+
+// Keep wide data tables usable on narrow screens without hiding columns.
+.table-container {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #f1f5f9;
+
+  &:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
+  }
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .table-container table {
+    min-width: 760px;
+  }
+}
