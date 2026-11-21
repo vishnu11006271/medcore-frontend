@@ -16,7 +16,9 @@
   </div>
 
   @if (successMessage()) {
-    <div class="success-message" role="status">{{ successMessage() }}</div>
+    <div class="success-message" role="status">
+      {{ successMessage() }}
+    </div>
   }
 
   @if (errorMessage() && users().length > 0) {
@@ -26,7 +28,9 @@
     </div>
   }
 
+  <!-- Filters -->
   <div class="panel filter-panel">
+
     <div class="panel-heading">
       <div>
         <h2>Search and Filters</h2>
@@ -34,17 +38,26 @@
       </div>
     </div>
 
-    <form [formGroup]="filtersForm" (ngSubmit)="applyFilters()">
+    <form
+      [formGroup]="filtersForm"
+      (ngSubmit)="applyFilters()">
+
       <div class="filter-grid">
+
         <div class="form-field">
           <label for="search">Search</label>
-          <input id="search" type="text" formControlName="search" placeholder="Search name or email">
+          <input
+            id="search"
+            type="text"
+            formControlName="search"
+            placeholder="Search name or email">
         </div>
 
         <div class="form-field">
           <label for="role">Role</label>
           <select id="role" formControlName="role">
             <option value="">All Roles</option>
+
             @for (role of roles; track role) {
               <option [value]="role">{{ role.replace('_', ' ') }}</option>
             }
@@ -53,7 +66,11 @@
 
         <div class="form-field">
           <label for="hospitalId">Hospital ID</label>
-          <input id="hospitalId" type="text" formControlName="hospitalId" placeholder="Enter hospital ID">
+          <input
+            id="hospitalId"
+            type="text"
+            formControlName="hospitalId"
+            placeholder="Enter hospital ID">
         </div>
 
         <div class="form-field">
@@ -67,26 +84,40 @@
 
         <div class="form-field">
           <label for="emailVerified">Email Verification</label>
-          <select id="emailVerified" formControlName="emailVerified">
+          <select
+            id="emailVerified"
+            formControlName="emailVerified">
             <option value="">All</option>
             <option value="true">Verified</option>
             <option value="false">Not Verified</option>
           </select>
         </div>
+
       </div>
 
       <div class="form-actions">
-        <button type="button" class="secondary-button" (click)="resetFilters()" [disabled]="loading()">
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="resetFilters()"
+          [disabled]="loading()">
           Reset
         </button>
-        <button type="submit" class="primary-button" [disabled]="loading()">
+
+        <button
+          type="submit"
+          class="primary-button"
+          [disabled]="loading()">
           Apply Filters
         </button>
       </div>
+
     </form>
   </div>
 
+  <!-- Users table -->
   <div class="panel users-panel">
+
     <div class="panel-heading">
       <div>
         <h2>Platform Users</h2>
@@ -110,7 +141,8 @@
         title="No users found"
         message="No users match the current filters. Try adjusting your search criteria."
       />
-    } @else {
+    } @else if (users().length > 0) {
+
       <div class="table-wrapper">
         <table>
           <thead>
@@ -129,24 +161,50 @@
           <tbody>
             @for (user of users(); track user.id) {
               <tr>
+
                 <td>
                   <strong>{{ getFullName(user) }}</strong>
                   <small class="user-email">{{ user.email }}</small>
                 </td>
-                <td><span class="role-label">{{ user.role.replace('_', ' ') }}</span></td>
-                <td>{{ user.hospital?.name || 'Platform / No hospital' }}</td>
+
                 <td>
-                  <span class="status" [class.verified]="user.emailVerifiedAt" [class.pending]="!user.emailVerifiedAt">
+                  <span class="role-label">
+                    {{ user.role.replace('_', ' ') }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ user.hospital?.name || 'Platform / No hospital' }}
+                </td>
+
+                <td>
+                  <span
+                    class="status"
+                    [class.verified]="user.emailVerifiedAt"
+                    [class.pending]="!user.emailVerifiedAt">
                     {{ user.emailVerifiedAt ? 'Verified' : 'Not Verified' }}
                   </span>
                 </td>
+
                 <td>
-                  <span class="status" [class.active]="user.isActive" [class.inactive]="!user.isActive">
+                  <span
+                    class="status"
+                    [class.active]="user.isActive"
+                    [class.inactive]="!user.isActive">
                     {{ user.isActive ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
-                <td>{{ user.lastLoginAt ? (user.lastLoginAt | date:'medium') : 'Never' }}</td>
-                <td>{{ user.createdAt | date:'mediumDate' }}</td>
+
+                <td>
+                  {{ user.lastLoginAt
+                    ? (user.lastLoginAt | date:'medium')
+                    : 'Never' }}
+                </td>
+
+                <td>
+                  {{ user.createdAt | date:'mediumDate' }}
+                </td>
+
                 <td>
                   <button
                     type="button"
@@ -157,26 +215,27 @@
                     {{ user.isActive ? 'Deactivate' : 'Activate' }}
                   </button>
                 </td>
+
               </tr>
             }
           </tbody>
         </table>
       </div>
 
+      <!-- Pagination -->
       <div class="pagination">
         <label class="page-size-control">
           Rows per page
-          <select
-            [value]="pagination().limit"
-            (change)="changePageSize(+$any($event.target).value)"
-            [disabled]="loading()">
+          <select [value]="pagination().limit" (change)="changePageSize(+$any($event.target).value)" [disabled]="loading()">
             @for (size of pageSizeOptions; track size) {
               <option [value]="size">{{ size }}</option>
             }
           </select>
         </label>
 
-        <span>Page {{ pagination().page }} of {{ pagination().totalPages }}</span>
+        <span>
+          Page {{ pagination().page }} of {{ pagination().totalPages }}
+        </span>
 
         <div class="pagination-actions">
           <button
@@ -186,6 +245,7 @@
             (click)="goToPreviousPage()">
             Previous
           </button>
+
           <button
             type="button"
             class="secondary-button"
@@ -194,25 +254,32 @@
             Next
           </button>
         </div>
+
       </div>
     }
+
   </div>
 
+  <!-- Activate / Deactivate confirmation -->
   @if (pendingUser(); as user) {
     <div class="confirmation-backdrop">
+
       <div
         class="confirmation-dialog"
         role="dialog"
         aria-modal="true"
         aria-labelledby="status-title">
+
         <h2 id="status-title">
           {{ user.isActive ? 'Deactivate User' : 'Activate User' }}
         </h2>
+
         <p>
           Are you sure you want to
           {{ user.isActive ? 'deactivate' : 'activate' }}
           <strong>{{ getFullName(user) }}</strong>?
         </p>
+
         <p class="warning-text">
           {{ user.isActive
             ? 'This user will no longer be able to access the platform.'
@@ -220,10 +287,13 @@
         </p>
 
         @if (statusError()) {
-          <div class="error-message" role="alert">{{ statusError() }}</div>
+          <div class="error-message" role="alert">
+            {{ statusError() }}
+          </div>
         }
 
         <div class="dialog-actions">
+
           <button
             type="button"
             class="secondary-button"
@@ -231,6 +301,7 @@
             (click)="cancelStatusChange()">
             Cancel
           </button>
+
           <button
             type="button"
             class="primary-button"
@@ -240,8 +311,11 @@
               ? 'Updating...'
               : (user.isActive ? 'Confirm Deactivation' : 'Confirm Activation') }}
           </button>
+
         </div>
+
       </div>
     </div>
   }
+
 </section>
