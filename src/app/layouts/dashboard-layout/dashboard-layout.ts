@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, computed, inject } from '@angular/core';
 import {
   RouterLink,
   RouterLinkActive,
@@ -29,6 +29,8 @@ export class DashboardLayoutComponent {
   private readonly router = inject(Router);
 
   sidebarOpen = false;
+
+  @ViewChild('contentArea') private contentArea?: ElementRef<HTMLElement>;
 
   private groupExpandedState: Record<string, boolean> = {};
 
@@ -348,6 +350,10 @@ export class DashboardLayoutComponent {
 
   closeSidebar(): void {
     this.sidebarOpen = false;
+  }
+
+  scrollContentToTop(): void {
+    this.contentArea?.nativeElement.scrollTo({ top: 0, behavior: 'auto' });
   }
 
   logout(): void {
