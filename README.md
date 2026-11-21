@@ -4,7 +4,7 @@ Medcore HMS is a role-based hospital management platform. This repository contai
 
 ## Live application
 
-- **Web application:** https://medcore-frontend-l1v3.vercel.app
+- **Web application:** https://medcore-frontend-7uhi.vercel.app/
 - **Backend API:** https://medcore-api.duckdns.org
 - **Backend source and setup:** https://github.com/vishnu11006271/medcore-backend
 - **Backend API reference:** `https://medcore-api.duckdns.org/api/docs` (available after the Swagger-enabled backend is deployed)
