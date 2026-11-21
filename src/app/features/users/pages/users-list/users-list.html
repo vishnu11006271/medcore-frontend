@@ -1,19 +1,8 @@
 <section class="users-page">
 
-  <div class="page-header">
-    <div>
-      <h1>Platform User Management</h1>
-      <p>View, search and manage users across the platform.</p>
-    </div>
-
-    <button
-      type="button"
-      class="secondary-button"
-      (click)="loadUsers(pagination().page)"
-      [disabled]="loading()">
-      Refresh
-    </button>
-  </div>
+  <app-page-header title="Platform User Management" description="View, search and manage users across the platform." marginBottom="24px">
+  <button type="button" class="secondary-button" (click)="loadUsers(pagination().page)" [disabled]="loading()">Refresh</button>
+</app-page-header>
 
   @if (successMessage()) {
     <div class="success-message" role="status">
