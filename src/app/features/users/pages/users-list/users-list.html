@@ -143,7 +143,11 @@
       />
     } @else if (users().length > 0) {
 
-      <div class="table-wrapper">
+      <div
+        class="table-wrapper"
+        role="region"
+        aria-label="Platform users table. Scroll horizontally to view all columns."
+        tabindex="0">
         <table>
           <thead>
             <tr>
