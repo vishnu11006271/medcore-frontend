@@ -53,7 +53,7 @@ export class DashboardComponent {
   readonly patientRecentAppointments = computed(() =>
     [...this.patientAppointments()]
       .sort((a, b) =>
-        new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
       .slice(0, 5)
   );
