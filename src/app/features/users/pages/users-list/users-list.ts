@@ -13,12 +13,13 @@ import { finalize } from 'rxjs';
 
 import { UserRole } from '../../../../core/models/auth.model';
 import { UsersService } from '../../../../core/services/users.service';
+import { DataStateComponent } from '../../../../shared/components/data-state/data-state';
 import { PlatformUser, UsersPagination } from '../../../../core/models/user-management.model';
 
 @Component({
   selector: 'app-users-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DataStateComponent],
   templateUrl: './users-list.html',
   styleUrl: './users-list.scss'
 })
