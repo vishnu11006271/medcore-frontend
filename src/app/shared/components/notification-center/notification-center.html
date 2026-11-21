@@ -6,7 +6,7 @@
     aria-haspopup="true"
     [attr.aria-expanded]="isOpen()"
     (click)="togglePanel()">
-    <span class="bell-icon" aria-hidden="true">♧</span>
+    <span class="bell-icon" aria-hidden="true">🔔</span>
     @if (unreadCount() > 0) {
       <span class="unread-badge" aria-label="{{ unreadCount() }} unread notifications">
         {{ unreadCount() > 99 ? '99+' : unreadCount() }}
@@ -37,7 +37,7 @@
         <p class="panel-state" role="status">Loading notifications…</p>
       } @else if (notifications().length === 0) {
         <div class="empty-state">
-          <span aria-hidden="true">♧</span>
+          <span aria-hidden="true">🔔</span>
           <strong>You're all caught up</strong>
           <p>New notifications will appear here.</p>
         </div>
