@@ -153,8 +153,10 @@
               <li>
                 @if (item.url && !$last) {
                   <a [routerLink]="item.url">{{ item.label }}</a>
-                } @else {
+                } @else if ($last) {
                   <span aria-current="page">{{ item.label }}</span>
+                } @else {
+                  <span>{{ item.label }}</span>
                 }
               </li>
             }
