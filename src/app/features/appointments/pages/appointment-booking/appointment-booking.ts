@@ -167,9 +167,11 @@ export class AppointmentBookingComponent implements OnInit {
     return localDate.toISOString().slice(0, 10);
   }
 
-  loadAvailableSlots(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+  loadAvailableSlots(preserveMessages = false): void {
+    if (!preserveMessages) {
+      this.errorMessage = '';
+      this.successMessage = '';
+    }
     this.availableSlots = [];
     this.selectedSlot = null;
 
@@ -259,7 +261,7 @@ export class AppointmentBookingComponent implements OnInit {
         this.reason = '';
 
         // Refresh availability so the newly booked slot is no longer offered.
-        this.loadAvailableSlots();
+        this.loadAvailableSlots(true);
       },
       error: error => {
         this.booking.set(false);
