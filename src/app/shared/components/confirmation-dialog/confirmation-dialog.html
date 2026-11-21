@@ -1,0 +1,37 @@
+<div class="confirmation-backdrop">
+  <section
+    class="confirmation-dialog"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="confirmation-title"
+    aria-describedby="confirmation-message"
+  >
+    <h2 id="confirmation-title">{{ title }}</h2>
+    <p id="confirmation-message">{{ message }}</p>
+
+    @if (description) {
+      <p class="confirmation-description">{{ description }}</p>
+    }
+
+    @if (errorMessage) {
+      <p class="confirmation-error" role="alert">{{ errorMessage }}</p>
+    }
+
+    <div class="confirmation-actions">
+      <button type="button" class="cancel-button" autofocus [disabled]="busy" (click)="cancel()">
+        {{ cancelText }}
+      </button>
+      <button
+        type="button"
+        class="confirm-button"
+        [class.primary]="confirmVariant === 'primary'"
+        [class.danger]="confirmVariant === 'danger'"
+        [class.success]="confirmVariant === 'success'"
+        [disabled]="busy"
+        (click)="confirm()"
+      >
+        {{ busy ? busyText : confirmText }}
+      </button>
+    </div>
+  </section>
+</div>

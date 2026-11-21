@@ -385,51 +385,17 @@
 
   <!-- Status Confirmation Dialog -->
   @if (pendingStatusDepartment(); as department) {
-
-    <div class="modal-backdrop">
-
-      <div class="confirmation-modal">
-
-        <h2>
-          {{ department.isActive ? 'Deactivate' : 'Activate' }} Department
-        </h2>
-
-        <p>
-          Are you sure you want to
-          {{ department.isActive ? 'deactivate' : 'activate' }}
-          <strong>{{ department.name }}</strong>?
-        </p>
-
-        <div class="form-actions">
-
-          <button
-            type="button"
-            class="btn btn-secondary"
-            (click)="cancelStatusChange()"
-            [disabled]="isSaving()">
-            Cancel
-          </button>
-
-          <button
-            type="button"
-            class="btn"
-            [class.btn-danger]="department.isActive"
-            [class.btn-success]="!department.isActive"
-            (click)="confirmStatusChange()"
-            [disabled]="isSaving()">
-
-            @if (isSaving()) {
-              Processing...
-            } @else {
-              Confirm
-            }
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
+    <app-confirmation-dialog
+      [title]="department.isActive ? 'Deactivate Department' : 'Activate Department'"
+      [message]="'Are you sure you want to ' + (department.isActive ? 'deactivate ' : 'activate ') + department.name + '?'"
+      [confirmText]="department.isActive ? 'Deactivate' : 'Activate'"
+      [confirmVariant]="department.isActive ? 'danger' : 'success'"
+      [busy]="isSaving()"
+      busyText="Processing..."
+      [errorMessage]="statusError()"
+      (confirmed)="confirmStatusChange()"
+      (cancelled)="cancelStatusChange()"
+    />
   }
 
 </div>

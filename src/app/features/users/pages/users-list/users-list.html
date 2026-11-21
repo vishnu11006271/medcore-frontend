@@ -262,60 +262,20 @@
 
   <!-- Activate / Deactivate confirmation -->
   @if (pendingUser(); as user) {
-    <div class="confirmation-backdrop">
-
-      <div
-        class="confirmation-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="status-title">
-
-        <h2 id="status-title">
-          {{ user.isActive ? 'Deactivate User' : 'Activate User' }}
-        </h2>
-
-        <p>
-          Are you sure you want to
-          {{ user.isActive ? 'deactivate' : 'activate' }}
-          <strong>{{ getFullName(user) }}</strong>?
-        </p>
-
-        <p class="warning-text">
-          {{ user.isActive
-            ? 'This user will no longer be able to access the platform.'
-            : 'This user will be able to access the platform again, subject to account verification.' }}
-        </p>
-
-        @if (statusError()) {
-          <div class="error-message" role="alert">
-            {{ statusError() }}
-          </div>
-        }
-
-        <div class="dialog-actions">
-
-          <button
-            type="button"
-            class="secondary-button"
-            [disabled]="updatingStatus()"
-            (click)="cancelStatusChange()">
-            Cancel
-          </button>
-
-          <button
-            type="button"
-            class="primary-button"
-            [disabled]="updatingStatus()"
-            (click)="confirmStatusChange()">
-            {{ updatingStatus()
-              ? 'Updating...'
-              : (user.isActive ? 'Confirm Deactivation' : 'Confirm Activation') }}
-          </button>
-
-        </div>
-
-      </div>
-    </div>
+    <app-confirmation-dialog
+      [title]="user.isActive ? 'Deactivate User' : 'Activate User'"
+      [message]="'Are you sure you want to ' + (user.isActive ? 'deactivate ' : 'activate ') + getFullName(user) + '?'"
+      [description]="user.isActive
+        ? 'This user will no longer be able to access the platform.'
+        : 'This user will be able to access the platform again, subject to account verification.'"
+      [confirmText]="user.isActive ? 'Confirm Deactivation' : 'Confirm Activation'"
+      [busy]="updatingStatus()"
+      busyText="Updating..."
+      [errorMessage]="statusError()"
+      [confirmVariant]="user.isActive ? 'danger' : 'success'"
+      (confirmed)="confirmStatusChange()"
+      (cancelled)="cancelStatusChange()"
+    />
   }
 
 </section>

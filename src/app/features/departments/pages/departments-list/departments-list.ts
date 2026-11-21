@@ -18,6 +18,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { HospitalService } from '../../../../core/services/hospital.service';
 import { DepartmentService } from '../../../../core/services/department.service';
 import { DataStateComponent } from '../../../../shared/components/data-state/data-state';
+import { ConfirmationDialogComponent } from '../../../../shared/components/confirmation-dialog/confirmation-dialog';
 
 import { Hospital } from '../../../../core/models/hospital.model';
 
@@ -35,7 +36,8 @@ type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    DataStateComponent
+    DataStateComponent,
+    ConfirmationDialogComponent
   ],
   templateUrl: './departments-list.html',
   styleUrl: './departments-list.scss'
@@ -79,6 +81,7 @@ export class DepartmentsListComponent implements OnInit {
 
   // Status confirmation
   readonly pendingStatusDepartment = signal<Department | null>(null);
+  readonly statusError = signal<string>('');
 
   readonly isSuperAdmin = computed(
     () => this.currentUser()?.role === 'SUPER_ADMIN'
@@ -386,11 +389,17 @@ export class DepartmentsListComponent implements OnInit {
   // Ask for confirmation before changing department status
   requestStatusChange(department: Department): void {
     this.pendingStatusDepartment.set(department);
+    this.statusError.set('');
     this.clearMessages();
   }
 
   cancelStatusChange(): void {
+    if (this.isSaving()) {
+      return;
+    }
+
     this.pendingStatusDepartment.set(null);
+    this.statusError.set('');
   }
 
   // Activate or deactivate department
@@ -405,6 +414,7 @@ export class DepartmentsListComponent implements OnInit {
     const newStatus = !department.isActive;
 
     this.isSaving.set(true);
+    this.statusError.set('');
     this.clearMessages();
 
     this.departmentService.updateDepartmentStatus(
@@ -427,12 +437,10 @@ export class DepartmentsListComponent implements OnInit {
           this.loadDepartments();
         },
         error: (error) => {
-          this.errorMessage.set(
+          this.statusError.set(
             error?.error?.error?.message ??
-            'Unable to update department status.'
+            'Unable to update department status. Please try again.'
           );
-
-          this.pendingStatusDepartment.set(null);
         }
       });
   }
