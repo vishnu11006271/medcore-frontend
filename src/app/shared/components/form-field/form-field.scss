@@ -1,0 +1,32 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label {
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.required-indicator {
+  color: #b42318;
+}
+
+.field-hint {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.field-error {
+  color: #b42318;
+  font-size: 12px;
+  line-height: 1.4;
+}

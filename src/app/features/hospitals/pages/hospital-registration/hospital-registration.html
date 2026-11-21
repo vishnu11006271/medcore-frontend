@@ -1,258 +1,185 @@
 <div class="registration-container">
-
   <div class="registration-card">
-
     <div class="header">
       <h2>Register Your Hospital</h2>
-
-      <p>
-        Submit your hospital details and create the initial
-        hospital administrator account.
-      </p>
+      <p>Submit your hospital details and create the initial hospital administrator account.</p>
     </div>
 
-    <form
-      [formGroup]="registrationForm"
-      (ngSubmit)="onSubmit()"
-    >
-
-      <!-- Hospital Information -->
-
+    <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" novalidate>
       <h3>Hospital Information</h3>
 
-      <div class="form-group">
-        <label for="hospitalName">Hospital Name *</label>
-
+      <app-form-field
+        class="form-group"
+        inputId="hospitalName"
+        label="Hospital Name"
+        [required]="true"
+        [error]="getFieldError(controls.hospitalName)">
         <input
           id="hospitalName"
           type="text"
           formControlName="hospitalName"
           placeholder="Enter hospital name"
           (blur)="generateSlug()"
+          [attr.aria-required]="true"
+            [attr.aria-invalid]="controls.hospitalName.touched && controls.hospitalName.invalid"
+            [attr.aria-describedby]="controls.hospitalName.touched && controls.hospitalName.invalid ? 'hospitalName-error' : null"
         />
+      </app-form-field>
 
-        <small
-          class="field-error"
-          *ngIf="controls.hospitalName.touched && controls.hospitalName.invalid"
-        >
-          Please enter a valid hospital name.
-        </small>
-      </div>
-
-      <div class="form-group">
-        <label for="slug">Hospital URL Slug *</label>
-
+      <app-form-field
+        class="form-group"
+        inputId="slug"
+        label="Hospital URL Slug"
+        [required]="true"
+        hint="Use lowercase letters, numbers and hyphens."
+        [error]="getFieldError(controls.slug)">
         <input
           id="slug"
           type="text"
           formControlName="slug"
           placeholder="example-city-hospital"
+          [attr.aria-required]="true"
+            [attr.aria-invalid]="controls.slug.touched && controls.slug.invalid"
+            [attr.aria-describedby]="controls.slug.touched && controls.slug.invalid ? 'slug-hint slug-error' : 'slug-hint'"
         />
+      </app-form-field>
 
-        <small class="hint">
-          Use lowercase letters, numbers and hyphens.
-        </small>
-
-        <small
-          class="field-error"
-          *ngIf="controls.slug.touched && controls.slug.invalid"
-        >
-          Enter a valid slug, for example: city-hospital.
-        </small>
-      </div>
-
-      <div class="form-group">
-        <label for="hospitalEmail">Hospital Email *</label>
-
+      <app-form-field
+        class="form-group"
+        inputId="hospitalEmail"
+        label="Hospital Email"
+        [required]="true"
+        [error]="getFieldError(controls.hospitalEmail)">
         <input
           id="hospitalEmail"
           type="email"
           formControlName="hospitalEmail"
           placeholder="contact@hospital.com"
+          [attr.aria-required]="true"
+            [attr.aria-invalid]="controls.hospitalEmail.touched && controls.hospitalEmail.invalid"
+            [attr.aria-describedby]="controls.hospitalEmail.touched && controls.hospitalEmail.invalid ? 'hospitalEmail-error' : null"
         />
+      </app-form-field>
 
-        <small
-          class="field-error"
-          *ngIf="controls.hospitalEmail.touched && controls.hospitalEmail.invalid"
-        >
-          Enter a valid hospital email.
-        </small>
-      </div>
+      <app-form-field class="form-group" inputId="registrationNumber" label="Registration Number">
+        <input id="registrationNumber" type="text" formControlName="registrationNumber" placeholder="Enter registration number" />
+      </app-form-field>
 
-      <div class="form-group">
-        <label for="registrationNumber">
-          Registration Number
-        </label>
+      <app-form-field class="form-group" inputId="hospitalPhone" label="Hospital Phone">
+        <input id="hospitalPhone" type="tel" formControlName="hospitalPhone" placeholder="Enter hospital phone" />
+      </app-form-field>
 
-        <input
-          id="registrationNumber"
-          type="text"
-          formControlName="registrationNumber"
-          placeholder="Enter registration number"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="hospitalPhone">Hospital Phone</label>
-
-        <input
-          id="hospitalPhone"
-          type="tel"
-          formControlName="hospitalPhone"
-          placeholder="Enter hospital phone"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="address">Hospital Address *</label>
-
+      <app-form-field
+        class="form-group"
+        inputId="address"
+        label="Hospital Address"
+        [required]="true"
+        [error]="getFieldError(controls.address)">
         <textarea
           id="address"
           rows="3"
           formControlName="address"
           placeholder="Enter complete hospital address"
-        ></textarea>
-
-        <small
-          class="field-error"
-          *ngIf="controls.address.touched && controls.address.invalid"
-        >
-          Hospital address is required.
-        </small>
-      </div>
+          [attr.aria-required]="true"
+            [attr.aria-invalid]="controls.address.touched && controls.address.invalid"
+            [attr.aria-describedby]="controls.address.touched && controls.address.invalid ? 'address-error' : null">
+        </textarea>
+      </app-form-field>
 
       <hr />
 
-      <!-- Administrator Information -->
-
       <h3>Initial Administrator Details</h3>
 
-      <div class="form-group">
-        <label for="adminFirstName">First Name *</label>
-
+      <app-form-field
+        class="form-group"
+        inputId="adminFirstName"
+        label="First Name"
+        [required]="true"
+        [error]="getFieldError(controls.adminFirstName)">
         <input
           id="adminFirstName"
           type="text"
           formControlName="adminFirstName"
           placeholder="Enter first name"
+          [attr.aria-required]="true"
+            [attr.aria-invalid]="controls.adminFirstName.touched && controls.adminFirstName.invalid"
+            [attr.aria-describedby]="controls.adminFirstName.touched && controls.adminFirstName.invalid ? 'adminFirstName-error' : null"
         />
+      </app-form-field>
 
-        <small
-          class="field-error"
-          *ngIf="controls.adminFirstName.touched && controls.adminFirstName.invalid"
-        >
-          First name is required.
-        </small>
-      </div>
-
-      <div class="form-group">
-        <label for="adminLastName">Last Name *</label>
-
+      <app-form-field
+        class="form-group"
+        inputId="adminLastName"
+        label="Last Name"
+        [required]="true"
+        [error]="getFieldError(controls.adminLastName)">
         <input
           id="adminLastName"
           type="text"
           formControlName="adminLastName"
           placeholder="Enter last name"
+          [attr.aria-required]="true"
+            [attr.aria-invalid]="controls.adminLastName.touched && controls.adminLastName.invalid"
+            [attr.aria-describedby]="controls.adminLastName.touched && controls.adminLastName.invalid ? 'adminLastName-error' : null"
         />
+      </app-form-field>
 
-        <small
-          class="field-error"
-          *ngIf="controls.adminLastName.touched && controls.adminLastName.invalid"
-        >
-          Last name is required.
-        </small>
-      </div>
-
-      <div class="form-group">
-        <label for="adminEmail">Administrator Email *</label>
-
+      <app-form-field
+        class="form-group"
+        inputId="adminEmail"
+        label="Administrator Email"
+        [required]="true"
+        [error]="getFieldError(controls.adminEmail)">
         <input
           id="adminEmail"
           type="email"
           formControlName="adminEmail"
           placeholder="admin@hospital.com"
+          [attr.aria-required]="true"
+            [attr.aria-invalid]="controls.adminEmail.touched && controls.adminEmail.invalid"
+            [attr.aria-describedby]="controls.adminEmail.touched && controls.adminEmail.invalid ? 'adminEmail-error' : null"
         />
+      </app-form-field>
 
-        <small
-          class="field-error"
-          *ngIf="controls.adminEmail.touched && controls.adminEmail.invalid"
-        >
-          Enter a valid administrator email.
-        </small>
-      </div>
+      <app-form-field class="form-group" inputId="adminPhone" label="Administrator Phone">
+        <input id="adminPhone" type="tel" formControlName="adminPhone" placeholder="Enter administrator phone" />
+      </app-form-field>
 
-      <div class="form-group">
-        <label for="adminPhone">Administrator Phone</label>
-
-        <input
-          id="adminPhone"
-          type="tel"
-          formControlName="adminPhone"
-          placeholder="Enter administrator phone"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password *</label>
-
+      <app-form-field
+        class="form-group"
+        inputId="password"
+        label="Password"
+        [required]="true"
+        hint="Password must contain between 12 and 128 characters."
+        [error]="getFieldError(controls.password)">
         <input
           id="password"
           type="password"
           formControlName="password"
           placeholder="Create a password"
           autocomplete="new-password"
+          [attr.aria-required]="true"
+            [attr.aria-invalid]="controls.password.touched && controls.password.invalid"
+            [attr.aria-describedby]="controls.password.touched && controls.password.invalid ? 'password-hint password-error' : 'password-hint'"
         />
+      </app-form-field>
 
-        <small class="hint">
-          Password must contain at least 12 characters.
-        </small>
-
-        <small
-          class="field-error"
-          *ngIf="controls.password.touched && controls.password.invalid"
-        >
-          Password must contain between 12 and 128 characters.
-        </small>
-      </div>
-
-      <!-- Messages -->
-
-      <div
-        class="error-message"
-        *ngIf="errorMessage"
-      >
+      <div class="error-message" *ngIf="errorMessage" role="alert">
         {{ errorMessage }}
       </div>
 
-      <div
-        class="success-message"
-        *ngIf="successMessage"
-      >
+      <div class="success-message" *ngIf="successMessage" role="status">
         {{ successMessage }}
       </div>
 
-      <!-- Submit -->
-
-      <button
-        type="submit"
-        [disabled]="isLoading"
-      >
+      <button type="submit" [disabled]="isLoading">
         {{ isLoading ? 'Submitting...' : 'Register Hospital' }}
       </button>
-
     </form>
 
     <div class="login-link">
       Already registered?
-
-      <button
-        type="button"
-        (click)="goToLogin()"
-      >
-        Login
-      </button>
+      <button type="button" (click)="goToLogin()">Login</button>
     </div>
-
   </div>
-
 </div>

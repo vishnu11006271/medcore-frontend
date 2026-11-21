@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { FormFieldComponent } from '../../../shared/components/form-field/form-field';
 
 @Component({
   selector: 'app-register-patient',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FormFieldComponent],
   templateUrl: './register-patient.html',
   styleUrl: './register-patient.scss'
 })
@@ -28,6 +29,30 @@ export class RegisterPatientComponent {
 
   get controls() {
     return this.registrationForm.controls;
+  }
+
+  getFieldError(control: AbstractControl): string {
+    if (!control.touched || !control.invalid) {
+      return '';
+    }
+
+    if (control.hasError('required')) {
+      return 'This field is required.';
+    }
+
+    if (control.hasError('email')) {
+      return 'Enter a valid email address.';
+    }
+
+    if (control.hasError('minlength')) {
+      return `Enter at least ${control.getError('minlength').requiredLength} characters.`;
+    }
+
+    if (control.hasError('maxlength')) {
+      return `Use no more than ${control.getError('maxlength').requiredLength} characters.`;
+    }
+
+    return 'Please check this value.';
   }
 
   onSubmit(): void {

@@ -1,6 +1,5 @@
 <div class="login-page">
   <div class="login-card">
-
     <div class="brand">
       <div class="brand-icon">M</div>
       <h1>Medcore HMS</h1>
@@ -12,37 +11,31 @@
       <p>Sign in to access your account</p>
     </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-
-      <div class="form-group">
-        <label for="email">Email address</label>
-
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+      <app-form-field
+        class="form-group"
+        inputId="email"
+        label="Email address"
+        [required]="true"
+        [error]="getFieldError(email)">
         <input
           id="email"
           type="email"
           formControlName="email"
           placeholder="Enter your email"
           autocomplete="username"
+          [attr.aria-required]="true"
+            [attr.aria-invalid]="email.touched && email.invalid"
+            [attr.aria-describedby]="email.touched && email.invalid ? 'email-error' : null"
         />
+      </app-form-field>
 
-        <small
-          class="field-error"
-          *ngIf="email.touched && email.hasError('required')"
-        >
-          Email is required.
-        </small>
-
-        <small
-          class="field-error"
-          *ngIf="email.touched && email.hasError('email')"
-        >
-          Please enter a valid email address.
-        </small>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password</label>
-
+      <app-form-field
+        class="form-group"
+        inputId="password"
+        label="Password"
+        [required]="true"
+        [error]="getFieldError(password)">
         <div class="password-wrapper">
           <input
             id="password"
@@ -50,61 +43,43 @@
             formControlName="password"
             placeholder="Enter your password"
             autocomplete="current-password"
+            [attr.aria-required]="true"
+            [attr.aria-invalid]="password.touched && password.invalid"
+            [attr.aria-describedby]="password.touched && password.invalid ? 'password-error' : null"
           />
-
           <button
             type="button"
             class="password-toggle"
             (click)="togglePassword()"
-          >
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
             {{ showPassword ? 'Hide' : 'Show' }}
           </button>
         </div>
+      </app-form-field>
 
-        <small
-          class="field-error"
-          *ngIf="password.touched && password.hasError('required')"
-        >
-          Password is required.
-        </small>
-      </div>
-
-      <div class="error-message" *ngIf="errorMessage">
+      <div class="error-message" *ngIf="errorMessage" role="alert">
         {{ errorMessage }}
       </div>
 
       <button
         type="submit"
         class="login-button"
-        [disabled]="isLoading"
-      >
+        [disabled]="isLoading">
         {{ isLoading ? 'Signing in...' : 'Sign in' }}
       </button>
-
     </form>
+
     <div class="register-section">
-
       <p>Don't have an account?</p>
-
       <div class="register-links">
-
-        <a routerLink="/register-hospital">
-          Register Hospital
-        </a>
-
+        <a routerLink="/register-hospital">Register Hospital</a>
         <span>|</span>
-
-        <a routerLink="/register-patient">
-          Register as Patient
-        </a>
-
+        <a routerLink="/register-patient">Register as Patient</a>
       </div>
-
     </div>
 
     <div class="login-footer">
       <p>Secure access to your healthcare platform</p>
     </div>
-
   </div>
 </div>
