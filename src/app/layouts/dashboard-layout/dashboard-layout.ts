@@ -60,8 +60,8 @@ export class DashboardLayoutComponent {
       .toUpperCase();
   });
 
-  // Only Dashboard is enabled for now.
-  // Other pages will be enabled as their modules are implemented.
+  // Role-specific navigation. Items without a route remain disabled
+  // until their corresponding feature is available.
   private readonly navigationByRole: Record<UserRole, NavigationItem[]> = {
     SUPER_ADMIN: [
       { label: 'Dashboard', icon: '▦', route: '/dashboard', enabled: true },
