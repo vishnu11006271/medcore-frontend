@@ -76,12 +76,8 @@
 
   <!-- Appointment table -->
   @else if (appointments().length > 0) {
-    <div
-        class="table-wrapper"
-        role="region"
-        aria-label="Appointments table. Scroll horizontally to view all columns."
-        tabindex="0">
-      <table>
+    <app-table-container ariaLabel="Appointments table. Scroll horizontally to view all columns." variant="bordered">
+      <table class="mobile-table">
         <thead>
           <tr>
             <th>Patient</th>
@@ -153,7 +149,8 @@
           }
         </tbody>
       </table>
-    </div>
+    
+      </app-table-container>
 
     <!-- Pagination -->
     <div class="pagination">
