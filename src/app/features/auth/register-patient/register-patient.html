@@ -17,7 +17,7 @@
             formControlName="firstName"
             autocomplete="given-name"
             [attr.aria-required]="true"
-          [attr.aria-invalid]="controls.firstName.touched && controls.firstName.invalid"
+            [attr.aria-invalid]="controls.firstName.touched && controls.firstName.invalid"
             [attr.aria-describedby]="controls.firstName.touched && controls.firstName.invalid ? 'firstName-error' : null"
           />
         </app-form-field>
@@ -33,7 +33,7 @@
             formControlName="lastName"
             autocomplete="family-name"
             [attr.aria-required]="true"
-          [attr.aria-invalid]="controls.lastName.touched && controls.lastName.invalid"
+            [attr.aria-invalid]="controls.lastName.touched && controls.lastName.invalid"
             [attr.aria-describedby]="controls.lastName.touched && controls.lastName.invalid ? 'lastName-error' : null"
           />
         </app-form-field>
@@ -50,8 +50,8 @@
           formControlName="email"
           autocomplete="email"
           [attr.aria-required]="true"
-          [attr.aria-invalid]="controls.email.touched && controls.email.invalid"
-          [attr.aria-describedby]="controls.email.touched && controls.email.invalid ? 'email-error' : null"
+            [attr.aria-invalid]="controls.email.touched && controls.email.invalid"
+            [attr.aria-describedby]="controls.email.touched && controls.email.invalid ? 'email-error' : null"
         />
       </app-form-field>
 
@@ -67,8 +67,8 @@
           formControlName="password"
           autocomplete="new-password"
           [attr.aria-required]="true"
-          [attr.aria-invalid]="controls.password.touched && controls.password.invalid"
-          [attr.aria-describedby]="controls.password.touched && controls.password.invalid ? 'password-error password-hint' : 'password-hint'"
+            [attr.aria-invalid]="controls.password.touched && controls.password.invalid"
+            [attr.aria-describedby]="controls.password.touched && controls.password.invalid ? 'password-error password-hint' : 'password-hint'"
         />
       </app-form-field>
 
