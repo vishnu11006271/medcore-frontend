@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 import { ConfirmationDialogComponent } from './confirmation-dialog';
 
 describe('ConfirmationDialogComponent', () => {
