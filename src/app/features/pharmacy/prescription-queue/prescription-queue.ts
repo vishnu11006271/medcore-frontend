@@ -32,6 +32,7 @@ export class PrescriptionQueueComponent implements OnInit {
   }
 
   loadActivePrescriptions(): void {
+    if (this.isLoading()) return;
     this.isLoading.set(true);
     this.errorMessage.set('');
 
@@ -39,19 +40,14 @@ export class PrescriptionQueueComponent implements OnInit {
       .pipe(
         finalize(() => {
           this.isLoading.set(false);
-          console.log('Loading completed:', this.isLoading());
         })
       )
       .subscribe({
         next: (response) => {
-          console.log('Active prescriptions:', response);
-
           this.prescriptions.set(response?.data ?? []);
         },
 
         error: (error) => {
-          console.error('Error loading prescriptions:', error);
-
           this.errorMessage.set(
             error?.error?.error?.message ||
             error?.error?.message ||
@@ -147,8 +143,6 @@ export class PrescriptionQueueComponent implements OnInit {
           this.loadActivePrescriptions();
         },
         error: error => {
-          console.error('Dispensing failed:', error);
-
           this.errorMessage.set(
             error?.error?.error?.message ||
             error?.error?.message ||
