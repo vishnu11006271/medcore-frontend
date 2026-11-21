@@ -175,8 +175,8 @@
 
     </header>
 
-    <section class="content-area">
-      <router-outlet />
+    <section #contentArea class="content-area" tabindex="0">
+      <router-outlet (activate)="scrollContentToTop()" />
     </section>
 
     <footer class="footer">
