@@ -6,7 +6,7 @@ import {
   inject,
   signal
 } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
@@ -58,6 +58,8 @@ export class CreateInvoiceComponent implements OnInit {
   }
 
   loadData(): void {
+    if (this.loadingAppointments() || this.loadingInvoices()) return;
+
     this.loadingAppointments.set(true);
     this.loadingInvoices.set(true);
     this.invoiceCheckFailed.set(false);
