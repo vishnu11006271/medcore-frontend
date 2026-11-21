@@ -58,7 +58,11 @@
 
     @if (patients().length > 0) {
 
-      <div class="table-container">
+      <div
+        class="table-container"
+        role="region"
+        aria-label="Patients table. Scroll horizontally to view all columns."
+        tabindex="0">
         <table>
           <thead>
             <tr>
