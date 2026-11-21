@@ -69,7 +69,7 @@
         <button
           type="submit"
           class="btn-primary"
-          [disabled]="invoiceForm.invalid || submitting() || loadingAppointments() || loadingInvoices() || !availableAppointments().length">
+          [disabled]="invoiceForm.invalid || submitting() || loadingAppointments() || loadingInvoices() || invoiceCheckFailed() || !availableAppointments().length">
           {{ submitting() ? 'Creating...' : 'Create Invoice' }}
         </button>
       </div>
