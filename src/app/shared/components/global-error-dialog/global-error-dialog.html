@@ -1,0 +1,26 @@
+@if (errorService.currentError(); as error) {
+  <div class="error-dialog-backdrop">
+    <section
+      class="error-dialog"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="global-error-title"
+      aria-describedby="global-error-message"
+    >
+      <div class="error-icon" aria-hidden="true">!</div>
+
+      <div class="error-content">
+        <h2 id="global-error-title">{{ error.title }}</h2>
+        <p id="global-error-message">{{ error.message }}</p>
+
+        @if (error.code) {
+          <small class="error-code">Reference: {{ error.code }}</small>
+        }
+      </div>
+
+      <div class="error-actions">
+        <button type="button" autofocus (click)="dismiss()">OK</button>
+      </div>
+    </section>
+  </div>
+}
