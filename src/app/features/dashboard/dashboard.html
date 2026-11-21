@@ -75,18 +75,20 @@
           </div>
 
           <div class="status-legend">
-            @for (item of doctorStatusDonut().segments; track item.status) {
-              @if (item.count > 0) {
-                <div class="legend-item">
-                  <span class="legend-label">
-                    <span class="legend-dot" [style.background]="item.color"></span>
-                    {{ item.label }}
-                  </span>
-                  <strong>{{ item.count }}</strong>
-                  <small>{{ item.percentage | number:'1.0-1' }}%</small>
-                </div>
+            @if (doctorStatusDonut().total > 0) {
+              @for (item of doctorStatusDonut().segments; track item.status) {
+                @if (item.count > 0) {
+                  <div class="legend-item">
+                    <span class="legend-label">
+                      <span class="legend-dot" [style.background]="item.color"></span>
+                      {{ item.label }}
+                    </span>
+                    <strong>{{ item.count }}</strong>
+                    <small>{{ item.percentage | number:'1.0-1' }}%</small>
+                  </div>
+                }
               }
-            } @empty {
+            } @else {
               <p class="chart-empty">No appointment data available.</p>
             }
           </div>
