@@ -51,6 +51,70 @@
       }
     </div>
 
+    <section class="doctor-analytics-grid" aria-label="Appointment analytics">
+      <article class="panel doctor-analytics-panel">
+        <div class="panel-heading">
+          <div>
+            <h3>Appointment Status</h3>
+            <p>Distribution across your appointments.</p>
+          </div>
+          <span class="panel-tag">{{ doctorStatusDonut().total }} total</span>
+        </div>
+
+        <div class="doctor-status-analytics">
+          <div
+            class="status-donut"
+            role="img"
+            [attr.aria-label]="'Appointment status distribution: ' + doctorStatusDonut().total + ' total appointments'"
+            [style.background]="doctorStatusDonut().background"
+          >
+            <div class="donut-center">
+              <strong>{{ doctorStatusDonut().total }}</strong>
+              <span>Total</span>
+            </div>
+          </div>
+
+          <div class="status-legend">
+            @for (item of doctorStatusDonut().segments; track item.status) {
+              @if (item.count > 0) {
+                <div class="legend-item">
+                  <span class="legend-label">
+                    <span class="legend-dot" [style.background]="item.color"></span>
+                    {{ item.label }}
+                  </span>
+                  <strong>{{ item.count }}</strong>
+                  <small>{{ item.percentage | number:'1.0-1' }}%</small>
+                </div>
+              }
+            } @empty {
+              <p class="chart-empty">No appointment data available.</p>
+            }
+          </div>
+        </div>
+      </article>
+
+      <article class="panel doctor-analytics-panel">
+        <div class="panel-heading">
+          <div>
+            <h3>Next 7 Days</h3>
+            <p>Appointments scheduled by day.</p>
+          </div>
+        </div>
+
+        <div class="weekly-chart" role="img" aria-label="Appointments scheduled over the next seven days">
+          @for (day of nextSevenDaysTrend(); track day.key) {
+            <div class="weekly-chart-column" [attr.title]="day.dateLabel + ': ' + day.count + ' appointments'">
+              <strong>{{ day.count }}</strong>
+              <div class="weekly-chart-track">
+                <span [style.height.%]="day.height"></span>
+              </div>
+              <span class="weekly-chart-day">{{ day.label }}</span>
+            </div>
+          }
+        </div>
+      </article>
+    </section>
+
     <div class="panel doctor-schedule">
       <div class="panel-heading">
         <div>
