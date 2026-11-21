@@ -1,19 +1,9 @@
 <section class="hospitals-page">
 
   <!-- Page header -->
-  <div class="page-header">
-    <div>
-      <h1>Hospital Management</h1>
-      <p>Register, manage and verify hospitals on the platform.</p>
-    </div>
-
-    <button
-      type="button"
-      class="primary-button"
-      (click)="openCreateForm()">
-      + Add Hospital
-    </button>
-  </div>
+  <app-page-header title="Hospital Management" description="Register, manage and verify hospitals on the platform." marginBottom="0">
+  <button type="button" class="primary-button" (click)="openCreateForm()">+ Add Hospital</button>
+</app-page-header>
 
   <!-- Success message -->
   @if (successMessage()) {
