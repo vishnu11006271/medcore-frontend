@@ -1,3 +1,5 @@
+import { PageHeaderComponent } from '../../../../../shared/components/page-header/page-header';
+import { TableContainerComponent } from '../../../../../shared/components/table-container/table-container';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -10,7 +12,7 @@ import { Patient } from '../../../../../core/models/patient.model';
 @Component({
   selector: 'app-patient-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [PageHeaderComponent, TableContainerComponent,CommonModule, FormsModule, RouterLink],
   templateUrl: './patient-list.html',
   styleUrl: './patient-list.scss'
 })
