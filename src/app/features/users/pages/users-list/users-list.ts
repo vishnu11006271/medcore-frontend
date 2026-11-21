@@ -9,8 +9,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 
-
-
 import { UserRole } from '../../../../core/models/auth.model';
 import { UsersService } from '../../../../core/services/users.service';
 import { DataStateComponent } from '../../../../shared/components/data-state/data-state';
@@ -29,7 +27,6 @@ export class UsersList implements OnInit {
   private readonly usersService = inject(UsersService);
 
   readonly users = signal<PlatformUser[]>([]);
-
   readonly loading = signal(false);
   readonly updatingStatus = signal(false);
 
@@ -38,6 +35,8 @@ export class UsersList implements OnInit {
 
   readonly pendingUser = signal<PlatformUser | null>(null);
   readonly statusError = signal<string | null>(null);
+
+  readonly pageSizeOptions = [10, 25, 50] as const;
 
   readonly pagination = signal<UsersPagination>({
     total: 0,
@@ -91,13 +90,10 @@ export class UsersList implements OnInit {
       page,
       limit: this.pagination().limit
     })
-      .pipe(
-        finalize(() => this.loading.set(false))
-      )
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: response => {
           this.users.set(response.data.users);
-
           this.pagination.set({
             total: response.data.pagination.total,
             page: response.data.pagination.page,
@@ -106,7 +102,6 @@ export class UsersList implements OnInit {
             hasNextPage: response.data.pagination.hasNextPage,
             hasPreviousPage: response.data.pagination.hasPreviousPage
           });
-
           this.successMessage.set(null);
         },
         error: error => {
@@ -130,13 +125,24 @@ export class UsersList implements OnInit {
       isActive: '',
       emailVerified: ''
     });
+    this.loadUsers(1);
+  }
 
+  changePageSize(value: number): void {
+    if (!this.pageSizeOptions.some(option => option === value) || this.loading()) {
+      return;
+    }
+
+    this.pagination.update(current => ({
+      ...current,
+      page: 1,
+      limit: value
+    }));
     this.loadUsers(1);
   }
 
   goToPreviousPage(): void {
     const current = this.pagination();
-
     if (current.hasPreviousPage && !this.loading()) {
       this.loadUsers(current.page - 1);
     }
@@ -144,7 +150,6 @@ export class UsersList implements OnInit {
 
   goToNextPage(): void {
     const current = this.pagination();
-
     if (current.hasNextPage && !this.loading()) {
       this.loadUsers(current.page + 1);
     }
@@ -159,14 +164,12 @@ export class UsersList implements OnInit {
     if (this.updatingStatus()) {
       return;
     }
-
     this.pendingUser.set(null);
     this.statusError.set(null);
   }
 
   confirmStatusChange(): void {
     const user = this.pendingUser();
-
     if (!user || this.updatingStatus()) {
       return;
     }
@@ -174,13 +177,8 @@ export class UsersList implements OnInit {
     this.updatingStatus.set(true);
     this.statusError.set(null);
 
-    this.usersService.updateUserStatus(
-      user.id,
-      !user.isActive
-    )
-      .pipe(
-        finalize(() => this.updatingStatus.set(false))
-      )
+    this.usersService.updateUserStatus(user.id, !user.isActive)
+      .pipe(finalize(() => this.updatingStatus.set(false)))
       .subscribe({
         next: response => {
           this.users.update(items =>
@@ -190,7 +188,6 @@ export class UsersList implements OnInit {
                 : item
             )
           );
-
           this.successMessage.set(response.message);
           this.pendingUser.set(null);
         },
