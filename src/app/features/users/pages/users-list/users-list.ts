@@ -1,3 +1,5 @@
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header';
+import { TableContainerComponent } from '../../../../shared/components/table-container/table-container';
 import {
   Component,
   inject,
@@ -20,7 +22,7 @@ import { PlatformUser, UsersPagination } from '../../../../core/models/user-mana
 @Component({
   selector: 'app-users-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DataStateComponent, ConfirmationDialogComponent],
+  imports: [PageHeaderComponent, TableContainerComponent,CommonModule, ReactiveFormsModule, DataStateComponent, ConfirmationDialogComponent],
   templateUrl: './users-list.html',
   styleUrl: './users-list.scss'
 })
